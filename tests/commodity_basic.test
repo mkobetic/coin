@@ -1,0 +1,15 @@
+commodity CAD
+  note Canadian Dollar
+  format 1.00 CAD
+  symbol CAD
+  nomarket
+
+commodity USD
+  note US Dollar
+  format 1.00 USD
+  symbol USD
+
+test commodities
+       CAD | Canadian Dollar
+       USD | US Dollar
+end test

@@ -1,0 +1,11 @@
+commodity CAD
+
+account Expenses:Food
+  check commodity == CAD
+
+test accounts
+Expenses      | CAD        | 
+Expenses:Food | CAD        | 
+Root          | CAD        | 
+Unbalanced    | CAD        | 
+end test

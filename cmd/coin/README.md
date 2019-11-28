@@ -1,0 +1,1 @@
+This is the main coin command with subcommands modeled after ledger CLI.

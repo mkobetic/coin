@@ -1,0 +1,33 @@
+commodity CAD
+  format 1.00 CAD
+
+account Assets:Bank
+
+account Income:Salary
+
+account Expenses:Food
+
+account Expenses:Rent
+
+2000/01/01 ACME
+  Assets:Bank 1000 CAD
+  Income:Salary
+
+2000/01/02 Loeb
+  Expenses:Food 20 CAD
+  Assets:Bank
+
+2000/01/03 
+  Expenses:Rent 500 CAD
+  Assets:Bank
+
+test balance
+           0.00            0.00 CAD        Root [0]
+           0.00          480.00 CAD        Assets [0]
+         480.00          480.00 CAD        Assets:Bank [3]
+           0.00          520.00 CAD        Expenses [0]
+          20.00           20.00 CAD        Expenses:Food [1]
+         500.00          500.00 CAD        Expenses:Rent [1]
+           0.00        -1000.00 CAD        Income [0]
+       -1000.00        -1000.00 CAD        Income:Salary [1]
+end test
