@@ -40,6 +40,12 @@ var (
 	Root           *Account
 	Unbalanced     *Account
 	AccountsByName = map[string]*Account{}
+
+	// Build Parameters
+	Built     string // time built in UTC
+	Commit    string // source commit SHA
+	Branch    string // source branch
+	GoVersion string // Go version used to build
 )
 
 func DefaultCommodity() *Commodity {

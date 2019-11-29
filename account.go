@@ -186,11 +186,11 @@ func (a *Account) adopt(c *Account) {
 		fmt.Printf("%#v\n", c)
 		panic(fmt.Errorf("%s is child of %s", a.FullName, c.FullName))
 	}
-	a.WithChildrenDo(func(d *Account){
+	a.WithChildrenDo(func(d *Account) {
 		isChild = isChild || (d == c)
 	})
 	if isChild {
-		fmt.Println("%#v\n", c)
+		fmt.Printf("%#v\n", c)
 		panic(fmt.Errorf("%s is already a child of %s", c.FullName, a.FullName))
 	}
 	c.Parent = a
