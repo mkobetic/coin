@@ -19,24 +19,16 @@ commodity USD
   format 1.00 USD
 
 account Assets:Bank:Checking
-
 account Assets:Bank:Savings
-
 account Expenses:Groceries
-
 account Expenses:Auto
-
 account Expenses:Auto:Gas
-
 account Expenses:Miscellaneous
-
 account Income:Salary
-
 account Income:Interest
-
 account Liabilities:Credit:MC
 `)
-	coin.Load(r)
+	coin.Load(r, "")
 	coin.ResolveAccounts()
 }
 

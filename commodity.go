@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type Commodity struct {
@@ -23,6 +24,9 @@ type Commodity struct {
 
 	// Id quoted if required by ledger
 	quotedId string
+
+	line uint
+	file string
 }
 
 func (c *Commodity) AddPrice(p *Price) {
@@ -85,6 +89,10 @@ func (c *Commodity) String() string {
 		strings.Join(prices, ", "))
 }
 
+func (c *Commodity) Location() string {
+	return fmt.Sprintf("%s:%d", c.file, c.line)
+}
+
 /*
 commodity USD
    note American Dollars
@@ -117,21 +125,22 @@ func (c *Commodity) Write(w io.Writer, ledger bool) error {
 
 var CommodityRE = `([A-Za-z][\w]*)`
 var commodityHead = regexp.MustCompile(`commodity\s+` + CommodityRE)
-var commodityBody = regexp.MustCompile(
+var commodityBody = regexp.MustCompile(`` +
 	`(\s+(note)\s+(.+))|` +
-		`(\s+(format)\s+` + AmountRE + `)|` +
-		`(\s+(nomarket)\s*)|` +
-		`(\s+(symbol)\s+([\w\.]+))`)
+	`(\s+(format)\s+` + AmountRE + `)|` +
+	`(\s+(nomarket)\s*)|` +
+	`(\s+(symbol)\s+([\w\.]+))`)
 
-func (p *Parser) parseCommodity() (*Commodity, error) {
-	c := &Commodity{Decimals: 2}
+func (p *Parser) parseCommodity(fn string) (*Commodity, error) {
+	c := &Commodity{Decimals: 2, line: p.lineNr, file: fn}
 	matches := commodityHead.FindSubmatch(p.Bytes())
 	c.Id = string(matches[1])
 	for p.Scan() {
-		if len(bytes.TrimSpace(p.Bytes())) == 0 {
+		line := p.Bytes()
+		if len(bytes.TrimSpace(line)) == 0 || !unicode.IsSpace(rune(line[0])) {
 			return c, nil
 		}
-		matches = commodityBody.FindSubmatch(p.Bytes())
+		matches = commodityBody.FindSubmatch(line)
 		if matches == nil {
 			return c, fmt.Errorf("Unrecognized commodity line: %s", p.Text())
 		}

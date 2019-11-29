@@ -19,7 +19,7 @@ P 1988/07/28 TDB162 9.58 CAD
 P 1988/08/30 TDB162 9.45 CAD
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	pr, ok := i.(*Price)
 	assert.Equal(t, ok, true)
@@ -28,7 +28,7 @@ P 1988/08/30 TDB162 9.45 CAD
 	assert.Equal(t, pr.Time.Format(DateFormat), "1988/06/29")
 	assert.Equal(t, fmt.Sprintf("%a", pr.Value), "9.69")
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	pr, ok = i.(*Price)
 	assert.Equal(t, ok, true)
@@ -37,7 +37,7 @@ P 1988/08/30 TDB162 9.45 CAD
 	assert.Equal(t, pr.Time.Format(DateFormat), "1988/07/28")
 	assert.Equal(t, fmt.Sprintf("%a", pr.Value), "9.58")
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	pr, ok = i.(*Price)
 	assert.Equal(t, ok, true)

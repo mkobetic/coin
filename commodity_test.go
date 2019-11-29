@@ -18,7 +18,7 @@ commodity BND
   format 1 BND
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	c, ok := i.(*Commodity)
 	assert.Equal(t, ok, true)
@@ -26,7 +26,7 @@ commodity BND
 	assert.Equal(t, c.Name, "Altamira Precision Canadian Index Fund")
 	assert.Equal(t, c.Decimals, 4)
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	c, ok = i.(*Commodity)
 	assert.Equal(t, ok, true)

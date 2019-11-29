@@ -34,7 +34,7 @@ test-fixtures:
 	find tests -name '*.test' -exec coin test '{}' \;
 
 fmt:
-	gofmt -s -l -w ./...
+	gofmt -s -l -w .
 
 lint:
 	golangci-lint run ./...

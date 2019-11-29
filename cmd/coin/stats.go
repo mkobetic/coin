@@ -29,7 +29,10 @@ func stats(f io.Writer) {
 			}
 			for _, t2 := range day {
 				if t.IsEqual(t2) {
-					fmt.Fprintf(os.Stderr, "DUPLICATE TRANSACTION?\n%s\n%s\n", t2, t)
+					fmt.Fprintf(os.Stderr,
+						"DUPLICATE TRANSACTION?\n%s\n%s\n%s\n%s\n",
+						t2.Location(), t2,
+						t.Location(), t)
 				}
 			}
 		}

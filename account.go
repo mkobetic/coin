@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/mkobetic/coin/check/warn"
 )
@@ -27,6 +28,9 @@ type Account struct {
 
 	balance           *Amount
 	cumulativeBalance *Amount
+
+	line uint
+	file string
 
 	OFXBankId string
 	OFXAcctId string
@@ -66,11 +70,11 @@ func (a *Account) Write(w io.Writer, ledger bool) error {
 
 var AccountRE = `([A-Za-z][\w:/_\-]*\w)`
 var accountHead = regexp.MustCompile(`account\s+` + AccountRE)
-var accountBody = regexp.MustCompile(
+var accountBody = regexp.MustCompile(`` +
 	`(\s+(note)\s+(\S.+))|` +
-		`(\s+(check)\s+(\S.+))|` +
-		`(\s+(ofx_bankid)\s+(\d+))|` +
-		`(\s+(ofx_acctid)\s+(\d+))`)
+	`(\s+(check)\s+(\S.+))|` +
+	`(\s+(ofx_bankid)\s+(\d+))|` +
+	`(\s+(ofx_acctid)\s+(\d+))`)
 var checkCommodity = regexp.MustCompile(`commodity\s+==\s+` + CommodityRE)
 
 func accountFromName(name string) *Account {
@@ -87,14 +91,17 @@ func accountFromName(name string) *Account {
 	}
 }
 
-func (p *Parser) parseAccount() (*Account, error) {
+func (p *Parser) parseAccount(fn string) (*Account, error) {
 	matches := accountHead.FindSubmatch(p.Bytes())
 	a := accountFromName(string(matches[1]))
+	a.line = p.lineNr
+	a.file = fn
 	for p.Scan() {
-		if len(bytes.TrimSpace(p.Bytes())) == 0 {
+		line := p.Bytes()
+		if len(bytes.TrimSpace(line)) == 0 || !unicode.IsSpace(rune(line[0])) {
 			return a, nil
 		}
-		matches = accountBody.FindSubmatch(p.Bytes())
+		matches = accountBody.FindSubmatch(line)
 		if matches == nil {
 			return a, fmt.Errorf("Unrecognized account line: %s", p.Text())
 		}
@@ -125,6 +132,10 @@ func (a *Account) String() string {
 		a.Commodity.Id,
 		a.FullName,
 		len(a.Postings))
+}
+
+func (a *Account) Location() string {
+	return fmt.Sprintf("%s:%d", a.file, a.line)
 }
 
 func (a *Account) Balance() *Amount {

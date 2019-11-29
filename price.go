@@ -16,6 +16,8 @@ type Price struct {
 
 	CommodityId string
 	currencyId  string
+	line        uint
+	file        string
 }
 
 var Prices []*Price
@@ -36,23 +38,28 @@ func (p *Price) Write(w io.Writer, ledger bool) error {
 
 var priceRE = regexp.MustCompile(`P ` + DateRE + `\s+` + CommodityRE + `\s+` + AmountRE)
 
-func (p *Parser) parsePrice() (*Price, error) {
+func (p *Parser) parsePrice(fn string) (*Price, error) {
 	match := priceRE.FindSubmatch(p.Bytes())
 	if match == nil {
 		return nil, fmt.Errorf("Invalid price line")
 	}
 	date := mustParseDate(match[1])
 	currencyId := string(match[5])
-	c := MustFindCommodity(currencyId)
+	line := p.lineNr
+	location := fmt.Sprintf("%s:%d", fn, line)
+	c := MustFindCommodity(currencyId, location)
 	amt, err := parseAmount(match[3], c)
 	if err != nil {
 		return nil, err
 	}
+	p.Scan() // advance to next line before returning
 	return &Price{
 		Time:        date,
 		Value:       amt,
 		CommodityId: string(match[2]),
 		currencyId:  currencyId,
+		line:        line,
+		file:        fn,
 	}, nil
 }
 
@@ -60,4 +67,8 @@ func (p *Price) String() string {
 	var b strings.Builder
 	p.Write(&b, false)
 	return b.String()
+}
+
+func (p *Price) Location() string {
+	return fmt.Sprintf("%s:%d", p.file, p.line)
 }

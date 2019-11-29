@@ -18,6 +18,8 @@ type Transaction struct {
 	Posted time.Time
 
 	currencyId string
+	line       uint
+	file       string
 }
 
 var Transactions []*Transaction
@@ -65,11 +67,11 @@ func (t *Transaction) Write(w io.Writer, ledger bool) error {
 }
 
 var transactionRE = regexp.MustCompile(DateRE + `(\s+\((\w+)\))?(\s+(\S[^;]*))?(; ?(.*))?`)
-var postingRE = regexp.MustCompile(
+var postingRE = regexp.MustCompile(`` +
 	`\s+` + AccountRE + `(\s+` + AmountRE + `(\s+=\s+` + AmountRE + `)?)?|` +
-		`\s+; ?(.*)`)
+	`\s+; ?(.*)`)
 
-func (p *Parser) parseTransaction() (*Transaction, error) {
+func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 	match := transactionRE.FindSubmatch(p.Bytes())
 	if match == nil {
 		return nil, fmt.Errorf("Invalid transaction line: %s", p.Text())
@@ -79,6 +81,8 @@ func (p *Parser) parseTransaction() (*Transaction, error) {
 		Code:        string(match[3]),
 		Description: string(bytes.TrimRight(match[5], " \t")),
 		Note:        string(bytes.TrimLeft(match[7], " \t")),
+		line:        p.lineNr,
+		file:        fn,
 	}
 	var notes []string
 	var s *Posting
@@ -94,7 +98,7 @@ func (p *Parser) parseTransaction() (*Transaction, error) {
 		var quantity *Amount
 		var err error
 		if len(match[3]) > 0 {
-			c := MustFindCommodity(string(match[5]))
+			c := MustFindCommodity(string(match[5]), t.Location())
 			quantity, err = parseAmount(match[3], c)
 			if err != nil {
 				return nil, err
@@ -114,7 +118,7 @@ func (p *Parser) parseTransaction() (*Transaction, error) {
 			Quantity:    quantity,
 		}
 		if balance := match[7]; len(balance) > 0 {
-			c := MustFindCommodity(string(match[9]))
+			c := MustFindCommodity(string(match[9]), t.Location())
 			s.Balance, err = parseAmount(balance, c)
 			if err != nil {
 				return nil, err
@@ -132,6 +136,10 @@ func (t *Transaction) String() string {
 	var b strings.Builder
 	t.Write(&b, false)
 	return b.String()
+}
+
+func (t *Transaction) Location() string {
+	return fmt.Sprintf("%s:%d", t.file, t.line)
 }
 
 func (t *Transaction) Post(

@@ -23,21 +23,21 @@ func Test_ParseTransaction(t *testing.T) {
   Assets:Bank:Checking  -125.66 CAD
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	tr, ok := i.(*Transaction)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "COSTCO WHOLESALE")
 	assert.Equal(t, len(tr.Postings), 2)
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	tr, ok = i.(*Transaction)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "")
 	assert.Equal(t, len(tr.Postings), 2)
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	tr, ok = i.(*Transaction)
 	assert.Equal(t, ok, true)
@@ -68,7 +68,7 @@ func Test_ParseTransactionNotes(t *testing.T) {
     ;note
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	tr, ok := i.(*Transaction)
 	assert.Equal(t, ok, true)
@@ -77,7 +77,7 @@ func Test_ParseTransactionNotes(t *testing.T) {
 	assert.Equal(t, len(tr.Postings), 2)
 	assert.Equal(t, tr.Postings[0].Note, "single-line split note")
 
-	i, err = p.Next()
+	i, err = p.Next("")
 	assert.NoError(t, err)
 	tr, ok = i.(*Transaction)
 	assert.Equal(t, ok, true)
@@ -94,7 +94,7 @@ func Test_ParseTransactionCode(t *testing.T) {
   BB -10.00 CAD
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	tr, ok := i.(*Transaction)
 	assert.Equal(t, ok, true)
@@ -111,7 +111,7 @@ func Test_ParseTransactionBalance(t *testing.T) {
   BB -10.00 CAD = 50.00 CAD
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	tr, ok := i.(*Transaction)
 	assert.Equal(t, ok, true)

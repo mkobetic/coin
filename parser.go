@@ -10,36 +10,48 @@ import (
 
 type Parser struct {
 	*bufio.Scanner
+	finished bool
+	lineNr   uint
 }
 
 type Item interface {
 }
 
 func NewParser(r io.Reader) *Parser {
-	return &Parser{
-		Scanner: bufio.NewScanner(r),
-	}
+	p := &Parser{Scanner: bufio.NewScanner(r)}
+	p.Scan()
+	return p
 }
 
-func (p *Parser) Next() (Item, error) {
-	if !p.Scan() {
+func (p *Parser) Scan() bool {
+	p.finished = !p.Scanner.Scan()
+	if !p.finished {
+		p.lineNr++
+	}
+	return !p.finished
+}
+
+func (p *Parser) Next(fn string) (Item, error) {
+	if p.finished {
 		return nil, p.Err()
 	}
 	switch line := p.Bytes(); {
 	case len(bytes.TrimSpace(line)) == 0:
-		return p.Next()
+		p.Scan()
+		return p.Next(fn)
 	case bytes.ContainsAny(line[:1], ";#%|*"):
-		return p.Next()
+		p.Scan()
+		return p.Next(fn)
 	case bytes.HasPrefix(line, []byte("account")):
-		return p.parseAccount()
+		return p.parseAccount(fn)
 	case bytes.HasPrefix(line, []byte("commodity ")):
-		return p.parseCommodity()
+		return p.parseCommodity(fn)
 	case bytes.HasPrefix(line, []byte("test ")):
-		return p.parseTest()
+		return p.parseTest(fn)
 	case bytes.HasPrefix(line, []byte("P ")):
-		return p.parsePrice()
+		return p.parsePrice(fn)
 	case '0' <= line[0] && line[0] <= '9':
-		return p.parseTransaction()
+		return p.parseTransaction(fn)
 	default:
 		return nil, fmt.Errorf("Unrecognized item: %s", line)
 	}

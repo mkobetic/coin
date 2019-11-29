@@ -30,7 +30,7 @@ account Assets:Investments:IVL:US
 	ofx_acctid 500766075509175102
 `)
 	p := NewParser(r)
-	i, err := p.Next()
+	i, err := p.Next("")
 	assert.NoError(t, err)
 	a, ok := i.(*Account)
 	assert.Equal(t, ok, true)

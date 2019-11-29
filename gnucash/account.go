@@ -96,7 +96,7 @@ func resolveAccounts(accounts []*Account) {
 			coin.Root = a
 		}
 		if gca.CommodityId != "" {
-			a.Commodity = coin.MustFindCommodity(gca.CommodityId)
+			a.Commodity = coin.MustFindCommodity(gca.CommodityId, "gnucash account")
 		} else {
 			a.Commodity = coin.DefaultCommodity()
 		}

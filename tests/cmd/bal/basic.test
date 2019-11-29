@@ -2,11 +2,8 @@ commodity CAD
   format 1.00 CAD
 
 account Assets:Bank
-
 account Income:Salary
-
 account Expenses:Food
-
 account Expenses:Rent
 
 2000/01/01 ACME

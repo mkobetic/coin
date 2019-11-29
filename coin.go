@@ -49,14 +49,14 @@ var (
 )
 
 func DefaultCommodity() *Commodity {
-	return MustFindCommodity(DefaultCommodityId)
+	return MustFindCommodity(DefaultCommodityId, "default commodity")
 }
 
-func MustFindCommodity(id string) *Commodity {
+func MustFindCommodity(id string, location string) *Commodity {
 	if c := Commodities[id]; c != nil {
 		return c
 	}
-	panic(fmt.Errorf("Can't find commodity %s", id))
+	panic(fmt.Errorf("Can't find commodity %s\n\t%s\n", id, location))
 }
 
 func LoadPrices() {
@@ -91,13 +91,13 @@ func LoadFile(filename string) {
 	file, err := os.Open(filename)
 	check.NoError(err, "Failed to open %s", filename)
 	defer file.Close()
-	Load(file)
+	Load(file, filename)
 }
 
-func Load(r io.Reader) {
+func Load(r io.Reader, fn string) {
 	p := NewParser(r)
 	for {
-		i, err := p.Next()
+		i, err := p.Next(fn)
 		check.NoError(err, "Parsing error")
 		if i == nil {
 			return
@@ -132,8 +132,8 @@ func ResolveAll() {
 
 func ResolvePrices() {
 	for _, p := range Prices {
-		p.Commodity = MustFindCommodity(p.CommodityId)
-		p.Currency = MustFindCommodity(p.currencyId)
+		p.Commodity = MustFindCommodity(p.CommodityId, p.Location())
+		p.Currency = MustFindCommodity(p.currencyId, p.Location())
 		p.Commodity.AddPrice(p)
 	}
 	// Sort commodity prices.
@@ -191,7 +191,7 @@ LOOP:
 	// sort children, link commodities
 	for _, a := range AccountsByName {
 		if a.CommodityId != "" {
-			a.Commodity = MustFindCommodity(a.CommodityId)
+			a.Commodity = MustFindCommodity(a.CommodityId, a.Location())
 		} else {
 			a.Commodity = DefaultCommodity()
 		}
