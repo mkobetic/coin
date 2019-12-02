@@ -52,11 +52,12 @@ func (p *Parser) parsePrice(fn string) (*Price, error) {
 	if err != nil {
 		return nil, err
 	}
+	commodityId := string(match[2])
 	p.Scan() // advance to next line before returning
 	return &Price{
 		Time:        date,
 		Value:       amt,
-		CommodityId: string(match[2]),
+		CommodityId: commodityId,
 		currencyId:  currencyId,
 		line:        line,
 		file:        fn,

@@ -16,6 +16,7 @@ Instead of editing the file directly in place, following process can be easier
 * delete `new` and `2019` and commit the changes
 
 ## Ledger Differences
+(besides vastly reduced set of commands/options and capabilities)
 
 * no prefix commodities (i.e. $10)
 * stricter naming restrictions for commodities (no whitespace, etc) => no need to quote
