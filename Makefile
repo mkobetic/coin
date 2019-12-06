@@ -9,18 +9,19 @@ LDFLAGS += -X "github.com/mkobetic/coin.Commit=$(COMMIT)"
 LDFLAGS += -X "github.com/mkobetic/coin.Branch=$(BRANCH)"
 LDFLAGS += -X "github.com/mkobetic/coin.GoVersion=$(GO_VERSION)"
 
-BUILD := go install 
+BUILD := CGO_ENABLED=0 go install
+TEST := CGO_ENABLED=0 go test
 
 build: coin gc2coin ofx2coin
 
 coin: *.go cmd/coin/*.go
-	go install -ldflags '$(LDFLAGS)' ./cmd/coin
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin
 
 gc2coin: *.go cmd/gc2coin/*.go
-	go install -ldflags '$(LDFLAGS)' ./cmd/gc2coin
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/gc2coin
 
 ofx2coin: *.go cmd/ofx2coin/*.go
-	go install -ldflags '$(LDFLAGS)' ./cmd/ofx2coin
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/ofx2coin
 
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/
@@ -28,7 +29,7 @@ dfa: dfa.bash
 test: test-go test-fixtures
 
 test-go:
-	go test ./...
+	$(TEST) ./...
 
 test-fixtures:
 	find tests -name '*.test' -exec coin test '{}' \;
@@ -40,10 +41,10 @@ lint:
 	golangci-lint run ./...
 
 cover:
-	go test -cover ./...
+	$(TEST) -cover ./...
 
 browse-coverage:
-	go test -coverprofile=/tmp/coverage.out ./...
+	$(TEST) -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
 .PHONY: test test-fixtures test-go fmt lint cover browse-coverage
