@@ -35,6 +35,7 @@ func stats(f io.Writer) {
 						t.Location(), t)
 				}
 			}
+			day = append(day, t)
 		}
 		return
 	}

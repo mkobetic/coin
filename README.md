@@ -15,6 +15,7 @@ Instead of editing the file directly in place, following process can be easier
 * move `new.coin` to `new` and check stats again `coin stats`
 * delete `new` and `2019` and commit the changes
 
+
 ## Ledger Differences
 (besides vastly reduced set of commands/options and capabilities)
 
@@ -24,13 +25,21 @@ Instead of editing the file directly in place, following process can be easier
 * commodity symbol directive
 * account check commodity == directive
 * multi-file structure (*.coin, *.prices files) => COINDB directory
+* all entities (accounts, prices, transactions,...) remember their position in the file (`Location()`) to aid tooling to provide quick access to them.
 * no account inference => accounts.coin
 * no commodity inference => commodities.coin
 * account selection expressions
+
+### coin
 * commodities quotes command (yahoo)
-* gc2coin: gnucash import (XML v2 database only)
-* ofx2coin: ofx/qfx import
+
+### gc2coin
+* gnucash import (XML v2 database only)
+
+### ofx2coin
+* ofx/qfx import
 * ofx.rules file
+
 
 ## TODO
 
@@ -44,21 +53,15 @@ Instead of editing the file directly in place, following process can be easier
 * shortened full account names, drop letters from the left down to first on leftmost elements
 * backfill prices from transactions
 * account/commodity renames?
-
-#### VSCode integration
-
-* vscode snippets for updates?
-* links to transactions from editor problem reports?
 * language server?
-
 
 ### Implementation
 
 * clean up parsing, i.e. ditch the hobo parser and use PEG or something
 * consider allowing multiple commodities in an account
-* track transaction position in files
 
 
 ## Implementation Notes
 
 * Amount is implemented as big.Int plus number of decimal places. Consequently computations are truncated to the specified number of decimal places at every step.
+* Amount includes the Commodity
