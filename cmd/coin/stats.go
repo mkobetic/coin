@@ -8,11 +8,15 @@ import (
 	"github.com/mkobetic/coin"
 )
 
-var dupes bool
+var (
+	dupes      bool
+	unbalanced bool
+)
 
 func init() {
 	cmdStats := newCommand(coin.LoadAll, stats, "stats", "s")
 	cmdStats.BoolVar(&dupes, "d", false, "check for duplicate transactions")
+	cmdStats.BoolVar(&unbalanced, "u", false, "check for unbalanced transactions")
 }
 
 func stats(f io.Writer) {
@@ -36,6 +40,20 @@ func stats(f io.Writer) {
 				}
 			}
 			day = append(day, t)
+		}
+		return
+	}
+
+	if unbalanced {
+		for _, t := range coin.Transactions {
+			for _, p := range t.Postings {
+				if p.Account == coin.Unbalanced {
+					fmt.Fprintf(os.Stderr,
+						"UNBALANCED TRANSACTION!\n%s\n%s\n",
+						t.Location(),
+						t)
+				}
+			}
 		}
 		return
 	}

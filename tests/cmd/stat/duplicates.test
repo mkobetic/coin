@@ -1,0 +1,20 @@
+commodity CAD
+
+account Assets:Checking
+account Assets:Savings
+account Income:Salary
+
+2000/01/01 ACME
+  Assets:Savings 1000 CAD
+  Income:Salary -1000 CAD
+
+2000/01/02 Transfer
+  Assets:Checking 100 CAD
+  Assets:Savings -100 CAD
+
+2000/01/02 Whatever
+  Assets:Checking 100 CAD = 200 CAD
+  Assets:Savings -100 CAD
+
+test stats -d
+end test

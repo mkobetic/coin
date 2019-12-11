@@ -8,18 +8,32 @@ Converts OFX/QFX files into coin transactions
 * if match is not found the target account is set to `Unbalanced` and needs to be corrected manually
 * outputs all transactions sorted by date
 
-## Importing Steps
 
-1. `export COINDB=~/coindb`
-2. `ofx2coin *.qfx >new.coin`
-2. edit `new.coin`
+## Sugested Import Procedure
+
+* assuming we're working in the directory where the coin files are located
+    `cd $COINDB`
+* create a coin file from the ofx files
+    `ofx2coin *.qfx >new.coin`
+* clean up `new.coin`
+    * delete duplicate transactions
+        `coin stats -d`
+    * use `coin stats` to verify final balances and fix what's wrong
+    * replace all `Unbalanced` references with existing accounts
+        `coin stats -u`
     * fix classification errors (update `$COINDB/ofx.rules` as necessary)
-    * delete duplicate transactions for transfers between imported accounts
-    (should be sorted close to each other assuming their dates are close)
     * add transaction comments (e.g. what was bought for larger items)
-3. `coin format new.coin >clean.coin`
-4. append `clean.coin` to the current transactions file
-   `cat clean.coin >>$COINDB/<YYYY>.coin`
+* move the target file to drop the coin extension, e.g.
+    `mv 2019.coin 2019`
+* append `new.coin` to it
+    `cat new.coin >>2019`
+* run the combined file through `coin format`
+    `coin fmt 2019 >2019.coin`
+* check the diffs in the target file, e.g.
+    `git diff 2019.coin`
+* move `new.coin` to `new` and check stats again `coin stats`
+* delete `new` and `2019` and commit the changes
+
 
 ## Notes
 
