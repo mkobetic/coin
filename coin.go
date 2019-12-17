@@ -33,9 +33,7 @@ var (
 	PricesFile       = filepath.Join(DB, PricesFilename)
 	TransactionsFile = filepath.Join(DB, TransactionsFilename)
 
-	// Commodities by Id
-	Commodities = map[string]*Commodity{}
-	Tests       []*Test
+	Tests []*Test
 
 	Root           *Account
 	Unbalanced     *Account
@@ -105,6 +103,9 @@ func Load(r io.Reader, fn string) {
 		switch i := i.(type) {
 		case *Commodity:
 			Commodities[i.Id] = i
+			if i.Symbol != "" {
+				CommoditiesBySymbol[i.Symbol] = i
+			}
 		case *Account:
 			if i.FullName == "" {
 				panic(fmt.Errorf("INVALID %#v", i))

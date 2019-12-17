@@ -12,7 +12,7 @@ LDFLAGS += -X "github.com/mkobetic/coin.GoVersion=$(GO_VERSION)"
 BUILD := CGO_ENABLED=0 go install
 TEST := CGO_ENABLED=0 go test
 
-build: coin gc2coin ofx2coin
+build: coin gc2coin ofx2coin csv2coin
 
 coin: *.go cmd/coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin
@@ -22,6 +22,10 @@ gc2coin: *.go cmd/gc2coin/*.go
 
 ofx2coin: *.go cmd/ofx2coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/ofx2coin
+
+csv2coin: *.go cmd/csv2coin/*.go
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/csv2coin
+
 
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/

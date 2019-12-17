@@ -148,9 +148,20 @@ func (t *Transaction) Post(
 	amount *Amount,
 	balance *Amount,
 ) {
-	sFrom := &Posting{Account: from, Quantity: amount, Balance: balance}
-	sTo := &Posting{Account: to, Quantity: amount.Negated()}
-	if amount.Sign() < 0 {
+	t.PostConversion(from, amount, balance, to, amount.Negated(), nil)
+}
+
+func (t *Transaction) PostConversion(
+	from *Account,
+	fromAmount *Amount,
+	fromBalance *Amount,
+	to *Account,
+	toAmount *Amount,
+	toBalance *Amount,
+) {
+	sFrom := &Posting{Account: from, Quantity: fromAmount, Balance: fromBalance}
+	sTo := &Posting{Account: to, Quantity: toAmount, Balance: toBalance}
+	if fromAmount.Sign() < 0 {
 		t.Postings = append(t.Postings, sTo, sFrom)
 	} else {
 		t.Postings = append(t.Postings, sFrom, sTo)

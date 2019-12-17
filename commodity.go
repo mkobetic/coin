@@ -11,6 +11,12 @@ import (
 	"unicode"
 )
 
+var (
+	// Commodities by Id
+	Commodities         = map[string]*Commodity{}
+	CommoditiesBySymbol = map[string]*Commodity{}
+)
+
 type Commodity struct {
 	Id       string
 	Name     string

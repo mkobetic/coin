@@ -34,6 +34,8 @@ type Account struct {
 
 	OFXBankId string
 	OFXAcctId string
+
+	CSVAcctId string
 }
 
 /*
@@ -58,6 +60,9 @@ func (a *Account) Write(w io.Writer, ledger bool) error {
 	if a.OFXAcctId != "" && !ledger {
 		lines = append(lines, `  ofx_acctid `, a.OFXAcctId, "\n")
 	}
+	if a.CSVAcctId != "" && !ledger {
+		lines = append(lines, `  csv_acctid `, a.CSVAcctId, "\n")
+	}
 	for _, line := range lines {
 		_, err := io.WriteString(w, line)
 		if err != nil {
@@ -74,7 +79,8 @@ var accountBody = regexp.MustCompile(`` +
 	`(\s+(note)\s+(\S.+))|` +
 	`(\s+(check)\s+(\S.+))|` +
 	`(\s+(ofx_bankid)\s+(\d+))|` +
-	`(\s+(ofx_acctid)\s+(\d+))`)
+	`(\s+(ofx_acctid)\s+(\d+))|` +
+	`(\s+(csv_acctid)\s+(\w+))`)
 var checkCommodity = regexp.MustCompile(`commodity\s+==\s+` + CommodityRE)
 
 func accountFromName(name string) *Account {
@@ -116,6 +122,8 @@ func (p *Parser) parseAccount(fn string) (*Account, error) {
 			a.OFXBankId = string(matches[9])
 		case bytes.Equal(matches[11], []byte("ofx_acctid")):
 			a.OFXAcctId = string(matches[12])
+		case bytes.Equal(matches[14], []byte("csv_acctid")):
+			a.CSVAcctId = string(matches[15])
 		}
 	}
 	return a, p.Err()

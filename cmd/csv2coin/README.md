@@ -1,0 +1,1 @@
+Converts CSV files to coin transactions.
