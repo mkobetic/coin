@@ -92,11 +92,11 @@ func readTransactions(r *csv.Reader, columns []int) (transactions []*coin.Transa
 	return transactions, nil
 }
 
-var labels = []string{"account_id", "description", "posted", "amount", "symbol", "quantity"}
+var labels = []string{"account_id", "description", "posted", "amount", "symbol", "quantity", "note"}
 
 // transactionFrom builds a transaction from a csv row.
 // columns list field indexes in the following order:
-// account_id, description, posted, amount, symbol, quantity
+// account_id, description, posted, amount, symbol, quantity, note
 func transactionFrom(row []string, columns []int) *coin.Transaction {
 	account, found := accountsByCSVId[row[columns[0]]]
 	check.OK(found, "Can't find account with id %s", row[columns[0]])
@@ -107,6 +107,10 @@ func transactionFrom(row []string, columns []int) *coin.Transaction {
 	t := &coin.Transaction{
 		Description: description,
 		Posted:      posted,
+	}
+
+	if columns[6] >= 0 {
+		t.Note = row[columns[6]]
 	}
 	var amount *coin.Amount
 	if amt := row[columns[3]]; amt != "" {
