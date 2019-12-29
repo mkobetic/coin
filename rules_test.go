@@ -1,12 +1,9 @@
-package main
+package coin
 
 import (
-	"math/big"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/assert"
 )
 
@@ -28,8 +25,8 @@ account Income:Salary
 account Income:Interest
 account Liabilities:Credit:MC
 `)
-	coin.Load(r, "")
-	coin.ResolveAccounts()
+	Load(r, "")
+	ResolveAccounts()
 }
 
 var sample = `
@@ -61,7 +58,6 @@ func Test_Classification(t *testing.T) {
 	r := strings.NewReader(sample)
 	rules, err := ReadRules(r)
 	assert.NoError(t, err)
-	date, _ := time.Parse("06/01/02", "18/10/20")
 	for _, fix := range []struct {
 		from  string
 		payee string
@@ -70,9 +66,9 @@ func Test_Classification(t *testing.T) {
 		{"479347938749398", "[TR] COSTCO WHOLESALE #9239", "Expenses:Groceries"},
 		{"479347938749398", "JOE'S DINER", "Expenses:Miscellaneous"},
 	} {
-		tran := rules.Accounts[fix.from].Transaction(date, fix.payee, *big.NewRat(-10000, 100), nil)
-		if account := tran.Postings[0].Account.FullName; account != fix.to {
-			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account)
+		account := rules.AccountRulesFor(fix.from).AccountFor(fix.payee)
+		if account.FullName != fix.to {
+			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account.FullName)
 		}
 	}
 }

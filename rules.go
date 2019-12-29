@@ -1,21 +1,18 @@
-package main
+package coin
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
 	"io"
-	"math/big"
 	"regexp"
 	"sort"
-	"time"
 
-	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/check"
 )
 
 type Rules interface {
-	AccountFor(payee string) *coin.Account
+	AccountFor(payee string) *Account
 	Name() string
 	Write(w io.Writer, max int) error
 }
@@ -26,13 +23,13 @@ type RuleIndex struct {
 	SetsByName map[string]*RuleSet
 }
 
-func (rs *RuleIndex) AccountRulesFor(ofxId string) *AccountRules {
-	ars := rs.Accounts[ofxId]
+func (rs *RuleIndex) AccountRulesFor(acctId string) *AccountRules {
+	ars := rs.Accounts[acctId]
 	if ars != nil {
 		return ars
 	}
-	account := coin.FindAccountOfxId(ofxId)
-	check.If(account != nil, "could not find account for OFX ID %s", ofxId)
+	account := FindAccountOfxId(acctId)
+	check.If(account != nil, "could not find account for Acct ID %s", acctId)
 	return &AccountRules{Account: account}
 }
 
@@ -70,35 +67,6 @@ func (rs *RuleIndex) Write(w io.Writer) error {
 	return nil
 }
 
-// Rules to apply when importing transaction for given account
-type AccountRules struct {
-	Account *coin.Account
-	Rules   []Rules
-}
-
-func (ars *AccountRules) Transaction(date time.Time, payee string, amount big.Rat, balance *big.Rat) *coin.Transaction {
-	from := ars.Account
-	var to *coin.Account
-	for _, r := range ars.Rules {
-		if to = r.AccountFor(payee); to != nil {
-			break
-		}
-	}
-	if to == nil {
-		to = coin.Unbalanced
-	}
-	amt := coin.NewAmountFrac(amount.Num(), amount.Denom(), ars.Account.Commodity)
-	var bal *coin.Amount
-	if balance != nil {
-		bal = coin.NewAmountFrac(balance.Num(), balance.Denom(), ars.Account.Commodity)
-	}
-	t := &coin.Transaction{
-		Posted:      date,
-		Description: payee}
-	t.Post(from, to, amt, bal)
-	return t
-}
-
 func writeRules(rules []Rules, w io.Writer) error {
 	var max int
 	for _, r := range rules {
@@ -109,6 +77,22 @@ func writeRules(rules []Rules, w io.Writer) error {
 	for _, r := range rules {
 		if err := r.Write(w, max); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// Rules to apply when importing transaction for given account
+type AccountRules struct {
+	Account *Account
+	Rules   []Rules
+}
+
+func (ars *AccountRules) AccountFor(payee string) *Account {
+	for _, r := range ars.Rules {
+		acc := r.AccountFor(payee)
+		if acc != nil {
+			return acc
 		}
 	}
 	return nil
@@ -128,7 +112,7 @@ func (rs *RuleSet) Write(w io.Writer, max int) error {
 	return err
 }
 
-func (rs *RuleSet) AccountFor(payee string) *coin.Account {
+func (rs *RuleSet) AccountFor(payee string) *Account {
 	for _, r := range rs.Rules {
 		acc := r.AccountFor(payee)
 		if acc != nil {
@@ -141,7 +125,7 @@ func (rs *RuleSet) AccountFor(payee string) *coin.Account {
 // If this rule matches the transaction description,
 // use Account as the other side of the transaction
 type Rule struct {
-	Account *coin.Account
+	Account *Account
 	*regexp.Regexp
 }
 
@@ -154,7 +138,7 @@ func (r *Rule) Write(w io.Writer, max int) error {
 	return err
 }
 
-func (r *Rule) AccountFor(payee string) *coin.Account {
+func (r *Rule) AccountFor(payee string) *Account {
 	if r.MatchString(payee) {
 		return r.Account
 	}
@@ -162,7 +146,7 @@ func (r *Rule) AccountFor(payee string) *coin.Account {
 }
 
 var patternRE = `([\w:$^\\-]+)`
-var headerRE = regexp.MustCompile(`^(\d+)\s+` + patternRE + `|^(\w+)`)
+var headerRE = regexp.MustCompile(`^(\w+)\s+` + patternRE + `|^(\w+)`)
 var bodyRE = regexp.MustCompile(`^\s+` + patternRE + `(\s+(\S.*\S))?|^\s+@(\w+)`)
 
 func ReadRules(r io.Reader) (*RuleIndex, error) {
@@ -180,7 +164,7 @@ func ReadRules(r io.Reader) (*RuleIndex, error) {
 		if match != nil {
 			var setRules func(rules []Rules)
 			if len(match[1]) > 0 {
-				ar := &AccountRules{Account: coin.MustFindAccount(string(match[2]))}
+				ar := &AccountRules{Account: MustFindAccount(string(match[2]))}
 				ri.Accounts[string(match[1])] = ar
 				setRules = func(rules []Rules) { ar.Rules = rules }
 			} else {
@@ -202,7 +186,7 @@ func ReadRules(r io.Reader) (*RuleIndex, error) {
 				}
 				if len(match[1]) > 0 {
 					r := &Rule{
-						Account: coin.MustFindAccount(string(match[1])),
+						Account: MustFindAccount(string(match[1])),
 						Regexp:  regexp.MustCompile(string(match[3]))}
 					rules = append(rules, r)
 				} else {

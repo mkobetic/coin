@@ -2,16 +2,61 @@ package main
 
 import (
 	"io"
+	"math/big"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/assert"
 )
+
+func init() {
+	r := strings.NewReader(`
+commodity CAD
+  format 1.00 CAD
+
+commodity USD
+  format 1.00 USD
+
+account Assets:Bank:Checking
+account Assets:Bank:Savings
+account Expenses:Groceries
+account Expenses:Auto
+account Expenses:Auto:Gas
+account Expenses:Miscellaneous
+account Income:Salary
+account Income:Interest
+account Liabilities:Credit:MC
+`)
+	coin.Load(r, "")
+	coin.ResolveAccounts()
+}
+
+func Test_Classification(t *testing.T) {
+	r := strings.NewReader(sample)
+	rules, err := coin.ReadRules(r)
+	assert.NoError(t, err)
+	date, _ := time.Parse("06/01/02", "18/10/20")
+	for _, fix := range []struct {
+		from  string
+		payee string
+		to    string
+	}{
+		{"479347938749398", "[TR] COSTCO WHOLESALE #9239", "Expenses:Groceries"},
+		{"479347938749398", "JOE'S DINER", "Expenses:Miscellaneous"},
+	} {
+		tran := newTransaction(rules.Accounts[fix.from], date, fix.payee, *big.NewRat(-10000, 100), nil)
+		if account := tran.Postings[0].Account.FullName; account != fix.to {
+			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account)
+		}
+	}
+}
 
 func Test_ReadTransactions(t *testing.T) {
 	var r io.Reader
 	r = strings.NewReader(sample)
-	rules, err := ReadRules(r)
+	rules, err := coin.ReadRules(r)
 	assert.NoError(t, err)
 
 	r = strings.NewReader(txsSample)
@@ -65,6 +110,21 @@ func Test_ReadTransactions(t *testing.T) {
 		assert.Equal(t, txs[i].String(), tx)
 	}
 }
+
+var sample = `
+common
+  Expenses:Groceries       FRESHCO|COSTCO WHOLESALE|FARM BOY|LOBLAWS
+  Expenses:Auto:Gas        COSTCO GAS|PETROCAN|SHELL
+389249328477983 Assets:Bank:Savings
+  Income:Interest     Interest
+392843029797099 Assets:Bank:Checking
+    @common
+	Income:Salary       ACME PAY 
+479347938749398 Liabilities:Credit:MC
+  Expenses:Auto            HUYNDAI|TOYOTA
+  @common
+  Expenses:Miscellaneous   
+`
 
 var txsSample = `
 OFXHEADER:100

@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -17,7 +18,9 @@ import (
 )
 
 var (
-	fields = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
+	fields      = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
+	dumpAcctIDs = flag.Bool("ids", false, "dump accounts with known csv ids")
+	dumpRules   = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
 
 	accountsByCSVId = map[string]*coin.Account{}
 )
@@ -34,6 +37,30 @@ func main() {
 			accountsByCSVId[a.CSVAcctId] = a
 		}
 	})
+
+	if *dumpAcctIDs {
+		coin.AccountsDo(func(a *coin.Account) {
+			if a.CSVAcctId != "" {
+				fmt.Printf("%s %s\n", a.CSVAcctId, a.FullName)
+			}
+		})
+		return
+	}
+
+	var rules *coin.RuleIndex
+	fn := filepath.Join(coin.DB, "csv.rules")
+	if _, err := os.Stat(fn); !os.IsNotExist(err) {
+		file, err := os.Open(fn)
+		check.NoError(err, "Failed to open %s", fn)
+		defer file.Close()
+		rules, err = coin.ReadRules(file)
+		check.NoError(err, "Failed to parse %s", fn)
+	}
+
+	if *dumpRules {
+		rules.Write(os.Stdout)
+		return
+	}
 
 	var transactions []*coin.Transaction
 	for _, fileName := range flag.Args() {
@@ -62,7 +89,7 @@ func main() {
 				fmt.Fprintf(os.Stderr, "%s\n", h)
 			}
 		}
-		batch, err := readTransactions(r, columns)
+		batch, err := readTransactions(r, columns, rules)
 		check.NoError(err, "Cannot parse file %s", fileName)
 		transactions = append(transactions, batch...)
 	}
@@ -78,7 +105,7 @@ func main() {
 	}
 }
 
-func readTransactions(r *csv.Reader, columns []int) (transactions []*coin.Transaction, err error) {
+func readTransactions(r *csv.Reader, columns []int, rules *coin.RuleIndex) (transactions []*coin.Transaction, err error) {
 	for {
 		rec, err := r.Read()
 		if err == io.EOF {
@@ -87,7 +114,7 @@ func readTransactions(r *csv.Reader, columns []int) (transactions []*coin.Transa
 		if err != nil {
 			return nil, err
 		}
-		transactions = append(transactions, transactionFrom(rec, columns))
+		transactions = append(transactions, transactionFrom(rec, columns, rules))
 	}
 	return transactions, nil
 }
@@ -97,10 +124,16 @@ var labels = []string{"account_id", "description", "posted", "amount", "symbol",
 // transactionFrom builds a transaction from a csv row.
 // columns list field indexes in the following order:
 // account_id, description, posted, amount, symbol, quantity, note
-func transactionFrom(row []string, columns []int) *coin.Transaction {
-	account, found := accountsByCSVId[row[columns[0]]]
-	check.OK(found, "Can't find account with id %s", row[columns[0]])
+func transactionFrom(row []string, columns []int, rules *coin.RuleIndex) *coin.Transaction {
+	acctId := row[columns[0]]
 	description := row[columns[1]]
+	account, found := accountsByCSVId[acctId]
+	check.OK(found, "Can't find account with id %s", acctId)
+	toAccount := rules.AccountRulesFor(acctId).AccountFor(description)
+	if toAccount == nil {
+		toAccount = coin.Unbalanced
+	}
+
 	posted, err := time.Parse(coin.DateFormat, row[columns[2]])
 	check.NoError(err, "Parsing date %s", row[columns[2]])
 
@@ -125,7 +158,7 @@ func transactionFrom(row []string, columns []int) *coin.Transaction {
 		if amount == nil {
 			panic("wat? " + row[columns[3]])
 		}
-		t.Post(account, coin.Unbalanced, amount, nil)
+		t.Post(account, toAccount, amount, nil)
 		return t
 	}
 	commodity, found := coin.CommoditiesBySymbol[symbol]
@@ -141,11 +174,11 @@ func transactionFrom(row []string, columns []int) *coin.Transaction {
 	}
 
 	if amount == nil {
-		t.Post(account, coin.Unbalanced, quantity, nil)
+		t.Post(account, toAccount, quantity, nil)
 		return t
 	}
 
-	t.PostConversion(account, amount, nil, coin.Unbalanced, quantity, nil)
+	t.PostConversion(account, amount, nil, toAccount, quantity, nil)
 	return t
 }
 

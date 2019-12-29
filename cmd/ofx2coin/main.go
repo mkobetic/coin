@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/aclindsa/ofxgo"
 	"github.com/mkobetic/coin"
@@ -40,13 +41,13 @@ func main() {
 		return
 	}
 
-	var rules *RuleIndex
+	var rules *coin.RuleIndex
 	fn := filepath.Join(coin.DB, "ofx.rules")
 	if _, err := os.Stat(fn); !os.IsNotExist(err) {
 		file, err := os.Open(fn)
 		check.NoError(err, "Failed to open %s", fn)
 		defer file.Close()
-		rules, err = ReadRules(file)
+		rules, err = coin.ReadRules(file)
 		check.NoError(err, "Failed to parse %s", fn)
 	}
 
@@ -80,7 +81,7 @@ func main() {
 	}
 }
 
-func readTransactions(r io.Reader, rules *RuleIndex) (transactions []*coin.Transaction, err error) {
+func readTransactions(r io.Reader, rules *coin.RuleIndex) (transactions []*coin.Transaction, err error) {
 	responses, err := ofxgo.ParseResponse(r)
 	if err != nil {
 		return nil, err
@@ -97,7 +98,7 @@ func readTransactions(r io.Reader, rules *RuleIndex) (transactions []*coin.Trans
 				balance = &(resp.BalAmt.Rat)
 			}
 			transactions = append(transactions,
-				rules.Transaction(
+				newTransaction(rules,
 					t.DtPosted.Time,
 					t.Name.String(),
 					t.TrnAmt.Rat,
@@ -111,7 +112,7 @@ func readTransactions(r io.Reader, rules *RuleIndex) (transactions []*coin.Trans
 		rules := rules.AccountRulesFor(resp.CCAcctFrom.AcctID.String())
 		for _, t := range resp.BankTranList.Transactions {
 			transactions = append(transactions,
-				rules.Transaction(
+				newTransaction(rules,
 					t.DtPosted.Time,
 					t.Name.String(),
 					t.TrnAmt.Rat,
@@ -121,4 +122,22 @@ func readTransactions(r io.Reader, rules *RuleIndex) (transactions []*coin.Trans
 	}
 
 	return transactions, nil
+}
+
+func newTransaction(ars *coin.AccountRules, date time.Time, payee string, amount big.Rat, balance *big.Rat) *coin.Transaction {
+	from := ars.Account
+	to := ars.AccountFor(payee)
+	if to == nil {
+		to = coin.Unbalanced
+	}
+	amt := coin.NewAmountFrac(amount.Num(), amount.Denom(), ars.Account.Commodity)
+	var bal *coin.Amount
+	if balance != nil {
+		bal = coin.NewAmountFrac(balance.Num(), balance.Denom(), ars.Account.Commodity)
+	}
+	t := &coin.Transaction{
+		Posted:      date,
+		Description: payee}
+	t.Post(from, to, amt, bal)
+	return t
 }
