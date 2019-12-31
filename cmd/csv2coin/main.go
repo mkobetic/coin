@@ -19,6 +19,7 @@ import (
 
 var (
 	fields      = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
+	source      = flag.String("source", "", "which source rules to use to read the files")
 	dumpAcctIDs = flag.Bool("ids", false, "dump accounts with known csv ids")
 	dumpRules   = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
 
@@ -47,19 +48,30 @@ func main() {
 		return
 	}
 
-	var rules *coin.RuleIndex
+	var rules *Rules
 	fn := filepath.Join(coin.DB, "csv.rules")
 	if _, err := os.Stat(fn); !os.IsNotExist(err) {
 		file, err := os.Open(fn)
 		check.NoError(err, "Failed to open %s", fn)
 		defer file.Close()
-		rules, err = coin.ReadRules(file)
+		rules, err = ReadRules(file)
 		check.NoError(err, "Failed to parse %s", fn)
 	}
 
 	if *dumpRules {
 		rules.Write(os.Stdout)
 		return
+	}
+
+	var columns []int
+	if *fields != "" {
+		columns = parseFields(*fields)
+	} else if *source != "" {
+		columns = rules.fields[*source]
+		check.If(columns != nil, "Unknown source %s", *source)
+	} else {
+		fmt.Fprintf(os.Stderr, "One of -source or -fields must be specified\n")
+		os.Exit(1)
 	}
 
 	var transactions []*coin.Transaction
@@ -72,16 +84,6 @@ func main() {
 		header, err := r.Read()
 		check.NoError(err, "Failed to read header from %s", fileName)
 
-		var columns []int
-		for _, i := range strings.Split(*fields, ",") {
-			c, err := strconv.Atoi(i)
-			check.NoError(err, "%s is not a valid column index", i)
-			columns = append(columns, c)
-		}
-		if len(columns) != len(labels) {
-			fmt.Fprintf(os.Stderr, "%d fields must be specified:\n%v\n", len(labels), labels)
-			os.Exit(1)
-		}
 		for i, h := range header {
 			if label := toLabel(columns, i); label != "" {
 				fmt.Fprintf(os.Stderr, "%s => %s\n", h, label)
@@ -105,7 +107,7 @@ func main() {
 	}
 }
 
-func readTransactions(r *csv.Reader, columns []int, rules *coin.RuleIndex) (transactions []*coin.Transaction, err error) {
+func readTransactions(r *csv.Reader, columns []int, rules *Rules) (transactions []*coin.Transaction, err error) {
 	for {
 		rec, err := r.Read()
 		if err == io.EOF {
@@ -124,7 +126,7 @@ var labels = []string{"account_id", "description", "posted", "amount", "symbol",
 // transactionFrom builds a transaction from a csv row.
 // columns list field indexes in the following order:
 // account_id, description, posted, amount, symbol, quantity, note
-func transactionFrom(row []string, columns []int, rules *coin.RuleIndex) *coin.Transaction {
+func transactionFrom(row []string, columns []int, rules *Rules) *coin.Transaction {
 	acctId := row[columns[0]]
 	description := row[columns[1]]
 	account, found := accountsByCSVId[acctId]
@@ -193,4 +195,15 @@ func toLabel(columns []int, field int) string {
 		}
 	}
 	return ""
+}
+
+func parseFields(fields string) (columns []int) {
+	for _, i := range strings.Split(fields, ",") {
+		c, err := strconv.Atoi(i)
+		check.NoError(err, "%s is not a valid column index", i)
+		columns = append(columns, c)
+	}
+	check.If(len(columns) == len(labels),
+		"%d fields must be specified:\n%v\n", len(labels), labels)
+	return columns
 }

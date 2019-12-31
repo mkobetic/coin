@@ -150,15 +150,18 @@ var headerRE = regexp.MustCompile(`^(\w+)\s+` + patternRE + `|^(\w+)`)
 var bodyRE = regexp.MustCompile(`^\s+` + patternRE + `(\s+(\S.*\S))?|^\s+@(\w+)`)
 
 func ReadRules(r io.Reader) (*RuleIndex, error) {
+	s := bufio.NewScanner(r)
+	if !s.Scan() {
+		return nil, s.Err()
+	}
+	return ScanRules(s.Bytes(), s)
+}
+
+func ScanRules(line []byte, s *bufio.Scanner) (*RuleIndex, error) {
 	ri := &RuleIndex{
 		Accounts:   make(map[string]*AccountRules),
 		SetsByName: make(map[string]*RuleSet),
 	}
-	s := bufio.NewScanner(r)
-	if !s.Scan() {
-		return ri, s.Err()
-	}
-	line := s.Bytes()
 	for {
 		match := headerRE.FindSubmatch(line)
 		if match != nil {
