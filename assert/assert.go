@@ -25,6 +25,16 @@ func NotNil(t *testing.T, v interface{}, args ...interface{}) bool {
 	return false
 }
 
+func True(t *testing.T, v bool, args ...interface{}) bool {
+	t.Helper()
+	if v {
+		return true
+	}
+	msg := msgFromArgs(args, "not true")
+	t.Error(msg)
+	return false
+}
+
 func NoError(t *testing.T, err error, args ...interface{}) bool {
 	t.Helper()
 	if err == nil {
