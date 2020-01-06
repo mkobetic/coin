@@ -167,7 +167,11 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 		t.Post(account, toAccount, amount, nil)
 		return t
 	}
-
+	// Quantity and amount cannot be both positive or negative,
+	// if they are amount wins, make quantity the opposite.
+	if quantity.Sign()*amount.Sign() > 0 {
+		quantity = quantity.Negated()
+	}
 	t.PostConversion(account, quantity, nil, toAccount, amount, nil)
 	return t
 }

@@ -48,6 +48,7 @@ account Income:Dividends
 XXX Assets:Investments
   Expenses:Fees Fee|HST
   Income:Dividends DRIP
+  Assets:Investments Sold|Bought
 `))
 }
 func Test_All(t *testing.T) {
@@ -58,6 +59,14 @@ func Test_All(t *testing.T) {
   Assets:Investments:VXF   123.999 VXF
   Income:Dividends        -1630.59 USD
 `,
+		`2019/10/10 Sold ; whatever
+  Assets:Investments       67689.08 USD
+  Assets:Investments:VXF  -5148.219 VXF
+`,
+		`2019/10/30 Fee ; MGMT FEE
+  Expenses:Fees        12.40 USD
+  Assets:Investments  -12.40 USD
+`,
 	} {
 		got := txs[i].String()
 		assert.Equal(t, got, exp)
@@ -67,4 +76,6 @@ func Test_All(t *testing.T) {
 const sample = `
 Account number,Trade date,Symbol,Description,Operation,Quantity,Price,Net amount
 XXX,2019/09/10,VXF,"blah blah VALUE =      1630.59",DRIP,123.999,,
+XXX,2019/10/10,VXF,whatever,Sold,5148.219,13.150,67689.08
+XXX,2019/10/30,,MGMT FEE,Fee,0.00,,-12.40
 `
