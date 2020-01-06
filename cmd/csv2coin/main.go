@@ -79,12 +79,7 @@ func main() {
 		check.NoError(err, "Failed to open %s", fileName)
 		defer file.Close()
 
-		r := csv.NewReader(file)
-		_, err = r.Read()
-		check.NoError(err, "Failed to read header from %s", fileName)
-
-		batch, err := readTransactions(r, src.fields, rules)
-		check.NoError(err, "Cannot parse file %s", fileName)
+		batch := readTransactions(file, src.fields, rules)
 		transactions = append(transactions, batch...)
 	}
 
@@ -99,18 +94,20 @@ func main() {
 	}
 }
 
-func readTransactions(r *csv.Reader, fields map[string]Fields, rules *Rules) (transactions []*coin.Transaction, err error) {
+func readTransactions(in io.Reader, fields map[string]Fields, rules *Rules) (transactions []*coin.Transaction) {
+	r := csv.NewReader(in)
+	_, err := r.Read()
+	check.NoError(err, "Failed to read header")
+
 	for {
 		rec, err := r.Read()
 		if err == io.EOF {
 			break
 		}
-		if err != nil {
-			return nil, err
-		}
+		check.NoError(err, "reading transaction")
 		transactions = append(transactions, transactionFrom(rec, fields, rules))
 	}
-	return transactions, nil
+	return transactions
 }
 
 // transactionFrom builds a transaction from a csv row.
@@ -119,7 +116,7 @@ func readTransactions(r *csv.Reader, fields map[string]Fields, rules *Rules) (tr
 func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin.Transaction {
 	valueFor := func(name string) string {
 		check.Includes(labels, name, "Invalid field name")
-		return fields[name].Value(name, row)
+		return fields[name].Value(row)
 	}
 	acctId := valueFor("account")
 	description := valueFor("description")
@@ -143,15 +140,11 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 
 	var amount *coin.Amount
 	if amt := valueFor("amount"); amt != "" {
-		amtf, err := strconv.ParseFloat(amt, 64)
-		check.NoError(err, "Parsing amount %s", amt)
-		if math.Abs(amtf) > 0.0001 {
-			amount = account.Commodity.NewAmountFloat(amtf)
-		}
+		amount = coin.MustParseAmount(amt, toAccount.Commodity)
 	}
+	check.If(amount != nil, "amount not found!")
 	symbol := valueFor("symbol")
 	if symbol == "" {
-		check.If(amount != nil, "wat? %s", valueFor("amount"))
 		t.Post(account, toAccount, amount, nil)
 		return t
 	}
@@ -167,19 +160,15 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 
 	var quantity *coin.Amount
 	if amt := valueFor("quantity"); amt != "" {
-		amtf, err := strconv.ParseFloat(amt, 64)
-		check.NoError(err, "Parsing quantity %s", amt)
-		if math.Abs(amtf) > 0.0001 {
-			quantity = commodity.NewAmountFloat(amtf)
-		}
+		quantity = coin.MustParseAmount(amt, commodity)
 	}
 
-	if amount == nil {
-		t.Post(account, toAccount, quantity, nil)
+	if quantity == nil {
+		t.Post(account, toAccount, amount, nil)
 		return t
 	}
 
-	t.PostConversion(account, amount, nil, toAccount, quantity, nil)
+	t.PostConversion(account, quantity, nil, toAccount, amount, nil)
 	return t
 }
 
@@ -205,7 +194,7 @@ func parseFields(list string) map[string]Fields {
 	for i, s := range idxs {
 		c, err := strconv.Atoi(s)
 		check.NoError(err, "%s is not a valid column index", i)
-		fields[labels[i]] = Fields{&Field{c, nil}}
+		fields[labels[i]] = Fields{&Field{c, "", nil}}
 	}
 	return fields
 }

@@ -71,8 +71,8 @@ func Test_AmountAddIn(t *testing.T) {
 		{"100.00", "-50.0", "50.00"},
 		{"-100.00", "50", "-50.00"},
 	} {
-		a := mustParseAmount(fix.a, cad)
-		b := mustParseAmount(fix.b, cad)
+		a := MustParseAmount(fix.a, cad)
+		b := MustParseAmount(fix.b, cad)
 		a.AddIn(b)
 		c := fmt.Sprintf("%a", a)
 		assert.Equal(t, c, fix.c, "%d. not equal", i)
@@ -87,8 +87,8 @@ func Test_AmountTimes(t *testing.T) {
 		{"100.00", "-50.0", "-5000.00"},
 		{"-100.00", "50", "-5000.00"},
 	} {
-		a := mustParseAmount(fix.a, cad)
-		b := mustParseAmount(fix.b, cad)
+		a := MustParseAmount(fix.a, cad)
+		b := MustParseAmount(fix.b, cad)
 		c := a.Times(b)
 		cc := fmt.Sprintf("%a", c)
 		assert.Equal(t, cc, fix.c, "%d. not equal", i)

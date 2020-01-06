@@ -139,7 +139,7 @@ func (a *Amount) Negated() *Amount {
 	}
 }
 
-func mustParseAmount(f string, c *Commodity) *Amount {
+func MustParseAmount(f string, c *Commodity) *Amount {
 	amt, err := parseAmount([]byte(f), c)
 	if err != nil {
 		panic(err)
