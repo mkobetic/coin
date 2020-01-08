@@ -79,7 +79,7 @@ func main() {
 		check.NoError(err, "Failed to open %s", fileName)
 		defer file.Close()
 
-		batch := readTransactions(file, src.fields, rules)
+		batch := readTransactions(file, src, rules)
 		transactions = append(transactions, batch...)
 	}
 
@@ -94,18 +94,23 @@ func main() {
 	}
 }
 
-func readTransactions(in io.Reader, fields map[string]Fields, rules *Rules) (transactions []*coin.Transaction) {
+func readTransactions(in io.Reader, src *Source, rules *Rules) (transactions []*coin.Transaction) {
 	r := csv.NewReader(in)
-	_, err := r.Read()
-	check.NoError(err, "Failed to read header")
-
+	for i := 0; i < src.skip; i++ {
+		row, err := r.Read()
+		if err, ok := err.(*csv.ParseError); ok && err.Err == csv.ErrFieldCount {
+			r.FieldsPerRecord = len(row)
+			continue
+		}
+		check.NoError(err, "Failed to read header line %d", i)
+	}
 	for {
 		rec, err := r.Read()
 		if err == io.EOF {
 			break
 		}
 		check.NoError(err, "reading transaction")
-		transactions = append(transactions, transactionFrom(rec, fields, rules))
+		transactions = append(transactions, transactionFrom(rec, src.fields, rules))
 	}
 	return transactions
 }
@@ -116,7 +121,7 @@ func readTransactions(in io.Reader, fields map[string]Fields, rules *Rules) (tra
 func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin.Transaction {
 	valueFor := func(name string) string {
 		check.Includes(labels, name, "Invalid field name")
-		return fields[name].Value(row)
+		return fields[name].Value(row, fields)
 	}
 	acctId := valueFor("account")
 	description := valueFor("description")
@@ -145,10 +150,20 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 	check.If(amount != nil, "amount not found!")
 	symbol := valueFor("symbol")
 	if symbol == "" {
+		if account.Commodity != amount.Commodity {
+			account.WithChildrenDo(func(a *coin.Account) {
+				if a.Commodity == amount.Commodity {
+					account = a
+				}
+			})
+		}
 		t.Post(account, toAccount, amount, nil)
 		return t
 	}
-	commodity, found := coin.CommoditiesBySymbol[symbol]
+	commodity, found := coin.Commodities[symbol]
+	if !found {
+		commodity, found = coin.CommoditiesBySymbol[symbol]
+	}
 	check.OK(found, "Could not find commodity for symbol %s", symbol)
 	if account.Commodity != commodity {
 		account.WithChildrenDo(func(a *coin.Account) {

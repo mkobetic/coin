@@ -35,7 +35,7 @@ account Income:Dividends
 		}
 	})
 
-	rules1 = ReadRules(strings.NewReader(`src
+	rules1 = ReadRules(strings.NewReader(`src 1
   account 0
   description 4
   date 1
@@ -53,7 +53,7 @@ XXX Assets:Investments
 }
 func Test_All(t *testing.T) {
 	r := strings.NewReader(sample)
-	txs := readTransactions(r, rules1.sources["src"].fields, rules1)
+	txs := readTransactions(r, rules1.sources["src"], rules1)
 	for i, exp := range []string{
 		`2019/09/10 DRIP ; blah blah VALUE =      1630.59
   Assets:Investments:VXF   123.999 VXF
