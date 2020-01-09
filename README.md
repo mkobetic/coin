@@ -34,12 +34,12 @@ Coin includes several binaries besides the main `coin` command.
 
 ### gc2coin
 
-gnucash import (XML v2 database only), see `cmd/gc2coin/README.md`
+gnucash import (XML v2 database only), see [`cmd/gc2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/gc2coin/README.md)
 
 
 ### ofx2coin
 
-ofx/qfx import, see `cmd/ofx2coin/README.md
+ofx/qfx import, see [`cmd/ofx2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/gc2coin/README.md)
 
 * ofx.rules file
 
