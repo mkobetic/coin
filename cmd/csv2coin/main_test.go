@@ -40,7 +40,7 @@ account Income:Dividends
   description 4
   date 1
   amount 7
-  amount 3 -$1 VALUE = \s+([\d\.\-]+)
+  amount 3 "-$1" VALUE = \s+([\d\.\-]+)
   symbol 2
   quantity 5
   note 3

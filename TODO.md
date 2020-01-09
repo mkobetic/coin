@@ -9,6 +9,7 @@
 * how to match :Acct when there's :XAcct as well?
 * shortened full account names, drop letters from the left down to first on leftmost elements
 * backfill prices from transactions
+* better usage messages
 
 ### Implementation
 

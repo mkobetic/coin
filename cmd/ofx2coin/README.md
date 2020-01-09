@@ -8,6 +8,29 @@ Converts OFX/QFX files into coin transactions
 * if match is not found the target account is set to `Unbalanced` and needs to be corrected manually
 * outputs all transactions sorted by date
 
+## ofx.rules
+
+The file contains groupes of rules, one rule per line. The groups are associated either with a specific account or with a label that can be used to include that group in other groups to allow sharing of rules between accounts.
+
+When importing transactions for given account the tool will apply the rule group associated with that account. The account is matched through the account ID associated with the transactions. The same ID must also be associated with an account through the `ofx_acctid` directive.
+
+Each rule group starts with a line containing either a label, or an account ID and full account name. This is followed by lines starting with whitespace containing either a group reference or a rule.
+
+A group reference is simply a group name prefixed with `@`. Referencing a group includes all the rules of the referenced group in the referencing group.
+
+A rule is a full account name followed by a list of regular expressions separated with `|`. The rules and regular expressions are matched against transaction descriptions in the order in which they are listed. The search stops on the first match and the corresponing account is used as the transaction counterpart of the imported account.
+
+```
+common
+  Expenses:Groceries       FRESHCO|COSTCO WHOLESALE|FARM BOY|LOBLAWS
+  Expenses:Auto:Gas        COSTCO GAS|PETROCAN|SHELL
+389249328477983 Assets:Bank:Savings
+  @common
+  Income:Interest     Interest
+392843029797099 Assets:Bank:Checking
+  @common
+  Income:Salary       ACME PAY 
+```
 
 ## Sugested Import Procedure
 

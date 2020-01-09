@@ -14,7 +14,7 @@ func Test_Source(t *testing.T) {
   description 2
   date 1
   amount 3
-  amount 4 -$1 VALUE = \s*([\d\.]+)\s*
+  amount 4 "-$1" VALUE = \s*([\d\.]+)\s*
   note 4
 mybrokerage2 2
   account 0

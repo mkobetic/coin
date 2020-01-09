@@ -92,7 +92,7 @@ type Source struct {
 
 var sourceREX = rex.MustCompile(`^(?P<source>\w+)(\s+(?P<skip>\d+))?\s*$`)
 var derivedFieldRex = rex.MustCompile(`"(?P<code>.*)"`)
-var directFieldRex = rex.MustCompile(`(?P<rowIdx>\d+)(\s+(?P<out>\S+)\s+(?P<rex>.*))?`)
+var directFieldRex = rex.MustCompile(`(?P<rowIdx>\d+)(\s+"(?P<out>.+)"\s+(?P<rex>.+))?`)
 var fieldREX = rex.MustCompile(`^\s+(?P<field>\w+)\s+(%s|%s)$`, directFieldRex, derivedFieldRex)
 
 func ScanSource(line []byte, s *bufio.Scanner) *Source {
