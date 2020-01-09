@@ -29,8 +29,7 @@ Coin includes several executables.
 
 ### coin
 
-`coin` is the main command mimicing the leger cli with a number of subcommands. The subcommands include the usual suspects like `balance` and `register`, but also `accounts`, `commodities` and `test`. For more details see [`cmd/coin/README.md`]((https://github.com/mkobetic/coin/blob/master/cmd/coin/README.md)).
-
+`coin` is the main command mimicing the leger cli with a number of subcommands. The subcommands include the usual suspects like `balance` and `register`, but also `accounts`, `commodities` and `test`. For more details see [`cmd/coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin/README.md).
 
 ### gc2coin
 
@@ -46,7 +45,7 @@ ofx/qfx import, see [`cmd/ofx2coin/README.md`](https://github.com/mkobetic/coin/
 
 ### csv2coin
 
-csv import, see [`cmd/csv2coin/README.md](https://github.com/mkobetic/coin/blob/master/cmd/csv2coin/README.md)
+csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/csv2coin/README.md)
 
 * csv.rules file
 
