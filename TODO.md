@@ -11,10 +11,6 @@
 * backfill prices from transactions
 * better usage messages
 
-### Implementation
-
-* replace regexp usage with rex
-
 ### Maybe
 
 * support for tags?

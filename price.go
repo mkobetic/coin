@@ -3,9 +3,10 @@ package coin
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 	"time"
+
+	"github.com/mkobetic/coin/rex"
 )
 
 type Price struct {
@@ -36,23 +37,23 @@ func (p *Price) Write(w io.Writer, ledger bool) error {
 	return err
 }
 
-var priceRE = regexp.MustCompile(`P ` + DateRE + `\s+` + CommodityRE + `\s+` + AmountRE)
+var priceREX = rex.MustCompile(`P %s\s+%s\s+%s`, DateREX, CommodityREX, AmountREX)
 
 func (p *Parser) parsePrice(fn string) (*Price, error) {
-	match := priceRE.FindSubmatch(p.Bytes())
+	match := priceREX.Match(p.Bytes())
 	if match == nil {
 		return nil, fmt.Errorf("Invalid price line")
 	}
-	date := mustParseDate(match[1])
-	currencyId := string(match[5])
+	date := mustParseDate(match, 0)
+	currencyId := string(match["commodity2"])
 	line := p.lineNr
 	location := fmt.Sprintf("%s:%d", fn, line)
 	c := MustFindCommodity(currencyId, location)
-	amt, err := parseAmount(match[3], c)
+	amt, err := parseAmount(match["amount"], c)
 	if err != nil {
 		return nil, err
 	}
-	commodityId := string(match[2])
+	commodityId := string(match["commodity1"])
 	p.Scan() // advance to next line before returning
 	return &Price{
 		Time:        date,

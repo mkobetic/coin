@@ -1,14 +1,16 @@
 package coin
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"math/big"
 	"strconv"
+	"strings"
+
+	"github.com/mkobetic/coin/rex"
 )
 
-var AmountRE = `(-?[\d]+(\.[\d]+)?)\s+` + CommodityRE
+var AmountREX = rex.MustCompile(`(?P<amount>-?[\d]+(?P<decimals>\.[\d]+)?)\s+%s`, CommodityREX)
 
 type Amount struct {
 	*big.Int
@@ -59,10 +61,10 @@ func (a *Amount) Format(f fmt.State, c rune) {
 	}
 }
 
-func parseAmount(s []byte, c *Commodity) (*Amount, error) {
-	ss := bytes.Split(s, []byte("."))
+func parseAmount(s string, c *Commodity) (*Amount, error) {
+	ss := strings.Split(s, ".")
 	if len(ss) == 1 {
-		i, err := strconv.ParseInt(string(ss[0]), 10, 64)
+		i, err := strconv.ParseInt(ss[0], 10, 64)
 		if err != nil {
 			return nil, err
 		}
@@ -75,8 +77,8 @@ func parseAmount(s []byte, c *Commodity) (*Amount, error) {
 	if len(ss) != 2 {
 		return nil, fmt.Errorf("Malformed value %s", s)
 	}
-	s = bytes.Join(ss, nil)
-	i, err := strconv.ParseInt(string(s), 10, 64)
+	s = strings.Join(ss, "")
+	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +142,7 @@ func (a *Amount) Negated() *Amount {
 }
 
 func MustParseAmount(f string, c *Commodity) *Amount {
-	amt, err := parseAmount([]byte(f), c)
+	amt, err := parseAmount(f, c)
 	if err != nil {
 		panic(err)
 	}

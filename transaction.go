@@ -1,12 +1,12 @@
 package coin
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 	"time"
+
+	"github.com/mkobetic/coin/rex"
 )
 
 type Transaction struct {
@@ -66,40 +66,41 @@ func (t *Transaction) Write(w io.Writer, ledger bool) error {
 	return nil
 }
 
-var transactionRE = regexp.MustCompile(DateRE + `(\s+\((\w+)\))?(\s+(\S[^;]*))?(; ?(.*))?`)
-var postingRE = regexp.MustCompile(`` +
-	`\s+` + AccountRE + `(\s+` + AmountRE + `(\s+=\s+` + AmountRE + `)?)?|` +
-	`\s+; ?(.*)`)
+var transactionREX = rex.MustCompile(`%s(\s+\((?P<code>\w+)\))?(\s+(?P<description>\S[^;]*))?(; ?(?P<note>.*))?`, DateREX)
+var postingREX = rex.MustCompile(``+
+	`\s+%s(\s+%s(\s+=\s+%s)?)?|`+
+	`\s+; ?(?P<note>.*)`,
+	AccountREX, AmountREX, AmountREX)
 
 func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
-	match := transactionRE.FindSubmatch(p.Bytes())
+	match := transactionREX.Match(p.Bytes())
 	if match == nil {
 		return nil, fmt.Errorf("Invalid transaction line: %s", p.Text())
 	}
 	t := &Transaction{
-		Posted:      mustParseDate(match[1]),
-		Code:        string(match[3]),
-		Description: string(bytes.TrimRight(match[5], " \t")),
-		Note:        string(bytes.TrimLeft(match[7], " \t")),
+		Posted:      mustParseDate(match, 0),
+		Code:        match["code"],
+		Description: strings.TrimRight(match["description"], " \t"),
+		Note:        strings.TrimLeft(match["note"], " \t"),
 		line:        p.lineNr,
 		file:        fn,
 	}
 	var notes []string
 	var s *Posting
 	for p.Scan() {
-		match = postingRE.FindSubmatch(p.Bytes())
+		match = postingREX.Match(p.Bytes())
 		if match == nil {
 			break
 		}
-		if note := match[10]; len(note) > 0 {
+		if note := match["note"]; len(note) > 0 {
 			notes = append(notes, string(note))
 			continue
 		}
 		var quantity *Amount
 		var err error
-		if len(match[3]) > 0 {
-			c := MustFindCommodity(string(match[5]), t.Location())
-			quantity, err = parseAmount(match[3], c)
+		if amt := match["amount1"]; len(amt) > 0 {
+			c := MustFindCommodity(match["commodity1"], t.Location())
+			quantity, err = parseAmount(amt, c)
 			if err != nil {
 				return nil, err
 			}
@@ -114,11 +115,11 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 		}
 		s = &Posting{
 			Transaction: t,
-			accountName: string(match[1]),
+			accountName: match["account"],
 			Quantity:    quantity,
 		}
-		if balance := match[7]; len(balance) > 0 {
-			c := MustFindCommodity(string(match[9]), t.Location())
+		if balance := match["amount2"]; len(balance) > 0 {
+			c := MustFindCommodity(match["commodity2"], t.Location())
 			s.Balance, err = parseAmount(balance, c)
 			if err != nil {
 				return nil, err

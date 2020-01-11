@@ -24,7 +24,7 @@ func Test_ParseAmount(t *testing.T) {
 		{"0.011", "0.01"},
 		{"-100.00", "-100.00"},
 	} {
-		amt, err := parseAmount([]byte(fix.in), cad)
+		amt, err := parseAmount(fix.in, cad)
 		assert.NoError(t, err)
 		res := fmt.Sprintf("%a", amt)
 		assert.Equal(t, res, fix.out, "%d. not equal", i)
@@ -39,7 +39,7 @@ func Test_AmountWidth(t *testing.T) {
 		{"0.09", 2, 4},
 		{"-0.09", 2, 5},
 	} {
-		amt, err := parseAmount([]byte(fix.amt), cad)
+		amt, err := parseAmount(fix.amt, cad)
 		assert.NoError(t, err)
 		width := amt.Width(fix.decimals)
 		assert.Equal(t, width, fix.width, "%d. not equal", i)
@@ -56,7 +56,7 @@ func Test_FormatWidthAmount(t *testing.T) {
 		{"-50.01", 10, 2, "    -50.01"},
 		{"0.001", 2, 3, "0.000"},
 	} {
-		amt, err := parseAmount([]byte(fix.amt), cad)
+		amt, err := parseAmount(fix.amt, cad)
 		assert.NoError(t, err)
 		res := fmt.Sprintf("%*.*f", fix.width, fix.decimals, amt)
 		assert.Equal(t, res, fix.out, "%d. not equal", i)

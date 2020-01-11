@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	"regexp"
 	"strings"
 	"unicode"
 
 	"github.com/mkobetic/coin/check/warn"
+	"github.com/mkobetic/coin/rex"
 )
 
 type Account struct {
@@ -73,15 +73,16 @@ func (a *Account) Write(w io.Writer, ledger bool) error {
 	return nil
 }
 
-var AccountRE = `([A-Za-z][\w:/_\-]*\w)`
-var accountHead = regexp.MustCompile(`account\s+` + AccountRE)
-var accountBody = regexp.MustCompile(`` +
-	`(\s+(note)\s+(\S.+))|` +
-	`(\s+(check)\s+(\S.+))|` +
-	`(\s+(ofx_bankid)\s+(\d+))|` +
-	`(\s+(ofx_acctid)\s+(\d+))|` +
-	`(\s+(csv_acctid)\s+(\w+))`)
-var checkCommodity = regexp.MustCompile(`commodity\s+==\s+` + CommodityRE)
+var accountNameREX = rex.MustCompile(`([A-Za-z][\w/_\-]*)`)
+var AccountREX = rex.MustCompile(`(?P<account>%s(:%s)*)`, accountNameREX, accountNameREX)
+var accountHeadREX = rex.MustCompile(`account\s+%s`, AccountREX)
+var accountBodyREX = rex.MustCompile(``+
+	`(\s+note\s+(?P<note>\S.+))|`+
+	`(\s+check\s+commodity\s+==\s+%s|`+
+	`(\s+ofx_bankid\s+(?P<ofx_bankid>\d+))|`+
+	`(\s+ofx_acctid\s+(?P<ofx_acctid>\d+))|`+
+	`(\s+csv_acctid\s+(?P<csv_acctid>\w+)))`,
+	CommodityREX)
 
 func accountFromName(name string) *Account {
 	i := strings.LastIndex(name, ":")
@@ -98,8 +99,8 @@ func accountFromName(name string) *Account {
 }
 
 func (p *Parser) parseAccount(fn string) (*Account, error) {
-	matches := accountHead.FindSubmatch(p.Bytes())
-	a := accountFromName(string(matches[1]))
+	match := accountHeadREX.Match(p.Bytes())
+	a := accountFromName(match["account"])
 	a.line = p.lineNr
 	a.file = fn
 	for p.Scan() {
@@ -107,23 +108,20 @@ func (p *Parser) parseAccount(fn string) (*Account, error) {
 		if len(bytes.TrimSpace(line)) == 0 || !unicode.IsSpace(rune(line[0])) {
 			return a, nil
 		}
-		matches = accountBody.FindSubmatch(line)
-		if matches == nil {
+		match = accountBodyREX.Match(line)
+		if match == nil {
 			return a, fmt.Errorf("Unrecognized account line: %s", p.Text())
 		}
-		switch {
-		case bytes.Equal(matches[2], []byte("note")):
-			a.Description = string(matches[3])
-		case bytes.Equal(matches[5], []byte("check")):
-			if matches = checkCommodity.FindSubmatch(matches[6]); matches != nil {
-				a.CommodityId = string(matches[1])
-			}
-		case bytes.Equal(matches[8], []byte("ofx_bankid")):
-			a.OFXBankId = string(matches[9])
-		case bytes.Equal(matches[11], []byte("ofx_acctid")):
-			a.OFXAcctId = string(matches[12])
-		case bytes.Equal(matches[14], []byte("csv_acctid")):
-			a.CSVAcctId = string(matches[15])
+		if n := match["note"]; n != "" {
+			a.Description = n
+		} else if c := match["commodity"]; c != "" {
+			a.CommodityId = c
+		} else if i := match["ofx_bankid"]; i != "" {
+			a.OFXBankId = i
+		} else if i := match["ofx_acctid"]; i != "" {
+			a.OFXAcctId = i
+		} else if i := match["csv_acctid"]; i != "" {
+			a.CSVAcctId = i
 		}
 	}
 	return a, p.Err()

@@ -55,7 +55,6 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 
 * multi-file structure (*.coin, *.prices files) => $COINDB directory
 * all entities (accounts, prices, transactions,...) remember their position in the file (`Location()`) to aid tooling to provide quick access to them.
-* no account inference => accounts.coin
 
 ### Commodity differences
 
@@ -69,6 +68,7 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 * single commodity accounts
 * account check commodity == directive
 * account selection expressions
+* no account inference => accounts.coin
 
 
 ## Implementation Notes

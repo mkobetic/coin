@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/mkobetic/coin/rex"
 )
 
 var (
@@ -129,40 +130,40 @@ func (c *Commodity) Write(w io.Writer, ledger bool) error {
 	return nil
 }
 
-var CommodityRE = `([A-Za-z][\w]*)`
-var commodityHead = regexp.MustCompile(`commodity\s+` + CommodityRE)
-var commodityBody = regexp.MustCompile(`` +
-	`(\s+(note)\s+(.+))|` +
-	`(\s+(format)\s+` + AmountRE + `)|` +
-	`(\s+(nomarket)\s*)|` +
-	`(\s+(symbol)\s+([\w\.]+))`)
+var CommodityREX = rex.MustCompile(`(?P<commodity>[A-Za-z][\w]*)`)
+var commodityHeadREX = rex.MustCompile(`commodity\s+%s`, CommodityREX)
+var commodityBodyREX = rex.MustCompile(``+
+	`(\s+note\s+(?P<note>.+))|`+
+	`(\s+format\s+(?P<format>%s))|`+
+	`(\s+(?P<nomarket>nomarket)\s*)|`+
+	`(\s+symbol\s+(?P<symbol>[\w\.]+))`,
+	AmountREX)
 
 func (p *Parser) parseCommodity(fn string) (*Commodity, error) {
 	c := &Commodity{Decimals: 2, line: p.lineNr, file: fn}
-	matches := commodityHead.FindSubmatch(p.Bytes())
-	c.Id = string(matches[1])
+	match := commodityHeadREX.Match(p.Bytes())
+	c.Id = match["commodity"]
 	for p.Scan() {
 		line := p.Bytes()
 		if len(bytes.TrimSpace(line)) == 0 || !unicode.IsSpace(rune(line[0])) {
 			return c, nil
 		}
-		matches = commodityBody.FindSubmatch(line)
-		if matches == nil {
+		match = commodityBodyREX.Match(line)
+		if match == nil {
 			return c, fmt.Errorf("Unrecognized commodity line: %s", p.Text())
 		}
-		switch {
-		case bytes.Equal(matches[2], []byte("note")):
-			c.Name = string(matches[3])
-		case bytes.Equal(matches[5], []byte("format")):
-			if len(matches[7]) == 0 {
+		if n := match["note"]; n != "" {
+			c.Name = n
+		} else if match["amount"] != "" {
+			if f := match["decimals"]; len(f) == 0 {
 				c.Decimals = 0
 			} else {
-				c.Decimals = len(matches[7]) - 1
+				c.Decimals = len(f) - 1
 			}
-		case bytes.Equal(matches[10], []byte("nomarket")):
+		} else if nm := "nomarket"; nm != "" {
 			c.NoMarket = true
-		case bytes.Equal(matches[12], []byte("symbol")):
-			c.Symbol = string(matches[13])
+		} else if s := match["symbol"]; s != "" {
+			c.Symbol = s
 		}
 	}
 	return c, p.Err()

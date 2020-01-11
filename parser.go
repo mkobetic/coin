@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/mkobetic/coin/rex"
 )
 
 type Parser struct {
@@ -58,10 +60,10 @@ func (p *Parser) Next(fn string) (Item, error) {
 }
 
 var DateFormat = "2006/01/02"
-var DateRE = `(\d\d\d\d/\d\d/\d\d)`
+var DateREX = rex.MustCompile(`(?P<date>\d\d\d\d/\d\d/\d\d)`)
 
-func mustParseDate(ts []byte) time.Time {
-	t, err := time.Parse(DateFormat, string(ts))
+func mustParseDate(match map[string]string, idx int) time.Time {
+	t, err := time.Parse(DateFormat, match["date"])
 	if err != nil {
 		panic(err)
 	}
