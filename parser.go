@@ -67,7 +67,9 @@ func (p *Parser) Next(fn string) (Item, error) {
 }
 
 var DateFormat = "2006/01/02"
-var ymd = rex.MustCompile(`(?P<ymd>((?P<year>\d\d(\d\d)?)/)?(?P<month>\d{1,2})/(?P<day>\d{1,2}))`)
+var ymd = rex.MustCompile(`` +
+	`((?P<ymd>((?P<year>\d\d(\d\d)?)/)?(?P<month>\d{1,2})/(?P<day>\d{1,2}))|` +
+	`(?P<ym>(?P<ymy>\d{4})(/(?P<ymm>\d{1,2}))?))`)
 var offset = rex.MustCompile(`(?P<offset>[+-]\d+[d|w|m|y])`)
 var DateREX = rex.MustCompile(`(?P<date>%s?%s?)`, ymd, offset)
 
@@ -81,11 +83,7 @@ func mustParseDate(match map[string]string, idx int) time.Time {
 	var t time.Time
 	offset := match["offset"]
 	y, m, d := Year, Month, Day
-	if match["ymd"] == "" {
-		if offset == "" {
-			panic(fmt.Errorf("no match for date: %v", match))
-		}
-	} else {
+	if match["ymd"] != "" {
 		d, _ = strconv.Atoi(match["day"])
 		mm, _ := strconv.Atoi(match["month"])
 		if yy := match["year"]; yy != "" {
@@ -109,6 +107,14 @@ func mustParseDate(match map[string]string, idx int) time.Time {
 			}
 		}
 		m = mm
+	} else if match["ym"] != "" {
+		d, m = 1, 1
+		y, _ = strconv.Atoi(match["ymy"])
+		if mm := match["ymm"]; mm != "" {
+			m, _ = strconv.Atoi(mm)
+		}
+	} else if offset == "" {
+		panic(fmt.Errorf("no match for date: %v", match))
 	}
 	t = time.Date(y, time.Month(m), d, 12, 0, 0, 0, time.UTC)
 

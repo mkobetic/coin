@@ -58,11 +58,13 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 
 ### Date Entry
 
-* Dates are entered as Y/M/D, where year can be 2 or 4 digits
-* if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
-* if year is omitted its the date closest to today (e.g. on 2020/03/05, 06/22 is 2020/06/22 and 10/22 is 2019/10/22)
-* dates can also include and offset specified as +/- number of days,weeks,months or years from given date (e.g. -50d)
-* if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
+* Dates are entered as [[YY]YY/]M/D, where year can be 2 or 4 digits
+** if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
+** if year is omitted its the date closest to today (e.g. on 2020/03/05, 6/22 is 2020/06/22 and 10/22 is 2019/10/22)
+* Date can also be entered as YYYY[/M]
+** if month is omitted the date is set to Jan 1st, if month is present it's the first day of that month
+* Date can also include a suffix specifying offset of +/- number of days,weeks,months or years from that date (e.g. -50d)
+** if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
 
 ### Commodity differences
 
