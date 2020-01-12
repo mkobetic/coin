@@ -22,7 +22,15 @@ func Test_ParseDate(t *testing.T) {
 	} {
 		match := DateREX.Match([]byte(in))
 		assert.NotNil(t, match)
-		got := mustParseDate(match, 0).Format(DateFormat)
+		dt, err := parseDate(match, 0)
+		assert.NoError(t, err)
+		got := dt.Format(DateFormat)
 		assert.Equal(t, got, out)
 	}
+}
+
+func Test_Date(t *testing.T) {
+	var d Date
+	assert.NoError(t, (&d).Set("2012/12/12"))
+	assert.Equal(t, d.String(), "2012/12/12")
 }
