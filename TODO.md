@@ -1,7 +1,5 @@
 ### Features
 
-* allow date without year (interpret as closest to now)
-* allow relative dates (-5m)
 * add -b/-e options to coin
 * add weekly/monthly/yearly totals (to register?)
 * add opened/closed clauses to accounts (ditch the 0 balance filtering)

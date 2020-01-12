@@ -56,6 +56,14 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 * multi-file structure (*.coin, *.prices files) => $COINDB directory
 * all entities (accounts, prices, transactions,...) remember their position in the file (`Location()`) to aid tooling to provide quick access to them.
 
+### Date Entry
+
+* Dates are entered as Y/M/D, where year can be 2 or 4 digits
+* if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
+* if year is omitted its the date closest to today (e.g. on 2020/03/05, 06/22 is 2020/06/22 and 10/22 is 2019/10/22)
+* dates can also include and offset specified as +/- number of days,weeks,months or years from given date (e.g. -50d)
+* if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
+
 ### Commodity differences
 
 * no prefix commodities (i.e. $10)
