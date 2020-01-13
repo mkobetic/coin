@@ -129,7 +129,6 @@ end test
 
 test register -w Rent
 Expenses:Rent CAD
-2010/01/01 |       0.00 
 2010/01/24 |     500.00 
 2010/02/28 |     500.00 
 2010/03/28 |     500.00 

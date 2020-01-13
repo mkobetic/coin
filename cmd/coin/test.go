@@ -60,7 +60,7 @@ func (cmd *cmdTest) execute(f io.Writer) {
 			fmt.Fprintf(f, "%s ... OK\n", t.Cmd)
 			continue
 		}
-		fmt.Fprintf(f, "%s ... FAIL\n", command.Name())
+		fmt.Fprintf(f, "%s ... FAIL\n", t.Cmd)
 		difflib.WriteUnifiedDiff(f,
 			difflib.UnifiedDiff{
 				B:        difflib.SplitLines(b.String()),

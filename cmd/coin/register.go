@@ -75,17 +75,11 @@ func (cmd *cmdRegister) flatRegister(f io.Writer, acc *coin.Account) {
 }
 
 func (cmd *cmdRegister) flatRegisterAggregated(f io.Writer, postings []*coin.Posting, commodity *coin.Commodity, by func(time.Time) time.Time, format string) {
-	var current = newTotal(month(postings[0].Transaction.Posted), commodity)
-	var totals = []*total{current}
+	totals := &totals{by: by}
 	for _, p := range postings {
-		period := by(p.Transaction.Posted)
-		if !current.Equal(period) {
-			current = newTotal(period, commodity)
-			totals = append(totals, current)
-		}
-		current.AddIn(p.Quantity)
+		totals.add(p.Transaction.Posted, p.Quantity)
 	}
-	for _, t := range totals {
+	for _, t := range totals.all {
 		fmt.Fprintf(f, "%s | %10a \n",
 			t.Time.Format(format),
 			t.Amount,

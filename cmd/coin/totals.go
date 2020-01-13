@@ -1,7 +1,6 @@
 package main
 
 import (
-	"math/big"
 	"time"
 
 	"github.com/mkobetic/coin"
@@ -10,13 +9,6 @@ import (
 type total struct {
 	time.Time
 	*coin.Amount
-}
-
-func newTotal(t time.Time, c *coin.Commodity) *total {
-	return &total{
-		Time:   t,
-		Amount: coin.NewAmount(big.NewInt(0), c),
-	}
 }
 
 type totals struct {
@@ -35,6 +27,34 @@ func (ts *totals) add(t time.Time, a *coin.Amount) {
 	}
 	ts.current = &total{Time: period, Amount: a.Copy()}
 	ts.all = append(ts.all, ts.current)
+}
+
+func (ts *totals) addTotals(ts2 ...*total) {
+	for _, t := range ts2 {
+		ts.add(t.Time, t.Amount)
+	}
+}
+
+func (ts *totals) merge(ts2 *totals) {
+	all1, all2 := ts.all, ts2.all
+	ts.all, ts.current = nil, nil
+	for {
+		if len(all1) == 0 {
+			ts.addTotals(all2...)
+			return
+		}
+		if len(all2) == 0 {
+			ts.addTotals(all1...)
+			return
+		}
+		if all1[0].After(all2[0].Time) {
+			ts.addTotals(all2[0])
+			all2 = all2[1:]
+		} else {
+			ts.addTotals(all1[0])
+			all1 = all1[1:]
+		}
+	}
 }
 
 func month(t time.Time) time.Time {
