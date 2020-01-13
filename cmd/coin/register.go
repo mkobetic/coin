@@ -1,9 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"math/big"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -12,43 +14,92 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
-var (
-	cmdRegister *command
-	recurse     bool
-	begin, end  coin.Date
-)
-
 func init() {
-	cmdRegister = newCommand(register_load, register, "register", "reg", "r")
-	cmdRegister.BoolVar(&recurse, "r", false, "include children account postings")
-	cmdRegister.Var(&begin, "b", "begin register from this date")
-	cmdRegister.Var(&end, "e", "end register on this date")
+	(&cmdRegister{}).newCommand("register", "reg", "r")
 }
 
-func register_load() {
-	check.If(cmdRegister.NArg() > 0, "account filter is required")
+type cmdRegister struct {
+	*flag.FlagSet
+	verbose                 bool
+	recurse                 bool
+	begin, end              coin.Date
+	weekly, monthly, yearly bool
+}
+
+func (_ *cmdRegister) newCommand(names ...string) command {
+	var cmd cmdRegister
+	cmd.FlagSet = newCommand(&cmd, names...)
+	cmd.BoolVar(&cmd.verbose, "v", false, "log debug info to stderr")
+	cmd.BoolVar(&cmd.recurse, "r", false, "include children account postings")
+	cmd.Var(&cmd.begin, "b", "begin register from this date")
+	cmd.Var(&cmd.end, "e", "end register on this date")
+	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
+	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
+	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
+	return &cmd
+}
+
+func (cmd *cmdRegister) init() {
+	check.If(cmd.NArg() > 0, "account filter is required")
 	coin.LoadAll()
 }
-func register(f io.Writer) {
-	pattern := cmdRegister.Arg(0)
+func (cmd *cmdRegister) execute(f io.Writer) {
+	pattern := cmd.Arg(0)
 	acc := coin.MustFindAccount(pattern)
 	fmt.Fprintln(f, acc.FullName, acc.Commodity.Id)
-	if recurse {
-		recursiveRegister(f, acc, begin.Time, end.Time)
+	if cmd.recurse {
+		cmd.recursiveRegister(f, acc)
 	} else {
-		flatRegister(f, acc, begin.Time, end.Time)
+		cmd.flatRegister(f, acc)
 	}
 }
 
-func flatRegister(f io.Writer, acc *coin.Account, begin, end time.Time) {
+func (cmd *cmdRegister) flatRegister(f io.Writer, acc *coin.Account) {
+	postings := cmd.trim(acc.Postings)
+	if len(postings) == 0 {
+		return
+	}
+	switch {
+	case cmd.weekly:
+		cmd.debugf("aggregating weekly")
+		cmd.flatRegisterAggregated(f, postings, acc.Commodity, week, coin.DateFormat)
+	case cmd.monthly:
+		cmd.debugf("aggregating monthly")
+		cmd.flatRegisterAggregated(f, postings, acc.Commodity, month, coin.MonthFormat)
+	case cmd.yearly:
+		cmd.debugf("aggregating yearly")
+		cmd.flatRegisterAggregated(f, postings, acc.Commodity, year, coin.YearFormat)
+	default:
+		cmd.flatRegisterFull(f, postings, acc.Commodity)
+	}
+}
+
+func (cmd *cmdRegister) flatRegisterAggregated(f io.Writer, postings []*coin.Posting, commodity *coin.Commodity, by func(time.Time) time.Time, format string) {
+	var current = newTotal(month(postings[0].Transaction.Posted), commodity)
+	var totals = []*total{current}
+	for _, p := range postings {
+		period := by(p.Transaction.Posted)
+		if !current.Equal(period) {
+			current = newTotal(period, commodity)
+			totals = append(totals, current)
+		}
+		current.AddIn(p.Quantity)
+	}
+	for _, t := range totals {
+		fmt.Fprintf(f, "%s | %10a \n",
+			t.Time.Format(format),
+			t.Amount,
+		)
+	}
+}
+
+func (cmd *cmdRegister) flatRegisterFull(f io.Writer, postings []*coin.Posting, commodity *coin.Commodity) {
 	var desc, acct int
-	debugf("flat register from %s to %s\n", begin, end)
-	postings := slice(acc.Postings, begin, end)
 	for _, s := range postings {
 		desc = max(desc, len(s.Transaction.Description))
 		acct = max(acct, len(s.Transaction.Other(s).Account.FullName))
 	}
-	var total = coin.NewAmount(big.NewInt(0), acc.Commodity)
+	var total = coin.NewAmount(big.NewInt(0), commodity)
 	for _, s := range postings {
 		total.AddIn(s.Quantity)
 		fmt.Fprintf(f, "%s | %*s | %*s | %10a | %10a \n",
@@ -63,7 +114,7 @@ func flatRegister(f io.Writer, acc *coin.Account, begin, end time.Time) {
 	}
 }
 
-func recursiveRegister(f io.Writer, acc *coin.Account, begin, end time.Time) {
+func (cmd *cmdRegister) recursiveRegister(f io.Writer, acc *coin.Account) {
 	var postings []*coin.Posting
 	var desc, acct, from int
 	prefix := acc.FullName
@@ -71,7 +122,7 @@ func recursiveRegister(f io.Writer, acc *coin.Account, begin, end time.Time) {
 		if l := len(a.FullName) - len(acc.FullName); l > from {
 			from = l
 		}
-		for _, s := range slice(a.Postings, begin, end) {
+		for _, s := range cmd.trim(a.Postings) {
 			desc = max(desc, len(s.Transaction.Description))
 			acct = max(acct, len(strings.TrimPrefix(s.Transaction.Other(s).Account.FullName, prefix)))
 			postings = append(postings, s)
@@ -110,19 +161,19 @@ func min(a, b int) int {
 	return b
 }
 
-func slice(postings []*coin.Posting, begin, end time.Time) []*coin.Posting {
-	if !begin.IsZero() {
+func (cmd *cmdRegister) trim(postings []*coin.Posting) []*coin.Posting {
+	if !cmd.begin.IsZero() {
 		from := sort.Search(len(postings), func(i int) bool {
-			return !postings[i].Transaction.Posted.Before(begin)
+			return !postings[i].Transaction.Posted.Before(cmd.begin.Time)
 		})
 		if from == len(postings) {
 			return nil
 		}
 		postings = postings[from:]
 	}
-	if !end.IsZero() {
+	if !cmd.end.IsZero() {
 		to := sort.Search(len(postings), func(i int) bool {
-			return !postings[i].Transaction.Posted.Before(end)
+			return !postings[i].Transaction.Posted.Before(cmd.end.Time)
 		})
 		if to == len(postings) {
 			return postings
@@ -130,4 +181,11 @@ func slice(postings []*coin.Posting, begin, end time.Time) []*coin.Posting {
 		postings = postings[:to]
 	}
 	return postings
+}
+
+func (cmd *cmdRegister) debugf(format string, args ...interface{}) {
+	if !cmd.verbose {
+		return
+	}
+	fmt.Fprintf(os.Stderr, format, args...)
 }

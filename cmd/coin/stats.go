@@ -1,32 +1,44 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"sort"
-	"time"
 
 	"github.com/mkobetic/coin"
 )
 
-var (
-	dupes      bool
-	unbalanced bool
-)
-
 func init() {
-	cmdStats := newCommand(coin.LoadAll, stats, "stats", "s")
-	cmdStats.BoolVar(&dupes, "d", false, "check for duplicate transactions")
-	cmdStats.BoolVar(&unbalanced, "u", false, "check for unbalanced transactions")
-	cmdStats.Var(&begin, "b", "begin register from this date")
-	cmdStats.Var(&end, "e", "end register on this date")
+	(&cmdStats{}).newCommand("stats", "s")
 }
 
-func stats(f io.Writer) {
+type cmdStats struct {
+	*flag.FlagSet
+	dupes      bool
+	unbalanced bool
+	begin, end coin.Date
+}
 
-	transactions := sliceTransactions(begin.Time, end.Time)
-	if dupes {
+func (_ *cmdStats) newCommand(names ...string) command {
+	var cmd cmdStats
+	cmd.FlagSet = newCommand(&cmd, names...)
+	cmd.BoolVar(&cmd.dupes, "d", false, "check for duplicate transactions")
+	cmd.BoolVar(&cmd.unbalanced, "u", false, "check for unbalanced transactions")
+	cmd.Var(&cmd.begin, "b", "begin register from this date")
+	cmd.Var(&cmd.end, "e", "end register on this date")
+	return &cmd
+}
+
+func (cmd *cmdStats) init() {
+	coin.LoadAll()
+}
+
+func (cmd *cmdStats) execute(f io.Writer) {
+
+	transactions := cmd.transactions()
+	if cmd.dupes {
 		var day []*coin.Transaction
 		for _, t := range transactions {
 			if len(day) == 0 {
@@ -50,7 +62,7 @@ func stats(f io.Writer) {
 		return
 	}
 
-	if unbalanced {
+	if cmd.unbalanced {
 		for _, t := range transactions {
 			for _, p := range t.Postings {
 				if p.Account == coin.Unbalanced {
@@ -70,20 +82,20 @@ func stats(f io.Writer) {
 	fmt.Fprintln(f, "Transactions:", len(transactions))
 }
 
-func sliceTransactions(begin, end time.Time) []*coin.Transaction {
+func (cmd *cmdStats) transactions() []*coin.Transaction {
 	transactions := coin.Transactions
-	if !begin.IsZero() {
+	if !cmd.begin.IsZero() {
 		from := sort.Search(len(transactions), func(i int) bool {
-			return !transactions[i].Posted.Before(begin)
+			return !transactions[i].Posted.Before(cmd.begin.Time)
 		})
 		if from == len(transactions) {
 			return nil
 		}
 		transactions = transactions[from:]
 	}
-	if !end.IsZero() {
+	if !cmd.end.IsZero() {
 		to := sort.Search(len(transactions), func(i int) bool {
-			return !transactions[i].Posted.Before(end)
+			return !transactions[i].Posted.Before(cmd.end.Time)
 		})
 		if to == len(transactions) {
 			return transactions

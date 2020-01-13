@@ -16,5 +16,9 @@ account Income:Salary
   Assets:Checking 100 CAD = 200 CAD
   Assets:Savings -100 CAD
 
-test stats -d
+test stats
+Commodities: 1
+Prices: 0
+Accounts: 7
+Transactions: 3
 end test

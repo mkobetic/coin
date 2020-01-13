@@ -35,6 +35,9 @@ func (d *Date) Set(s string) (err error) {
 }
 
 var DateFormat = "2006/01/02"
+var MonthFormat = "2006/01"
+var YearFormat = "2006"
+
 var ymd = rex.MustCompile(`` +
 	`((?P<ymd>((?P<ymdy>\d\d(\d\d)?)/)?(?P<ymdm>\d{1,2})/(?P<ymdd>\d{1,2}))|` +
 	`(?P<ym>(?P<ymy>\d{4})(/(?P<ymm>\d{1,2}))?))`)

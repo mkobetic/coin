@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,20 +12,26 @@ import (
 	"github.com/pmezard/go-difflib/difflib"
 )
 
-var (
-	cmdTest *command
-)
-
 func init() {
-	cmdTest = newCommand(test_load, test, "test", "t")
+	(&cmdTest{}).newCommand("test", "t")
 }
 
-func test_load() {
-	coin.LoadFile(cmdTest.Arg(0))
+type cmdTest struct {
+	*flag.FlagSet
+}
+
+func (_ *cmdTest) newCommand(names ...string) command {
+	var cmd cmdTest
+	cmd.FlagSet = newCommand(&cmd, names...)
+	return &cmd
+}
+
+func (cmd *cmdTest) init() {
+	coin.LoadFile(cmd.Arg(0))
 	coin.ResolveAll()
 }
 
-func test(f io.Writer) {
+func (cmd *cmdTest) execute(f io.Writer) {
 	for _, t := range coin.Tests {
 		var args []string
 		scanner := bufio.NewScanner(bytes.NewReader(t.Cmd))
@@ -41,6 +48,7 @@ func test(f io.Writer) {
 			fmt.Fprintf(os.Stderr, "test command unknown: %s", args[0])
 			return
 		}
+		command = command.newCommand(command.Name())
 		if len(args) > 1 {
 			command.Parse(args[1:])
 		} else {

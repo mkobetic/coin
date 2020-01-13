@@ -1,0 +1,39 @@
+commodity CAD
+  format 1.00 CAD
+
+commodity NBC814
+  note Altamira Precision Candian Index Fund
+  format 1.0000 NBC814
+  nomarket
+
+commodity IGI268
+  note Investors Global Natural Resources Class A
+  format 1.000 IGI268
+  nomarket
+
+P 2010/06/07 IGI268 25.78 CAD
+P 2010/06/07 NBC814 19.04 CAD
+P 2010/06/10 NBC814 19.29 CAD
+P 2010/06/10 IGI268 27.02 CAD
+P 2010/06/14 NBC814 19.73 CAD
+P 2010/06/14 IGI268 27.19 CAD
+P 2010/06/17 IGI268 27.64 CAD
+P 2010/06/17 NBC814 19.72 CAD
+P 2010/06/21 NBC814 19.54 CAD
+P 2010/06/21 IGI268 27.35 CAD
+P 2010/06/24 IGI268 27.06 CAD
+P 2010/06/24 NBC814 19.34 CAD
+P 2010/06/28 NBC814 18.60 CAD
+P 2010/06/28 IGI268 25.79 CAD
+
+test commodities
+       CAD | 
+    IGI268 | Investors Global Natural Resources Class A
+    NBC814 | Altamira Precision Candian Index Fund
+end test
+
+test commodities -p
+CAD
+IGI268: 2010/06/28 25.79 CAD [7]
+NBC814: 2010/06/28 18.60 CAD [7]
+end test

@@ -217,7 +217,7 @@ func ResolveTransactions(checkPostings bool) {
 		if len(commodities) > 1 {
 			// Postings with different commodities, make sure amounts are set
 			for _, s := range t.Postings {
-				check.If(s.Quantity != nil, "Posting without quantity in mixed transaction")
+				check.If(s.Quantity != nil, "Posting without quantity in mixed transaction: %s", t.Location())
 			}
 			continue
 		}
@@ -226,7 +226,7 @@ func ResolveTransactions(checkPostings bool) {
 		var total = NewAmount(big.NewInt(0), commodity)
 		for _, s := range t.Postings {
 			if s.Quantity == nil {
-				check.If(empty == nil, "Multiple postings without quantity")
+				check.If(empty == nil, "Multiple postings without quantity: %s", t.Location())
 				empty = s
 			} else {
 				total.AddIn(s.Quantity)
