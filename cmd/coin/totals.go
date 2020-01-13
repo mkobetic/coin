@@ -19,6 +19,24 @@ func newTotal(t time.Time, c *coin.Commodity) *total {
 	}
 }
 
+type totals struct {
+	// this must be set before using
+	by func(time.Time) time.Time
+	// these are internal
+	all     []*total
+	current *total
+}
+
+func (ts *totals) add(t time.Time, a *coin.Amount) {
+	period := ts.by(t)
+	if ts.current != nil && ts.current.Equal(period) {
+		ts.current.AddIn(a)
+		return
+	}
+	ts.current = &total{Time: period, Amount: a.Copy()}
+	ts.all = append(ts.all, ts.current)
+}
+
 func month(t time.Time) time.Time {
 	y, m, _ := t.Date()
 	return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
