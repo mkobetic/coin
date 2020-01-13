@@ -74,15 +74,23 @@ func (cmd *cmdRegister) flatRegister(f io.Writer, acc *coin.Account) {
 	}
 }
 
-func (cmd *cmdRegister) flatRegisterAggregated(f io.Writer, postings []*coin.Posting, commodity *coin.Commodity, by func(time.Time) time.Time, format string) {
+func (cmd *cmdRegister) flatRegisterAggregated(f io.Writer,
+	postings []*coin.Posting,
+	commodity *coin.Commodity,
+	by func(time.Time) time.Time,
+	format string,
+) {
 	totals := &totals{by: by}
 	for _, p := range postings {
 		totals.add(p.Transaction.Posted, p.Quantity)
 	}
+	total := coin.NewAmount(big.NewInt(0), commodity)
 	for _, t := range totals.all {
-		fmt.Fprintf(f, "%s | %10a \n",
+		total.AddIn(t.Amount)
+		fmt.Fprintf(f, "%s | %12a | %12a\n",
 			t.Time.Format(format),
 			t.Amount,
+			total,
 		)
 	}
 }
@@ -96,7 +104,7 @@ func (cmd *cmdRegister) flatRegisterFull(f io.Writer, postings []*coin.Posting, 
 	var total = coin.NewAmount(big.NewInt(0), commodity)
 	for _, s := range postings {
 		total.AddIn(s.Quantity)
-		fmt.Fprintf(f, "%s | %*s | %*s | %10a | %10a \n",
+		fmt.Fprintf(f, "%s | %*s | %*s | %10a | %10a\n",
 			s.Transaction.Posted.Format(coin.DateFormat),
 			min(desc, 50),
 			s.Transaction.Description,
@@ -109,6 +117,46 @@ func (cmd *cmdRegister) flatRegisterFull(f io.Writer, postings []*coin.Posting, 
 }
 
 func (cmd *cmdRegister) recursiveRegister(f io.Writer, acc *coin.Account) {
+	switch {
+	case cmd.weekly:
+		cmd.debugf("aggregating weekly")
+		cmd.recursiveRegisterAggregated(f, acc, week, coin.DateFormat)
+	case cmd.monthly:
+		cmd.debugf("aggregating monthly")
+		cmd.recursiveRegisterAggregated(f, acc, month, coin.MonthFormat)
+	case cmd.yearly:
+		cmd.debugf("aggregating yearly")
+		cmd.recursiveRegisterAggregated(f, acc, year, coin.YearFormat)
+	default:
+		cmd.recursiveRegisterFull(f, acc)
+	}
+}
+
+func (cmd *cmdRegister) recursiveRegisterAggregated(f io.Writer,
+	acc *coin.Account,
+	by func(time.Time) time.Time,
+	format string,
+) {
+	ts := &totals{by: by}
+	acc.WithChildrenDo(func(a *coin.Account) {
+		ts2 := &totals{by: by}
+		for _, p := range cmd.trim(a.Postings) {
+			ts2.add(p.Transaction.Posted, p.Quantity)
+		}
+		ts.merge(ts2)
+	})
+	total := coin.NewAmount(big.NewInt(0), acc.Commodity)
+	for _, t := range ts.all {
+		total.AddIn(t.Amount)
+		fmt.Fprintf(f, "%s | %12a | %12a\n",
+			t.Time.Format(format),
+			t.Amount,
+			total,
+		)
+	}
+}
+
+func (cmd *cmdRegister) recursiveRegisterFull(f io.Writer, acc *coin.Account) {
 	var postings []*coin.Posting
 	var desc, acct, from int
 	prefix := acc.FullName
@@ -127,7 +175,7 @@ func (cmd *cmdRegister) recursiveRegister(f io.Writer, acc *coin.Account) {
 		return postings[i].Transaction.Posted.Before(postings[j].Transaction.Posted)
 	})
 	for _, s := range postings {
-		fmt.Fprintf(f, "%s | %*s | %*s | %*s | %10a %s\n",
+		fmt.Fprintf(f, "%s | %*s | %*s | %*s | %10a%s\n",
 			s.Transaction.Posted.Format(coin.DateFormat),
 			min(desc, 50),
 			s.Transaction.Description,

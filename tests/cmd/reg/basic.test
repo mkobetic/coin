@@ -92,48 +92,77 @@ account Expenses:Rent
 
 test register Food
 Expenses:Food CAD
-2010/01/20 | Freshco | Assets:Bank |     150.00 |     150.00 
-2010/01/28 | Freshco | Assets:Bank |     100.00 |     250.00 
-2010/02/02 | Freshco | Assets:Bank |     100.00 |     350.00 
-2010/03/08 | Freshco | Assets:Bank |     200.00 |     550.00 
-2010/05/05 | Freshco | Assets:Bank |     300.00 |     850.00 
-2010/06/22 | Freshco | Assets:Bank |     250.00 |    1100.00 
-2010/07/03 | Freshco | Assets:Bank |     300.00 |    1400.00 
+2010/01/20 | Freshco | Assets:Bank |     150.00 |     150.00
+2010/01/28 | Freshco | Assets:Bank |     100.00 |     250.00
+2010/02/02 | Freshco | Assets:Bank |     100.00 |     350.00
+2010/03/08 | Freshco | Assets:Bank |     200.00 |     550.00
+2010/05/05 | Freshco | Assets:Bank |     300.00 |     850.00
+2010/06/22 | Freshco | Assets:Bank |     250.00 |    1100.00
+2010/07/03 | Freshco | Assets:Bank |     300.00 |    1400.00
 end test
 
 test register Salary
 Income:Salary CAD
-2010/01/15 | ACME Inc | Assets:Bank |   -1000.00 |   -1000.00 
-2010/02/15 | ACME Inc | Assets:Bank |   -1000.00 |   -2000.00 
-2010/03/15 | ACME Inc | Assets:Bank |   -1000.00 |   -3000.00 
-2010/04/15 | ACME Inc | Assets:Bank |   -1000.00 |   -4000.00 
-2010/05/15 | ACME Inc | Assets:Bank |   -1000.00 |   -5000.00 
-2010/06/15 | ACME Inc | Assets:Bank |   -1000.00 |   -6000.00 
-2010/07/15 | ACME Inc | Assets:Bank |   -1000.00 |   -7000.00 
+2010/01/15 | ACME Inc | Assets:Bank |   -1000.00 |   -1000.00
+2010/02/15 | ACME Inc | Assets:Bank |   -1000.00 |   -2000.00
+2010/03/15 | ACME Inc | Assets:Bank |   -1000.00 |   -3000.00
+2010/04/15 | ACME Inc | Assets:Bank |   -1000.00 |   -4000.00
+2010/05/15 | ACME Inc | Assets:Bank |   -1000.00 |   -5000.00
+2010/06/15 | ACME Inc | Assets:Bank |   -1000.00 |   -6000.00
+2010/07/15 | ACME Inc | Assets:Bank |   -1000.00 |   -7000.00
 end test
 
 test register -m Food
 Expenses:Food CAD
-2010/01 |     250.00 
-2010/02 |     100.00 
-2010/03 |     200.00 
-2010/05 |     300.00 
-2010/06 |     250.00 
-2010/07 |     300.00 
+2010/01 |       250.00 |       250.00
+2010/02 |       100.00 |       350.00
+2010/03 |       200.00 |       550.00
+2010/05 |       300.00 |       850.00
+2010/06 |       250.00 |      1100.00
+2010/07 |       300.00 |      1400.00
 end test
 
 test register -y Salary
 Income:Salary CAD
-2010 |   -7000.00 
+2010 |     -7000.00 |     -7000.00
 end test
 
 test register -w Rent
 Expenses:Rent CAD
-2010/01/24 |     500.00 
-2010/02/28 |     500.00 
-2010/03/28 |     500.00 
-2010/04/25 |     500.00 
-2010/05/30 |     500.00 
-2010/06/27 |     500.00 
-2010/07/25 |     500.00 
+2010/01/24 |       500.00 |       500.00
+2010/02/28 |       500.00 |      1000.00
+2010/03/28 |       500.00 |      1500.00
+2010/04/25 |       500.00 |      2000.00
+2010/05/30 |       500.00 |      2500.00
+2010/06/27 |       500.00 |      3000.00
+2010/07/25 |       500.00 |      3500.00
+end test
+
+test register -r Expenses
+Expenses CAD
+2010/01/20 |      Freshco | :Food | Assets:Bank |     150.00CAD
+2010/01/28 |      Freshco | :Food | Assets:Bank |     100.00CAD
+2010/01/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/02/02 |      Freshco | :Food | Assets:Bank |     100.00CAD
+2010/02/28 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/03/08 |      Freshco | :Food | Assets:Bank |     200.00CAD
+2010/03/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/04/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/05/05 |      Freshco | :Food | Assets:Bank |     300.00CAD
+2010/05/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/06/22 |      Freshco | :Food | Assets:Bank |     250.00CAD
+2010/06/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+2010/07/03 |      Freshco | :Food | Assets:Bank |     300.00CAD
+2010/07/30 | Housing Corp | :Rent | Assets:Bank |     500.00CAD
+end test
+
+test register -r -m Expenses
+Expenses CAD
+2010/01 |       750.00 |       750.00
+2010/02 |       600.00 |      1350.00
+2010/03 |       700.00 |      2050.00
+2010/04 |       500.00 |      2550.00
+2010/05 |       800.00 |      3350.00
+2010/06 |       750.00 |      4100.00
+2010/07 |       800.00 |      4900.00
 end test
