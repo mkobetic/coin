@@ -24,6 +24,8 @@ type cmdRegister struct {
 	recurse                 bool
 	begin, end              coin.Date
 	weekly, monthly, yearly bool
+	top                     int
+	cumulative              bool
 }
 
 func (_ *cmdRegister) newCommand(names ...string) command {
@@ -36,6 +38,8 @@ func (_ *cmdRegister) newCommand(names ...string) command {
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
+	cmd.IntVar(&cmd.top, "t", 5, "include this many subaccounts in aggregate results")
+	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
 	return &cmd
 }
 
@@ -137,23 +141,41 @@ func (cmd *cmdRegister) recursiveRegisterAggregated(f io.Writer,
 	by func(time.Time) time.Time,
 	format string,
 ) {
-	ts := &totals{by: by}
+	totals := accountTotals{}
 	acc.WithChildrenDo(func(a *coin.Account) {
-		ts2 := &totals{by: by}
+		ts := totals.newTotals(a, by, cmd.cumulative)
 		for _, p := range cmd.trim(a.Postings) {
-			ts2.add(p.Transaction.Posted, p.Quantity)
+			ts.add(p.Transaction.Posted, p.Quantity)
 		}
-		ts.merge(ts2)
 	})
-	total := coin.NewAmount(big.NewInt(0), acc.Commodity)
-	for _, t := range ts.all {
-		total.AddIn(t.Amount)
-		fmt.Fprintf(f, "%s | %12a | %12a\n",
-			t.Time.Format(format),
-			t.Amount,
-			total,
-		)
+	acc.FirstWithChildrenDo(func(a *coin.Account) {
+		child := totals[a]
+		parent := totals[a.Parent]
+		if parent != nil {
+			parent.merge(child)
+		}
+	})
+	accTotals := totals[acc]
+	delete(totals, acc)
+	var accounts []*coin.Account
+	totals, accounts = totals.top(cmd.top)
+	totals.mergeTime(accTotals)
+	totals[acc] = accTotals
+	accounts = append(accounts, acc)
+	if cmd.cumulative {
+		totals.cumulative()
 	}
+	label := func(a *coin.Account) string {
+		switch a {
+		case nil:
+			return "Other"
+		case acc:
+			return "Totals"
+		default:
+			return strings.TrimPrefix(a.FullName, acc.FullName)
+		}
+	}
+	totals.print(f, accounts, label, format)
 }
 
 func (cmd *cmdRegister) recursiveRegisterFull(f io.Writer, acc *coin.Account) {

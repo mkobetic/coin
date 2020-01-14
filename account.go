@@ -194,6 +194,13 @@ func (a *Account) WithChildrenDo(f func(a *Account)) {
 	}
 }
 
+func (a *Account) FirstWithChildrenDo(f func(a *Account)) {
+	for _, c := range a.Children {
+		c.WithChildrenDo(f)
+	}
+	f(a)
+}
+
 func (a *Account) adopt(c *Account) {
 	isChild := false
 	c.WithChildrenDo(func(d *Account) {

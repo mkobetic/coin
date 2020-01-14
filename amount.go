@@ -122,8 +122,21 @@ func (a *Amount) IsZero() bool {
 	return a == nil || a.Sign() == 0
 }
 
-func (a *Amount) IsEqual(b *Amount) bool {
-	return a.Cmp(b.adjustedTo(a)) == 0
+func (a *Amount) IsEqual(b *Amount) bool    { return a.Cmp(b) == 0 }
+func (a *Amount) IsLessThan(b *Amount) bool { return a.Cmp(b) < 0 }
+func (a *Amount) IsMoreThan(b *Amount) bool { return a.Cmp(b) > 0 }
+func (a *Amount) Cmp(b *Amount) int {
+	return a.Int.Cmp(b.adjustedTo(a))
+}
+
+func (a *Amount) Magnitude() *big.Int {
+	return new(big.Int).Abs(a.Int)
+}
+
+func (a *Amount) IsBigger(b *Amount) bool  { return a.CmpMagnitude(b) > 0 }
+func (a *Amount) IsSmaller(b *Amount) bool { return a.CmpMagnitude(b) < 0 }
+func (a *Amount) CmpMagnitude(b *Amount) int {
+	return a.Magnitude().Cmp(b.Magnitude())
 }
 
 // func (a *Amount) DivBy(b *Amount) *Amount {

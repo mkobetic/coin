@@ -4,7 +4,7 @@
 * accounts: change `check commodity ==` clause to just `commodity`
 * commodities: add `default` clause
 * add -b/-e options to `balance`
-* add weekly/monthly/yearly totals to `register` and `balance`
+* fix the fixed amount widths in `register` and `balance`
 * make sure all errors include Location
 * sorting by quantity to aid finding largest transactions
 * how to match :Acct when there's :XAcct as well?
