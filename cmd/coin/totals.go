@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mkobetic/coin"
+	"github.com/mkobetic/coin/check"
 )
 
 type total struct {
@@ -97,6 +98,9 @@ func (ts *totals) mergeTime(ts2 *totals) {
 
 // maxWidth returns the largest amount width needed for printing
 func (ts *totals) maxWidth() int {
+	if ts == nil || ts.current == nil {
+		return 0
+	}
 	var max int
 	for _, t := range ts.all {
 		if w := t.Width(ts.current.Commodity.Decimals); w > max {
@@ -138,7 +142,45 @@ func (ts *totals) cumulative() {
 	}
 }
 
+func (ts *totals) validate(acc string) {
+	check.If(ts.current != nil, "current nil for %s", acc)
+	for _, t := range ts.all {
+		check.If(t.Amount != nil, "amount nil @ %s for %s",
+			t.Time.Format(coin.DateFormat),
+			acc,
+		)
+	}
+}
+
+func (ts *totals) String() string {
+	if ts == nil {
+		return "nil()"
+	}
+	count := len(ts.all)
+	if count == 0 {
+		return "0()"
+	}
+	from := ts.all[0].Time.Format(coin.DateFormat)
+	if count == 1 {
+		return fmt.Sprintf("1(%s)", from)
+	}
+	to := ts.all[count-1].Time.Format(coin.DateFormat)
+	return fmt.Sprintf("%d(%s-%s)", count, from, to)
+}
+
 type accountTotals map[*coin.Account]*totals
+
+func (ats accountTotals) String() string {
+	var items []string
+	for acc, ts := range ats {
+		n := "nil"
+		if acc != nil {
+			n = acc.Name
+		}
+		items = append(items, fmt.Sprintf("%s:%s", n, ts))
+	}
+	return fmt.Sprintf("totals{%s}", strings.Join(items, ", "))
+}
 
 func (ats accountTotals) newTotals(acc *coin.Account, by func(time.Time) time.Time, cumulative bool) *totals {
 	ts := &totals{by: by}
@@ -174,7 +216,7 @@ func (ats accountTotals) cumulative() {
 	}
 }
 
-// top reduces the totals to top n by maximum magnitude + others (key: nil)
+// top reduces the totals to top n by maximum magnitude + others (account == nil!)
 func (ats accountTotals) top(n int) (topn accountTotals, order []*coin.Account) {
 	topn = accountTotals{}
 	magnitudes := ats.magnitudes()
@@ -189,12 +231,14 @@ func (ats accountTotals) top(n int) (topn accountTotals, order []*coin.Account) 
 		topn[acc] = ats[acc]
 	}
 	rest := accounts[n:]
+	accounts = accounts[:n]
 	if len(rest) > 1 {
 		others := ats[rest[0]]
 		for _, acc := range rest[1:] {
 			others.merge(ats[acc])
 		}
 		topn[nil] = others
+		accounts = append(accounts, nil)
 	}
 	return topn, accounts
 }
@@ -205,6 +249,30 @@ func (ats accountTotals) top(n int) (topn accountTotals, order []*coin.Account) 
 func (ats accountTotals) mergeTime(ts *totals) {
 	for _, ts2 := range ats {
 		ts2.mergeTime(ts)
+	}
+}
+
+func (ats accountTotals) validate() {
+	for acc, ts := range ats {
+		n := "nil"
+		if acc != nil {
+			n = acc.FullName
+		}
+		ts.validate(n)
+	}
+	fmt.Println(ats)
+}
+
+// santize removes accounts that don't have any totals
+func (ats accountTotals) sanitize() {
+	var empty []*coin.Account
+	for acc, ts := range ats {
+		if len(ts.all) == 0 {
+			empty = append(empty, acc)
+		}
+	}
+	for _, acc := range empty {
+		delete(ats, acc)
 	}
 }
 
@@ -239,13 +307,16 @@ func (ats accountTotals) print(f io.Writer,
 	}
 	fmtString := strings.TrimSpace(strings.Join(format, "|")) + "\n"
 	for i := range firstCol {
-		args := []interface{}{
-			width1,
-			firstCol[i].Time.Format(dateFmt),
-		}
+		tm := firstCol[i].Time.Format(dateFmt)
+		args := []interface{}{width1, tm}
 		for ii, acc := range order {
+			ts := ats[acc]
+			check.If(ts != nil, "nil totals for %s\n", label(acc))
+			t := ts.all[i]
+			tm2 := t.Time.Format(dateFmt)
+			check.If(tm == tm2, "%s[%d]: %s != %s\n", label(acc), i, tm, tm2)
 			args = append(args, widths[ii])
-			args = append(args, ats[acc].all[i].Amount)
+			args = append(args, t.Amount)
 		}
 		fmt.Fprintf(f, fmtString, args...)
 	}

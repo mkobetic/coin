@@ -155,6 +155,7 @@ func (cmd *cmdRegister) recursiveRegisterAggregated(f io.Writer,
 			parent.merge(child)
 		}
 	})
+	totals.sanitize()
 	accTotals := totals[acc]
 	delete(totals, acc)
 	var accounts []*coin.Account
