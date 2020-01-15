@@ -3,7 +3,6 @@ package coin
 import (
 	"fmt"
 	"io"
-	"math/big"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -223,7 +222,7 @@ func ResolveTransactions(checkPostings bool) {
 		}
 		// All postings with the same commodity make sure transaction is balanced
 		var empty *Posting
-		var total = NewAmount(big.NewInt(0), commodity)
+		var total = NewZeroAmount(commodity)
 		for _, s := range t.Postings {
 			if s.Quantity == nil {
 				check.If(empty == nil, "Multiple postings without quantity: %s", t.Location())

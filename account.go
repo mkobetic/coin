@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"math/big"
 	"strings"
 	"unicode"
 
@@ -150,10 +149,10 @@ func (a *Account) Balance() *Amount {
 
 func (a *Account) CheckPostings() {
 	if len(a.Postings) == 0 {
-		a.balance = NewAmount(big.NewInt(0), a.Commodity)
+		a.balance = NewZeroAmount(a.Commodity)
 		return
 	}
-	a.balance = NewAmount(big.NewInt(0), a.Commodity)
+	a.balance = NewZeroAmount(a.Commodity)
 	for _, s := range a.Postings {
 		a.balance.AddIn(s.Quantity)
 		if s.Balance != nil {

@@ -18,7 +18,7 @@ type total struct {
 
 type totals struct {
 	// this must be set before using
-	by func(time.Time) time.Time
+	*reducer
 	// these are internal
 	all     []*total
 	current *total
@@ -27,7 +27,7 @@ type totals struct {
 // add amount at time t, t must not be before ts.current.Time,
 // i.e. items being added must be sorted by time.
 func (ts *totals) add(t time.Time, a *coin.Amount) {
-	period := ts.by(t)
+	period := ts.reduce(t)
 	if ts.current != nil && ts.current.Equal(period) {
 		ts.current.AddIn(a)
 		return
@@ -193,8 +193,8 @@ func (ats accountTotals) String() string {
 	return fmt.Sprintf("totals{%s}", strings.Join(items, ", "))
 }
 
-func (ats accountTotals) newTotals(acc *coin.Account, by func(time.Time) time.Time, cumulative bool) *totals {
-	ts := &totals{by: by}
+func (ats accountTotals) newTotals(acc *coin.Account, by *reducer) *totals {
+	ts := &totals{reducer: by}
 	ats[acc] = ts
 	return ts
 }
@@ -231,7 +231,13 @@ func (ats accountTotals) makeCumulative() {
 func (ats accountTotals) top(n int) (topn accountTotals, order []*coin.Account) {
 	topn = accountTotals{}
 	magnitudes := ats.magnitudes()
-	accounts := ats.accounts()
+	var accounts []*coin.Account
+	for _, acc := range ats.accounts() {
+		if magnitudes[acc] != nil {
+			accounts = append(accounts, acc)
+		}
+	}
+
 	sort.Slice(accounts, func(i int, j int) bool {
 		return magnitudes[accounts[i]].IsBigger(magnitudes[accounts[j]])
 	})
@@ -290,10 +296,9 @@ func (ats accountTotals) sanitize() {
 func (ats accountTotals) print(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
-	dateFmt string,
 ) {
-	firstCol := ats[order[0]].all
-	width1 := len(firstCol[0].Time.Format(dateFmt))
+	firstCol := ats[order[0]]
+	width1 := len(firstCol.all[0].Time.Format(firstCol.format))
 	widths := ats.widths(order)
 	format := []string{"%*s "}
 	if label != nil {
@@ -317,14 +322,14 @@ func (ats accountTotals) print(f io.Writer,
 		fmt.Fprintf(f, fmtString, args...)
 	}
 	fmtString := strings.TrimSpace(strings.Join(format, "|")) + "\n"
-	for i := range firstCol {
-		tm := firstCol[i].Time.Format(dateFmt)
+	for i := range firstCol.all {
+		tm := firstCol.all[i].Time.Format(firstCol.format)
 		args := []interface{}{width1, tm}
 		for ii, acc := range order {
 			ts := ats[acc]
 			check.If(ts != nil, "nil totals for %s\n", label(acc))
 			t := ts.all[i]
-			tm2 := t.Time.Format(dateFmt)
+			tm2 := t.Time.Format(firstCol.format)
 			check.If(tm == tm2, "%s[%d]: %s != %s\n", label(acc), i, tm, tm2)
 			args = append(args, widths[ii])
 			args = append(args, t.Amount)
@@ -333,19 +338,35 @@ func (ats accountTotals) print(f io.Writer,
 	}
 }
 
-func month(t time.Time) time.Time {
-	y, m, _ := t.Date()
-	return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
+// reducer coerces time to specified period
+// and carries corresponding time format string.
+type reducer struct {
+	reduce func(t time.Time) time.Time
+	format string
 }
 
-func year(t time.Time) time.Time {
-	y, _, _ := t.Date()
-	return time.Date(y, time.January, 1, 12, 0, 0, 0, time.UTC)
+var month = reducer{
+	reduce: func(t time.Time) time.Time {
+		y, m, _ := t.Date()
+		return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
+	},
+	format: coin.MonthFormat,
 }
 
-func week(t time.Time) time.Time {
-	dow := int(t.Weekday())
-	t = t.AddDate(0, 0, -dow)
-	y, m, d := t.Date()
-	return time.Date(y, m, d, 12, 0, 0, 0, time.UTC)
+var year = reducer{
+	reduce: func(t time.Time) time.Time {
+		y, _, _ := t.Date()
+		return time.Date(y, time.January, 1, 12, 0, 0, 0, time.UTC)
+	},
+	format: coin.YearFormat,
+}
+
+var week = reducer{
+	reduce: func(t time.Time) time.Time {
+		dow := int(t.Weekday())
+		t = t.AddDate(0, 0, -dow)
+		y, m, d := t.Date()
+		return time.Date(y, m, d, 12, 0, 0, 0, time.UTC)
+	},
+	format: coin.DateFormat,
 }
