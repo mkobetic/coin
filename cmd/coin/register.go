@@ -26,6 +26,7 @@ type cmdRegister struct {
 	weekly, monthly, yearly bool
 	top                     int
 	cumulative              bool
+	maxLabelWidth           int
 }
 
 func (_ *cmdRegister) newCommand(names ...string) command {
@@ -40,6 +41,7 @@ func (_ *cmdRegister) newCommand(names ...string) command {
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
 	cmd.IntVar(&cmd.top, "t", 5, "include this many subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
+	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
 	return &cmd
 }
 
@@ -164,7 +166,7 @@ func (cmd *cmdRegister) recursiveRegisterAggregated(f io.Writer,
 	totals[acc] = accTotals
 	accounts = append(accounts, acc)
 	if cmd.cumulative {
-		totals.cumulative()
+		totals.makeCumulative()
 	}
 	label := func(a *coin.Account) string {
 		switch a {
@@ -173,7 +175,8 @@ func (cmd *cmdRegister) recursiveRegisterAggregated(f io.Writer,
 		case acc:
 			return "Totals"
 		default:
-			return strings.TrimPrefix(a.FullName, acc.FullName)
+			n := strings.TrimPrefix(a.FullName, acc.FullName)
+			return coin.ShortenAccountName(n, cmd.maxLabelWidth)
 		}
 	}
 	totals.print(f, accounts, label, format)

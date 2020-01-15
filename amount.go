@@ -26,12 +26,16 @@ func NewAmountFrac(num, den *big.Int, c *Commodity) *Amount {
 	return NewAmount(b, c)
 }
 
+func NewZeroAmount(c *Commodity) *Amount {
+	return NewAmount(new(big.Int), c)
+}
+
 func NewAmount(b *big.Int, c *Commodity) *Amount {
 	return &Amount{b, c}
 }
 
 func (a *Amount) Copy() *Amount {
-	return &Amount{new(big.Int).Set(a.Int), a.Commodity}
+	return NewAmount(new(big.Int).Set(a.Int), a.Commodity)
 }
 
 // Format implements fmt.Formatter

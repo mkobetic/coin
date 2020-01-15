@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"math/big"
 	"sort"
 	"strings"
 	"time"
@@ -46,7 +45,7 @@ func (ts *totals) addTotals(ts2 ...*total) {
 
 func (ts *totals) addTimes(ts2 ...*total) {
 	for _, t := range ts2 {
-		ts.add(t.Time, coin.NewAmount(new(big.Int), t.Commodity))
+		ts.add(t.Time, coin.NewZeroAmount(t.Commodity))
 	}
 }
 
@@ -128,13 +127,25 @@ func (ts *totals) maxMagnitude() *coin.Amount {
 	return max
 }
 
+// cumMagnitude returns the sum of the totals
+func (ts *totals) cumMagnitude() *coin.Amount {
+	if len(ts.all) == 0 {
+		return nil
+	}
+	total := coin.NewZeroAmount(ts.all[0].Commodity)
+	for _, t := range ts.all {
+		total.AddIn(t.Amount)
+	}
+	return total
+}
+
 // cumulative converts ts to a cumulative totals sequence
-func (ts *totals) cumulative() {
+func (ts *totals) makeCumulative() {
 	if ts.current == nil {
 		return
 	}
 	all := ts.all
-	cum := coin.NewAmount(new(big.Int), ts.current.Commodity)
+	cum := coin.NewZeroAmount(ts.current.Commodity)
 	ts.all, ts.current = nil, nil
 	for _, t := range all {
 		cum.AddIn(t.Amount)
@@ -198,7 +209,7 @@ func (ats accountTotals) widths(order []*coin.Account) (widths []int) {
 func (ats accountTotals) magnitudes() (magnitudes map[*coin.Account]*coin.Amount) {
 	magnitudes = map[*coin.Account]*coin.Amount{}
 	for acc, ts := range ats {
-		magnitudes[acc] = ts.maxMagnitude()
+		magnitudes[acc] = ts.cumMagnitude()
 	}
 	return magnitudes
 }
@@ -210,9 +221,9 @@ func (ats accountTotals) accounts() (accounts []*coin.Account) {
 	return accounts
 }
 
-func (ats accountTotals) cumulative() {
+func (ats accountTotals) makeCumulative() {
 	for _, ts := range ats {
-		ts.cumulative()
+		ts.makeCumulative()
 	}
 }
 

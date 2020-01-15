@@ -220,3 +220,28 @@ func (a *Account) adopt(c *Account) {
 	c.Parent = a
 	a.Children = append(a.Children, c)
 }
+
+func ShortenAccountName(n string, size int) string {
+	if len(n) <= size {
+		return n
+	}
+	parts := strings.Split(n, ":")
+	over := len(n) - size
+	for i := 0; over > 0 && i < len(parts); i++ {
+		l := len(parts[i])
+		if l == 0 {
+			continue
+		}
+		drop := min(over, l-1)
+		parts[i] = parts[i][:l-drop]
+		over -= drop
+	}
+	return strings.Join(parts, ":")
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
