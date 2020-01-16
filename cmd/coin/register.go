@@ -60,65 +60,17 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 		}
 	} else {
 		if cmd.recurse {
-			cmd.recursiveRegister(f, acc)
+			var ps postings
+			acc.WithChildrenDo(func(a *coin.Account) {
+				ps = append(ps, cmd.trim(a.Postings)...)
+			})
+			sort.SliceStable(ps, func(i, j int) bool {
+				return ps[i].Transaction.Posted.Before(ps[j].Transaction.Posted)
+			})
+			ps.printLong(f, acc.FullName, 50, cmd.maxLabelWidth)
 		} else {
-			cmd.flatRegister(f, acc)
+			cmd.trim(acc.Postings).print(f, acc.FullName, 50, cmd.maxLabelWidth)
 		}
-	}
-}
-
-func (cmd *cmdRegister) flatRegister(f io.Writer, acc *coin.Account) {
-	postings := cmd.trim(acc.Postings)
-	var desc, acct int
-	for _, s := range postings {
-		desc = max(desc, len(s.Transaction.Description))
-		acct = max(acct, len(s.Transaction.Other(s).Account.FullName))
-	}
-	var total = coin.NewZeroAmount(acc.Commodity)
-	for _, s := range postings {
-		total.AddIn(s.Quantity)
-		fmt.Fprintf(f, "%s | %*s | %*s | %10a | %10a\n",
-			s.Transaction.Posted.Format(coin.DateFormat),
-			min(desc, 50),
-			s.Transaction.Description,
-			min(acct, 50),
-			s.Transaction.Other(s).Account.FullName,
-			s.Quantity,
-			total,
-		)
-	}
-}
-
-func (cmd *cmdRegister) recursiveRegister(f io.Writer, acc *coin.Account) {
-	var postings []*coin.Posting
-	var desc, acct, from int
-	prefix := acc.FullName
-	acc.WithChildrenDo(func(a *coin.Account) {
-		if l := len(a.FullName) - len(acc.FullName); l > from {
-			from = l
-		}
-		for _, s := range cmd.trim(a.Postings) {
-			desc = max(desc, len(s.Transaction.Description))
-			acct = max(acct, len(strings.TrimPrefix(s.Transaction.Other(s).Account.FullName, prefix)))
-			postings = append(postings, s)
-		}
-	})
-	// sort all postings by time
-	sort.SliceStable(postings, func(i, j int) bool {
-		return postings[i].Transaction.Posted.Before(postings[j].Transaction.Posted)
-	})
-	for _, s := range postings {
-		fmt.Fprintf(f, "%s | %*s | %*s | %*s | %10a%s\n",
-			s.Transaction.Posted.Format(coin.DateFormat),
-			min(desc, 50),
-			s.Transaction.Description,
-			min(from, 50),
-			strings.TrimPrefix(s.Account.FullName, prefix),
-			min(acct, 50),
-			strings.TrimPrefix(s.Transaction.Other(s).Account.FullName, prefix),
-			s.Quantity,
-			s.Account.CommodityId,
-		)
 	}
 }
 
@@ -130,17 +82,13 @@ func (cmd *cmdRegister) flatAggregatedRegister(f io.Writer, acc *coin.Account, b
 			ts.add(p.Transaction.Posted, p.Quantity)
 		}
 	})
-	accTotals := totals[acc]
-	check.If(accTotals != nil, "wat?")
-	delete(totals, acc)
 	var accounts []*coin.Account
 	totals, accounts = totals.top(cmd.top)
+	top := totals[accounts[0]]
 	for _, ts := range totals {
-		accTotals.mergeTime(ts)
+		top.mergeTime(ts)
 	}
-	totals.mergeTime(accTotals)
-	totals[acc] = accTotals
-	accounts = append(accounts, acc)
+	totals.mergeTime(top)
 	if cmd.cumulative {
 		totals.makeCumulative()
 	}
@@ -213,26 +161,26 @@ func (cmd *cmdRegister) period() *reducer {
 	return nil
 }
 
-func (cmd *cmdRegister) trim(postings []*coin.Posting) []*coin.Posting {
+func (cmd *cmdRegister) trim(ps []*coin.Posting) postings {
 	if !cmd.begin.IsZero() {
-		from := sort.Search(len(postings), func(i int) bool {
-			return !postings[i].Transaction.Posted.Before(cmd.begin.Time)
+		from := sort.Search(len(ps), func(i int) bool {
+			return !ps[i].Transaction.Posted.Before(cmd.begin.Time)
 		})
-		if from == len(postings) {
+		if from == len(ps) {
 			return nil
 		}
-		postings = postings[from:]
+		ps = ps[from:]
 	}
 	if !cmd.end.IsZero() {
-		to := sort.Search(len(postings), func(i int) bool {
-			return !postings[i].Transaction.Posted.Before(cmd.end.Time)
+		to := sort.Search(len(ps), func(i int) bool {
+			return !ps[i].Transaction.Posted.Before(cmd.end.Time)
 		})
-		if to == len(postings) {
-			return postings
+		if to == len(ps) {
+			return ps
 		}
-		postings = postings[:to]
+		ps = ps[:to]
 	}
-	return postings
+	return postings(ps)
 }
 
 func (cmd *cmdRegister) debugf(format string, args ...interface{}) {
@@ -240,18 +188,4 @@ func (cmd *cmdRegister) debugf(format string, args ...interface{}) {
 		return
 	}
 	fmt.Fprintf(os.Stderr, format, args...)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

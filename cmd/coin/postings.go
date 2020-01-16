@@ -1,0 +1,92 @@
+package main
+
+import (
+	"fmt"
+	"io"
+	"strings"
+
+	"github.com/mkobetic/coin"
+)
+
+type postings []*coin.Posting
+
+func (ps postings) widths(acctPrefix string) (widths [4]int) {
+	for _, p := range ps {
+		widths[0] = max(widths[0], len(p.Transaction.Description))
+		widths[1] = max(widths[1], len(strings.TrimPrefix(p.Account.FullName, acctPrefix)))
+		widths[2] = max(widths[2], p.Quantity.Width(p.Account.Commodity.Decimals))
+		widths[3] = max(widths[3], len(p.Transaction.Other(p).Account.FullName))
+	}
+	return widths
+}
+
+func (ps postings) totals(com *coin.Commodity) (ts []*coin.Amount) {
+	total := coin.NewZeroAmount(com)
+	for _, p := range ps {
+		total.AddIn(p.Quantity)
+		ts = append(ts, total.Copy())
+	}
+	return ts
+}
+
+func (ps postings) print(f io.Writer, prefix string, maxDesc, maxAcct int) {
+	if len(ps) == 0 {
+		return
+	}
+	widths := ps.widths(prefix)
+	widths[0] = min(widths[0], maxDesc)
+	widths[3] = min(widths[3], maxAcct)
+	commodity := ps[0].Account.Commodity
+	totals := ps.totals(commodity)
+	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
+	fmtString := "%s | %*s | %*s | %*a | %*a %s\n"
+	for i, s := range ps {
+		fmt.Fprintf(f, fmtString,
+			s.Transaction.Posted.Format(coin.DateFormat),
+			widths[0], s.Transaction.Description,
+			widths[3], coin.ShortenAccountName(strings.TrimPrefix(s.Transaction.Other(s).Account.FullName, prefix), maxAcct),
+			widths[2], s.Quantity,
+			tWidth, totals[i],
+			s.Account.CommodityId,
+		)
+	}
+}
+
+func (ps postings) printLong(f io.Writer, prefix string, maxDesc, maxAcct int) {
+	if len(ps) == 0 {
+		return
+	}
+	widths := ps.widths(prefix)
+	widths[0] = min(widths[0], maxDesc)
+	widths[1] = min(widths[1], maxAcct)
+	widths[3] = min(widths[3], maxAcct)
+	commodity := ps[0].Account.Commodity
+	totals := ps.totals(commodity)
+	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
+	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s\n"
+	for i, s := range ps {
+		fmt.Fprintf(f, fmtString,
+			s.Transaction.Posted.Format(coin.DateFormat),
+			widths[0], s.Transaction.Description,
+			widths[1], coin.ShortenAccountName(strings.TrimPrefix(s.Account.FullName, prefix), maxAcct),
+			widths[3], coin.ShortenAccountName(strings.TrimPrefix(s.Transaction.Other(s).Account.FullName, prefix), maxAcct),
+			widths[2], s.Quantity,
+			tWidth, totals[i],
+			s.Account.CommodityId,
+		)
+	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

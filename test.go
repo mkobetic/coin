@@ -31,3 +31,7 @@ func (p *Parser) parseTest(fn string) (*Test, error) {
 	}
 	return t, p.Err()
 }
+
+func (t *Test) Location() string {
+	return fmt.Sprintf("%s:%d", t.file, t.line)
+}

@@ -57,10 +57,10 @@ func (cmd *cmdTest) execute(f io.Writer) {
 		var b bytes.Buffer
 		command.execute(&b)
 		if bytes.Equal(b.Bytes(), t.Result) {
-			fmt.Fprintf(f, "OK: %s\n", t.Cmd)
+			fmt.Fprintf(f, "OK %s %s\n", t.Location(), t.Cmd)
 			continue
 		}
-		fmt.Fprintf(f, "FAIL: %s\n", t.Cmd)
+		fmt.Fprintf(f, "FAIL %s %s\n", t.Location(), t.Cmd)
 		difflib.WriteUnifiedDiff(f,
 			difflib.UnifiedDiff{
 				B:        difflib.SplitLines(b.String()),
