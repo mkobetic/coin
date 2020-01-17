@@ -25,6 +25,7 @@ type cmdRegister struct {
 	top                     int
 	cumulative              bool
 	maxLabelWidth           int
+	output                  string
 }
 
 func (_ *cmdRegister) newCommand(names ...string) command {
@@ -40,6 +41,7 @@ func (_ *cmdRegister) newCommand(names ...string) command {
 	cmd.IntVar(&cmd.top, "t", 5, "include this many subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
+	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv")
 	return &cmd
 }
 
@@ -51,7 +53,9 @@ func (cmd *cmdRegister) init() {
 func (cmd *cmdRegister) execute(f io.Writer) {
 	pattern := cmd.Arg(0)
 	acc := coin.MustFindAccount(pattern)
-	fmt.Fprintln(f, acc.FullName, acc.Commodity.Id)
+	if cmd.output == "text" {
+		fmt.Fprintln(f, acc.FullName, acc.Commodity.Id)
+	}
 	if by := cmd.period(); by != nil {
 		if cmd.recurse {
 			cmd.recursiveAggregatedRegister(f, acc, by)
@@ -103,7 +107,7 @@ func (cmd *cmdRegister) flatAggregatedRegister(f io.Writer, acc *coin.Account, b
 			return coin.ShortenAccountName(n, cmd.maxLabelWidth)
 		}
 	}
-	totals.print(f, accounts, label)
+	totals.output(f, accounts, label, cmd.output)
 }
 
 func (cmd *cmdRegister) recursiveAggregatedRegister(f io.Writer, acc *coin.Account, by *reducer) {
@@ -146,7 +150,7 @@ func (cmd *cmdRegister) recursiveAggregatedRegister(f io.Writer, acc *coin.Accou
 			return coin.ShortenAccountName(n, cmd.maxLabelWidth)
 		}
 	}
-	totals.print(f, accounts, label)
+	totals.output(f, accounts, label, cmd.output)
 }
 
 func (cmd *cmdRegister) period() *reducer {

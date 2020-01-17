@@ -38,6 +38,12 @@ func (a *Amount) Copy() *Amount {
 	return NewAmount(new(big.Int).Set(a.Int), a.Commodity)
 }
 
+func (a *Amount) String() string {
+	val := new(big.Rat)
+	val.SetFrac(a.Int, bigPow10(a.Commodity.Decimals))
+	return val.FloatString(a.Commodity.Decimals)
+}
+
 // Format implements fmt.Formatter
 func (a *Amount) Format(f fmt.State, c rune) {
 	if f.Flag('#') {

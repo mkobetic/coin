@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"sort"
@@ -293,6 +295,21 @@ func (ats accountTotals) sanitize() {
 	}
 }
 
+func (ats accountTotals) output(f io.Writer,
+	order []*coin.Account,
+	label func(*coin.Account) string,
+	format string,
+) {
+	switch format {
+	case "json":
+		ats.rows(order, label).writeJSON(f)
+	case "csv":
+		ats.rows(order, label).writeCSV(f)
+	default:
+		ats.print(f, order, label)
+	}
+}
+
 func (ats accountTotals) print(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
@@ -335,6 +352,47 @@ func (ats accountTotals) print(f io.Writer,
 			args = append(args, t.Amount)
 		}
 		fmt.Fprintf(f, fmtString, args...)
+	}
+}
+
+func (ats accountTotals) rows(
+	order []*coin.Account,
+	label func(*coin.Account) string,
+) (rs rows) {
+	header := []string{"Date"}
+	for _, acc := range order {
+		header = append(header, label(acc))
+	}
+	rs = append(rs, header)
+	firstCol := ats[order[0]]
+	for i := range firstCol.all {
+		tm := firstCol.all[i].Time.Format(firstCol.format)
+		row := []string{tm}
+		for _, acc := range order {
+			t := ats[acc].all[i]
+			tm2 := t.Time.Format(firstCol.format)
+			check.If(tm == tm2, "%s[%d]: %s != %s\n", label(acc), i, tm, tm2)
+			row = append(row, t.Amount.String())
+		}
+		rs = append(rs, row)
+	}
+	return rs
+}
+
+type rows [][]string
+
+func (rs rows) writeCSV(f io.Writer) {
+	w := csv.NewWriter(f)
+	for _, r := range rs {
+		w.Write(r)
+	}
+	w.Flush()
+}
+
+func (rs rows) writeJSON(f io.Writer) {
+	w := json.NewEncoder(f)
+	for _, r := range rs {
+		w.Encode(r)
 	}
 }
 
