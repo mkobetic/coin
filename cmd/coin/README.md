@@ -1,4 +1,5 @@
 This is the main coin command with subcommands modeled after ledger CLI.
+Use `-h` for detiled option descriptions.
 
 ## balance
 
@@ -11,6 +12,7 @@ This is the main coin command with subcommands modeled after ledger CLI.
 * recursive and cumulative aggregation
 * top n sub-account aggregations
 * selecting postings in a time range (begin/end)
+* text, json, csv and chart output formats
 
 ## accounts
 
@@ -30,9 +32,9 @@ This is the main coin command with subcommands modeled after ledger CLI.
 ## stats
 
 * print ledger stats
-* duplicate check
+* duplicate transaction check
 * unbalanced transaction check
-* selecting transactions in a time range (begin/end)
+* selecting transactions in a time range (-b/-e)
 
 ## test
 

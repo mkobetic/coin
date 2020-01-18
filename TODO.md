@@ -1,15 +1,20 @@
 ### Features
 
-* csv and json output for `balance`
-* better usage messages
+* register: location option for non-aggregated results
+* balance: rewrite the command using the techniques used in register aggregation, i.e. drop the balance fields on Account
+* balance: fix the fixed amount widths
+* balance: csv, json, chart output
+* balance: add -b/-e options
+* stats: check for commodity mismatches in accounts
 * accounts: change `check commodity ==` clause to just `commodity`
 * commodities: add `default` clause
-* add -b/-e options to `balance`
-* fix the fixed amount widths in `balance`
+* test: support for generating test data
+* better usage messages
 * make sure all errors include Location
-* sorting by quantity to aid finding largest transactions
+* register: sorting by quantity to aid finding largest transactions
+* register: more advanced filtering options
 * how to match :Acct when there's :XAcct as well?
-* shortened full account names, drop letters from the left down to first on leftmost elements
+* document account selection expressions
 
 ### Maybe
 
