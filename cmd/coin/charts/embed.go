@@ -19,7 +19,7 @@ var output = template.Must(template.New("").Parse(`package main
 
 // Code generated from files in charts subdirectory. DO NOT EDIT.
 //
-//go:generate go run embed.go
+//go:generate go run charts/embed.go
 
 var charts = map[string][]byte{}
 
@@ -36,7 +36,8 @@ func init() {
 
 func main() {
 	_, thisFile, _, _ := runtime.Caller(0)
-	dir := path.Join(path.Dir(thisFile), "charts")
+
+	dir := path.Dir(thisFile)
 	fis, err := ioutil.ReadDir(dir)
 	check.NoError(err, "reading charts directory")
 	files := map[string]string{}
@@ -48,7 +49,7 @@ func main() {
 		check.NoError(err, "reading charts/%s\n", fi.Name())
 		files[fi.Name()] = encode(fi.Name(), contents)
 	}
-	w, err := os.Create(path.Join(path.Dir(thisFile), "charts.go"))
+	w, err := os.Create(path.Join(path.Dir(dir), "charts.go"))
 	check.NoError(err, "opening charts.go\n")
 	err = output.Execute(w, files)
 	check.NoError(err, "writing charts.go\n")
