@@ -38,10 +38,10 @@ func (_ *cmdRegister) newCommand(names ...string) command {
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
-	cmd.IntVar(&cmd.top, "t", 5, "include this many subaccounts in aggregate results")
+	cmd.IntVar(&cmd.top, "t", 5, "include this many largest subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
-	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv")
+	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv, chart")
 	return &cmd
 }
 

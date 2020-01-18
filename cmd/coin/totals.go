@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -301,6 +303,8 @@ func (ats accountTotals) output(f io.Writer,
 	format string,
 ) {
 	switch format {
+	case "chart":
+		ats.rows(order, label).writeHTML(f, "totals")
 	case "json":
 		ats.rows(order, label).writeJSON(f)
 	case "csv":
@@ -393,6 +397,27 @@ func (rs rows) writeJSON(f io.Writer) {
 	w := json.NewEncoder(f)
 	for _, r := range rs {
 		w.Encode(r)
+	}
+}
+
+func (rs rows) writeHTML(f io.Writer, report string) {
+	s := bufio.NewScanner(bytes.NewReader(charts[report+".html"]))
+	for s.Scan() {
+		fmt.Fprintln(f, s.Text())
+		if strings.Contains(s.Text(), `<p hidden="true" id="data">`) {
+			break
+		}
+	}
+	rs.writeCSV(f)
+	for s.Scan() {
+		fmt.Fprintln(f, s.Text())
+		if strings.Contains(s.Text(), `<script type="text/javascript" id="code">`) {
+			break
+		}
+	}
+	io.Copy(f, bytes.NewReader(charts[report+".js"]))
+	for s.Scan() {
+		fmt.Fprintln(f, s.Text())
 	}
 }
 
