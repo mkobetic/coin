@@ -36,7 +36,6 @@ func init() {
 
 func main() {
 	_, thisFile, _, _ := runtime.Caller(0)
-
 	dir := path.Dir(thisFile)
 	fis, err := ioutil.ReadDir(dir)
 	check.NoError(err, "reading charts directory")

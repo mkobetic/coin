@@ -403,10 +403,11 @@ func (rs rows) writeJSON(f io.Writer) {
 func (rs rows) writeHTML(f io.Writer, report string) {
 	s := bufio.NewScanner(bytes.NewReader(charts[report+".html"]))
 	for s.Scan() {
-		fmt.Fprintln(f, s.Text())
 		if strings.Contains(s.Text(), `<p hidden="true" id="data">`) {
+			fmt.Fprint(f, s.Text())
 			break
 		}
+		fmt.Fprintln(f, s.Text())
 	}
 	rs.writeCSV(f)
 	for s.Scan() {
