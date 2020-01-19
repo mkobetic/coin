@@ -175,7 +175,6 @@ func ReadRules(r io.Reader) *Rules {
 			if !s.Scan() { // nothing after separator
 				return &rules
 			}
-			line = s.Bytes()
 			break
 		}
 		source := ScanSource(line, s)

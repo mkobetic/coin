@@ -1,6 +1,5 @@
 ### Features
 
-* register: location option for non-aggregated results
 * balance: rewrite the command using the techniques used in register aggregation, i.e. drop the balance fields on Account
 * balance: fix the fixed amount widths
 * balance: csv, json, chart output

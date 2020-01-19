@@ -1,0 +1,8 @@
+.layer text {
+    fill: white;
+    text-anchor: end;
+}
+
+.legend text {
+    fill: white;
+}

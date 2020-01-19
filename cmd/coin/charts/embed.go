@@ -41,7 +41,7 @@ func main() {
 	check.NoError(err, "reading charts directory")
 	files := map[string]string{}
 	for _, fi := range fis {
-		if ext := path.Ext(fi.Name()); ext != ".js" && ext != ".html" {
+		if ext := path.Ext(fi.Name()); ext != ".js" && ext != ".css" {
 			continue
 		}
 		contents, err := ioutil.ReadFile(path.Join(dir, fi.Name()))

@@ -14,7 +14,7 @@ TEST := CGO_ENABLED=0 go test
 
 build: coin gc2coin ofx2coin csv2coin
 
-cmd/coin/charts.go: cmd/coin/charts/*
+cmd/coin/charts.go: cmd/coin/charts/*.js cmd/coin/charts/*.css
 	go generate ./cmd/coin
 
 coin: *.go cmd/coin/*.go cmd/coin/charts.go
