@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"sort"
 	"strings"
@@ -304,7 +304,8 @@ func (ats accountTotals) output(f io.Writer,
 ) {
 	switch format {
 	case "chart":
-		ats.rows(order, label).writeHTML(f, "totals")
+		opts := map[string]string{"title": "totals"}
+		ats.rows(order, label).writeHTML(f, "totals", opts)
 	case "json":
 		ats.rows(order, label).writeJSON(f)
 	case "csv":
@@ -400,26 +401,29 @@ func (rs rows) writeJSON(f io.Writer) {
 	}
 }
 
-func (rs rows) writeHTML(f io.Writer, report string) {
-	s := bufio.NewScanner(bytes.NewReader(charts[report+".html"]))
-	for s.Scan() {
-		if strings.Contains(s.Text(), `<p hidden="true" id="data">`) {
-			fmt.Fprint(f, s.Text())
-			break
-		}
-		fmt.Fprintln(f, s.Text())
+var htmlHead = template.Must(template.New("").Parse(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ .title }}</title>
+  <script src="https://d3js.org/d3.v5.js" charset="utf-8"></script>
+`))
+
+func (rs rows) writeHTML(f io.Writer, report string, opts map[string]string) {
+	htmlHead.Execute(f, opts)
+	if css := charts[report+".css"]; len(css) > 0 {
+		fmt.Fprintln(f, "<style>")
+		io.Copy(f, bytes.NewReader(css))
+		fmt.Fprintln(f, "</style>")
 	}
+	fmt.Fprintf(f, "</head>\n<body>\n")
+	fmt.Fprintf(f, `<p hidden="true" id="data">`)
 	rs.writeCSV(f)
-	for s.Scan() {
-		fmt.Fprintln(f, s.Text())
-		if strings.Contains(s.Text(), `<script type="text/javascript" id="code">`) {
-			break
-		}
-	}
+	fmt.Fprintln(f, `</p>`)
+	fmt.Fprintln(f, `<script type="text/javascript" id="code">`)
 	io.Copy(f, bytes.NewReader(charts[report+".js"]))
-	for s.Scan() {
-		fmt.Fprintln(f, s.Text())
-	}
+	fmt.Fprintln(f, `</script>`)
+	fmt.Fprintf(f, "</body>\n</html>\n")
 }
 
 // reducer coerces time to specified period

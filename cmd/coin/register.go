@@ -25,22 +25,26 @@ type cmdRegister struct {
 	top                     int
 	cumulative              bool
 	maxLabelWidth           int
+	location                bool
 	output                  string
 }
 
-func (_ *cmdRegister) newCommand(names ...string) command {
+func (*cmdRegister) newCommand(names ...string) command {
 	var cmd cmdRegister
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.verbose, "v", false, "log debug info to stderr")
-	cmd.BoolVar(&cmd.recurse, "r", false, "merge children account postings into the parents")
+	cmd.BoolVar(&cmd.recurse, "r", false, "include subaccount postings in parent accounts")
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
+	// aggregation options
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
 	cmd.IntVar(&cmd.top, "t", 5, "include this many largest subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
+	// output options
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
+	cmd.BoolVar(&cmd.location, "f", false, "include file location on postings in non-aggregated results")
 	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv, chart")
 	return &cmd
 }
@@ -63,6 +67,7 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 			cmd.flatAggregatedRegister(f, acc, by)
 		}
 	} else {
+		var opts = options{prefix: acc.FullName, maxAcct: cmd.maxLabelWidth, location: cmd.location}
 		if cmd.recurse {
 			var ps postings
 			acc.WithChildrenDo(func(a *coin.Account) {
@@ -71,9 +76,9 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 			sort.SliceStable(ps, func(i, j int) bool {
 				return ps[i].Transaction.Posted.Before(ps[j].Transaction.Posted)
 			})
-			ps.printLong(f, acc.FullName, 50, cmd.maxLabelWidth)
+			ps.printLong(f, &opts)
 		} else {
-			cmd.trim(acc.Postings).print(f, acc.FullName, 50, cmd.maxLabelWidth)
+			cmd.trim(acc.Postings).print(f, &opts)
 		}
 	}
 }
