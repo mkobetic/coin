@@ -115,9 +115,6 @@ func resolveAccounts(accounts []*Account) {
 	// Sort children.
 	for _, a := range AccountsByGuid {
 		a.FullName = buildFullName(a)
-		if a.Parent != nil {
-			a.ParentName = a.Parent.FullName
-		}
 		coin.AccountsByName[a.FullName] = a
 		sort.Slice(a.Children, func(i, j int) bool {
 			return a.Children[i].Name < a.Children[j].Name

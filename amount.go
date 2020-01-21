@@ -116,8 +116,15 @@ func (b *Amount) adjustedTo(a *Amount) *big.Int {
 	return c
 }
 
-func (a *Amount) AddIn(b *Amount) {
+func (a *Amount) AddIn(b *Amount) (err error) {
+	if a.Commodity != b.Commodity {
+		b, err = a.Commodity.Convert(b, b.Commodity)
+		if err != nil {
+			return err
+		}
+	}
 	a.Add(a.Int, b.adjustedTo(a))
+	return nil
 }
 
 func (a *Amount) Times(b *Amount) *Amount {

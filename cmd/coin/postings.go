@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/mkobetic/coin"
+	"github.com/mkobetic/coin/check"
 )
 
 type postings []*coin.Posting
@@ -23,7 +24,8 @@ func (ps postings) widths(acctPrefix string) (widths [4]int) {
 func (ps postings) totals(com *coin.Commodity) (ts []*coin.Amount) {
 	total := coin.NewZeroAmount(com)
 	for _, p := range ps {
-		total.AddIn(p.Quantity)
+		err := total.AddIn(p.Quantity)
+		check.NoError(err, "totaling postings for %s\n", p.Account.FullName)
 		ts = append(ts, total.Copy())
 	}
 	return ts

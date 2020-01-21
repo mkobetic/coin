@@ -36,12 +36,12 @@ func Test_Unmarshaling(t *testing.T) {
 	db.Book.Resolve()
 
 	exp := []string{
-		"           0.00          237.04 CAD        Root [0]",
-		"       -9765.09          154.53 CAD        Assets [1]",
-		"        7729.58         7729.58 CAD        Assets:Bank [4]",
-		"         82.612          82.612 ZLB        Assets:Investments [1]",
-		"           0.00           82.51 CAD        Expenses [0]",
-		"          82.51           82.51 CAD        Expenses:Fuel [2]",
+		"0.00 CAD        Root [0]",
+		"-9765.09 CAD        Assets [1]",
+		"7729.58 CAD        Assets:Bank [4]",
+		"82.612 ZLB        Assets:Investments [1]",
+		"0.00 CAD        Expenses [0]",
+		"82.51 CAD        Expenses:Fuel [2]",
 	}
 	i := 0
 	coin.Root.WithChildrenDo(func(a *coin.Account) {

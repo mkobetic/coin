@@ -1,7 +1,5 @@
 ### Features
 
-* balance: rewrite the command using the techniques used in register aggregation, i.e. drop the balance fields on Account
-* balance: fix the fixed amount widths
 * balance: csv, json, chart output
 * balance: add -b/-e options
 * stats: check for commodity mismatches in accounts

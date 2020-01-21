@@ -33,7 +33,8 @@ type totals struct {
 func (ts *totals) add(t time.Time, a *coin.Amount) {
 	period := ts.reduce(t)
 	if ts.current != nil && ts.current.Equal(period) {
-		ts.current.AddIn(a)
+		err := ts.current.AddIn(a)
+		check.NoError(err, "cannot add %a to totals", a)
 		return
 	}
 	amt := a.Copy()
@@ -138,7 +139,8 @@ func (ts *totals) cumMagnitude() *coin.Amount {
 	}
 	total := coin.NewZeroAmount(ts.all[0].Commodity)
 	for _, t := range ts.all {
-		total.AddIn(t.Amount)
+		err := total.AddIn(t.Amount)
+		check.NoError(err, "computing cumulative magnitude")
 	}
 	return total
 }
@@ -152,7 +154,8 @@ func (ts *totals) makeCumulative() {
 	cum := coin.NewZeroAmount(ts.current.Commodity)
 	ts.all, ts.current = nil, nil
 	for _, t := range all {
-		cum.AddIn(t.Amount)
+		err := cum.AddIn(t.Amount)
+		check.NoError(err, "converting totals to cumulative")
 		ts.add(t.Time, cum)
 	}
 }

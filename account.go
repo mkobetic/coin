@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/mkobetic/coin/check"
 	"github.com/mkobetic/coin/check/warn"
 	"github.com/mkobetic/coin/rex"
 )
@@ -14,7 +15,6 @@ import (
 type Account struct {
 	Name        string
 	FullName    string // name with all the ancestors
-	ParentName  string // full name of the parent account
 	Type        string
 	Code        string
 	Description string
@@ -25,8 +25,7 @@ type Account struct {
 	Children  []*Account
 	Postings  []*Posting
 
-	balance           *Amount
-	cumulativeBalance *Amount
+	balance *Amount
 
 	line uint
 	file string
@@ -83,18 +82,26 @@ var accountBodyREX = rex.MustCompile(``+
 	`(\s+csv_acctid\s+(?P<csv_acctid>\w+)))`,
 	CommodityREX)
 
-func accountFromName(name string) *Account {
-	i := strings.LastIndex(name, ":")
-	parent := ""
-	if i > 0 {
-		parent = name[:i]
-	}
+func accountFromName(fullName string) *Account {
+	_, name := parentAndName(fullName)
 	return &Account{
-		Name:        name[i+1:],
-		FullName:    name,
-		ParentName:  parent,
+		Name:        name,
+		FullName:    fullName,
 		CommodityId: DefaultCommodityId,
 	}
+}
+
+func parentAndName(name string) (string, string) {
+	i := strings.LastIndex(name, ":")
+	if i < 0 {
+		return "", name
+	}
+	return name[:i], name[i+1:]
+}
+
+func (a *Account) ParentName() string {
+	parent, _ := parentAndName(a.FullName)
+	return parent
 }
 
 func (p *Parser) parseAccount(fn string) (*Account, error) {
@@ -127,13 +134,9 @@ func (p *Parser) parseAccount(fn string) (*Account, error) {
 }
 
 func (a *Account) String() string {
-	cum, err := a.CumulativeBalance()
-	if err != nil {
-		panic(err)
-	}
-	return fmt.Sprintf("%15a %15a %-10s %s [%d]",
+	return fmt.Sprintf("%*a %-10s %s [%d]",
+		a.Balance().Width(a.Commodity.Decimals),
 		a.Balance(),
-		cum,
 		a.Commodity.Id,
 		a.FullName,
 		len(a.Postings))
@@ -147,6 +150,13 @@ func (a *Account) Balance() *Amount {
 	return a.balance
 }
 
+func (a *Account) Depth() int {
+	if a.Parent == nil || a.Parent == Root {
+		return 1
+	}
+	return a.Parent.Depth() + 1
+}
+
 func (a *Account) CheckPostings() {
 	if len(a.Postings) == 0 {
 		a.balance = NewZeroAmount(a.Commodity)
@@ -154,7 +164,9 @@ func (a *Account) CheckPostings() {
 	}
 	a.balance = NewZeroAmount(a.Commodity)
 	for _, s := range a.Postings {
-		a.balance.AddIn(s.Quantity)
+		err := a.balance.AddIn(s.Quantity)
+		check.NoError(err, "couldn't add %a %s to balance %a %s\n",
+			s.Quantity, s.Quantity.Commodity, a.Balance(), a.Balance().Commodity)
 		if s.Balance != nil {
 			warn.If(!a.balance.IsEqual(s.Balance),
 				"%s: %s balance is %a, should be %a\n",
@@ -167,25 +179,6 @@ func (a *Account) CheckPostings() {
 	}
 }
 
-func (a *Account) CumulativeBalance() (*Amount, error) {
-	if a.cumulativeBalance != nil {
-		return a.cumulativeBalance, nil
-	}
-	total := a.Balance().Copy()
-	for _, c := range a.Children {
-		val, err := c.CumulativeBalance()
-		if err != nil {
-			return nil, err
-		}
-		val, err = a.Commodity.Convert(val, c.Commodity)
-		if err != nil {
-			return nil, err
-		}
-		total.AddIn(val)
-	}
-	return total, nil
-}
-
 func (a *Account) WithChildrenDo(f func(a *Account)) {
 	f(a)
 	for _, c := range a.Children {
@@ -195,7 +188,7 @@ func (a *Account) WithChildrenDo(f func(a *Account)) {
 
 func (a *Account) FirstWithChildrenDo(f func(a *Account)) {
 	for _, c := range a.Children {
-		c.WithChildrenDo(f)
+		c.FirstWithChildrenDo(f)
 	}
 	f(a)
 }

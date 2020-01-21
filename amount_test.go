@@ -73,7 +73,8 @@ func Test_AmountAddIn(t *testing.T) {
 	} {
 		a := MustParseAmount(fix.a, cad)
 		b := MustParseAmount(fix.b, cad)
-		a.AddIn(b)
+		err := a.AddIn(b)
+		assert.NoError(t, err)
 		c := fmt.Sprintf("%a", a)
 		assert.Equal(t, c, fix.c, "%d. not equal", i)
 	}

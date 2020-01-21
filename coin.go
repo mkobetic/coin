@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mkobetic/coin/check"
+	"github.com/mkobetic/coin/check/warn"
 )
 
 const (
@@ -160,36 +161,56 @@ func ResolveAccounts() {
 	if Unbalanced == nil {
 		Unbalanced = accountFromName("Unbalanced")
 		AccountsByName["Unbalanced"] = Unbalanced
-		// Root.adopt(Unbalanced)
 	}
-	// link parents with children, create parents if missing
+
+	// create parents if missing
 	var known []*Account
 	for _, a := range AccountsByName {
 		known = append(known, a)
 	}
-LOOP:
 	for _, a := range known {
+		fn := a.FullName
 		for {
-			if a == Root {
-				continue LOOP
+			fn, _ = parentAndName(fn)
+			if fn == "" {
+				break
 			}
-			if a.ParentName == "" {
-				Root.adopt(a)
-				continue LOOP
+			if AccountsByName[fn] == nil {
+				AccountsByName[fn] = accountFromName(fn)
 			}
-			p := AccountsByName[a.ParentName]
-			if p != nil {
-				p.adopt(a)
-				continue LOOP
-			}
-			p = accountFromName(a.ParentName)
-			AccountsByName[p.FullName] = p
-			p.adopt(a)
-			a = p
 		}
 	}
+
+	// link parents with children,
+	for _, a := range AccountsByName {
+		if a == Root {
+			continue
+		}
+		pName := a.ParentName()
+		if pName == "" {
+			Root.adopt(a)
+			continue
+		}
+		p := AccountsByName[pName]
+		check.If(p != nil, "Missing account %s\n", pName)
+		p.adopt(a)
+	}
+
+	isChild := func(p, c *Account) bool {
+		for _, a := range p.Children {
+			if a == c {
+				return true
+			}
+		}
+		return false
+	}
+
 	// sort children, link commodities
 	for _, a := range AccountsByName {
+		if pn := a.ParentName(); pn != "" {
+			warn.If(!(pn == a.Parent.FullName), "%s doesn't match parent name %s\n", a.Parent.Name, pn)
+			warn.If(!isChild(a.Parent, a), "%s is not a child of %s\n", a.FullName, a.Parent.FullName)
+		}
 		if a.CommodityId != "" {
 			a.Commodity = MustFindCommodity(a.CommodityId, a.Location())
 		} else {
@@ -228,11 +249,12 @@ func ResolveTransactions(checkPostings bool) {
 				check.If(empty == nil, "Multiple postings without quantity: %s", t.Location())
 				empty = s
 			} else {
-				total.AddIn(s.Quantity)
+				err := total.AddIn(s.Quantity)
+				check.NoError(err, "cannot compute transaction total: %s", t.Location())
 			}
 		}
 		if empty == nil {
-			check.If(total.IsZero(), "Transaction is not balanced %f", total)
+			check.If(total.IsZero(), "Transaction is not balanced %f: %s", total, t.Location())
 		} else {
 			empty.Quantity = total.Negated()
 		}

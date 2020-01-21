@@ -24,7 +24,9 @@ func (_ *cmdAccounts) newCommand(names ...string) command {
 }
 
 func (cmd *cmdAccounts) init() {
+	coin.LoadFile(coin.CommoditiesFile)
 	coin.LoadFile(coin.AccountsFile)
+	coin.ResolveAccounts()
 }
 
 func (cmd *cmdAccounts) execute(f io.Writer) {

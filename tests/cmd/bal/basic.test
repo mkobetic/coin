@@ -19,12 +19,11 @@ account Expenses:Rent
   Assets:Bank
 
 test balance
-           0.00            0.00 CAD        Root [0]
-           0.00          480.00 CAD        Assets [0]
-         480.00          480.00 CAD        Assets:Bank [3]
-           0.00          520.00 CAD        Expenses [0]
-          20.00           20.00 CAD        Expenses:Food [1]
-         500.00          500.00 CAD        Expenses:Rent [1]
-           0.00        -1000.00 CAD        Income [0]
-       -1000.00        -1000.00 CAD        Income:Salary [1]
+    0.00 |   480.00 CAD | Assets
+  480.00 |   480.00 CAD | Assets:Bank
+    0.00 |   520.00 CAD | Expenses
+   20.00 |    20.00 CAD | Expenses:Food
+  500.00 |   500.00 CAD | Expenses:Rent
+    0.00 | -1000.00 CAD | Income
+-1000.00 | -1000.00 CAD | Income:Salary
 end test

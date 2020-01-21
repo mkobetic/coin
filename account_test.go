@@ -17,7 +17,7 @@ func Test_AccountFromName(t *testing.T) {
 	} {
 		a := accountFromName(f.full)
 		assert.Equal(t, a.Name, f.name)
-		assert.Equal(t, a.ParentName, f.parent)
+		assert.Equal(t, a.ParentName(), f.parent)
 	}
 }
 
@@ -36,7 +36,7 @@ account Assets:Investments:IVL:US
 	assert.Equal(t, ok, true)
 	assert.Equal(t, a.Name, "US")
 	assert.Equal(t, a.FullName, "Assets:Investments:IVL:US")
-	assert.Equal(t, a.ParentName, "Assets:Investments:IVL")
+	assert.Equal(t, a.ParentName(), "Assets:Investments:IVL")
 	assert.Equal(t, a.CommodityId, "USD")
 	assert.Equal(t, a.Description, "Investorline")
 	assert.Equal(t, a.OFXAcctId, "500766075509175102")
