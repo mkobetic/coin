@@ -1,8 +1,12 @@
 .layer text {
     fill: white;
     text-anchor: end;
+    font-family: sans-serif;
+    font-size: 12px;
 }
 
 .legend text {
     fill: white;
+    font-family: sans-serif;
+    font-size: 12px;
 }

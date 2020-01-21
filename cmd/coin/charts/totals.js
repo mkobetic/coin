@@ -1,8 +1,9 @@
 var data = d3.csvParse(d3.select("p#data").text(), d3.autoType)
 
-var margin = {top: 50, right: 20, bottom: 20, left: 50},
+var rowHeight = 15,
+    margin = {top: rowHeight+20, right: 20, bottom: 20, left: 50},
     width = 800 - margin.left - margin.right,
-    height = data.length*30 + margin.top + margin.bottom;
+    height = data.length*rowHeight + margin.top + margin.bottom;
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -39,7 +40,10 @@ layer.selectAll("rect")
 layer.selectAll("text")
     .data(function(d) { return d; })
     .enter().append("text")
-    .text(function(d){ v = d[1]-d[0]; return v > 50 ? v.toFixed(2) : ""; })
+    .text(function(d){
+        v = d[1]-d[0];
+        w = (Math.log10(v) + 1) * 8;
+        return v > 0 && x(v) > w ? Math.trunc(v) : ""; })
     .attr("x", function(d) { return x(d[1])-2; })
     .attr("y", function(d) { return y(d.data.Date)+y.bandwidth()*3/4; })
 
@@ -57,7 +61,7 @@ var legend = svg.selectAll(".legend")
     .attr("class", "legend")
     .attr("transform", "translate(" + margin.left + ",0)")
     
-var w = x.domain()[1]/(data.columns.length-1)
+var w = (x.domain()[1]-10)/(data.columns.length-1)
     
 legend.append("rect")
     .attr("x", function(d,i) { return x(w*i); })
