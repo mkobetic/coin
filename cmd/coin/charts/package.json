@@ -6,6 +6,6 @@
   "author": "Martin Kobetic",
   "license": "MIT",
   "dependencies": {
-    "d3": "^5.15.0",
+    "d3": "^5.15.0"
   }
 }
