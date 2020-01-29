@@ -13,11 +13,15 @@ import (
 var cwd string // caches current working directory
 
 func init() {
-	var err error
-	cwd, err = os.Getwd()
-	if err == nil {
-		cwd += "/"
+	cwd, _ = os.Getwd()
+}
+
+func trimLocation(loc string) string {
+	l := strings.TrimPrefix(loc, cwd)
+	if len(l) < len(loc) {
+		return "." + l
 	}
+	return loc
 }
 
 type postings []*coin.Posting
@@ -66,7 +70,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 			s.Account.CommodityId,
 		}
 		if opts.Location() {
-			args = append(args, strings.TrimPrefix(s.Transaction.Location(), cwd))
+			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
 	}
@@ -98,7 +102,7 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 			s.Account.CommodityId,
 		}
 		if opts.Location() {
-			args = append(args, strings.TrimPrefix(s.Transaction.Location(), cwd))
+			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
 	}
