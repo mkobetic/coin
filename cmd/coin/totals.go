@@ -436,9 +436,28 @@ type reducer struct {
 	format string
 }
 
+var week = reducer{
+	reduce: func(t time.Time) time.Time {
+		dow := int(t.Weekday())
+		t = t.AddDate(0, 0, -dow)
+		y, m, d := t.Date()
+		return time.Date(y, m, d, 12, 0, 0, 0, time.UTC)
+	},
+	format: coin.DateFormat,
+}
+
 var month = reducer{
 	reduce: func(t time.Time) time.Time {
 		y, m, _ := t.Date()
+		return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
+	},
+	format: coin.MonthFormat,
+}
+
+var quarter = reducer{
+	reduce: func(t time.Time) time.Time {
+		y, m, _ := t.Date()
+		m = ((m - 1) / 3 * 3) + 1
 		return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
 	},
 	format: coin.MonthFormat,
@@ -450,14 +469,4 @@ var year = reducer{
 		return time.Date(y, time.January, 1, 12, 0, 0, 0, time.UTC)
 	},
 	format: coin.YearFormat,
-}
-
-var week = reducer{
-	reduce: func(t time.Time) time.Time {
-		dow := int(t.Weekday())
-		t = t.AddDate(0, 0, -dow)
-		y, m, d := t.Date()
-		return time.Date(y, m, d, 12, 0, 0, 0, time.UTC)
-	},
-	format: coin.DateFormat,
 }

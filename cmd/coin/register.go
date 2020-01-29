@@ -18,15 +18,16 @@ func init() {
 
 type cmdRegister struct {
 	*flag.FlagSet
-	verbose                 bool
-	recurse                 bool
-	begin, end              coin.Date
-	weekly, monthly, yearly bool
-	top                     int
-	cumulative              bool
-	maxLabelWidth           int
-	location                bool
-	output                  string
+	verbose           bool
+	recurse           bool
+	begin, end        coin.Date
+	weekly, monthly   bool
+	quarterly, yearly bool
+	top               int
+	cumulative        bool
+	maxLabelWidth     int
+	location          bool
+	output            string
 }
 
 func (*cmdRegister) newCommand(names ...string) command {
@@ -39,6 +40,7 @@ func (*cmdRegister) newCommand(names ...string) command {
 	// aggregation options
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
+	cmd.BoolVar(&cmd.quarterly, "q", false, "aggregate postings by quarter")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
 	cmd.IntVar(&cmd.top, "t", 5, "include this many largest subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
@@ -164,6 +166,8 @@ func (cmd *cmdRegister) period() *reducer {
 		return &week
 	case cmd.monthly:
 		return &month
+	case cmd.quarterly:
+		return &quarter
 	case cmd.yearly:
 		return &year
 	}
