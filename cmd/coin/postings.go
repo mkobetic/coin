@@ -3,11 +3,22 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/check"
 )
+
+var cwd string // caches current working directory
+
+func init() {
+	var err error
+	cwd, err = os.Getwd()
+	if err == nil {
+		cwd += "/"
+	}
+}
 
 type postings []*coin.Posting
 
@@ -55,7 +66,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 			s.Account.CommodityId,
 		}
 		if opts.Location() {
-			args = append(args, s.Transaction.Location())
+			args = append(args, strings.TrimPrefix(s.Transaction.Location(), cwd))
 		}
 		fmt.Fprintf(f, fmtString, args...)
 	}
@@ -73,8 +84,11 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
 	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s\n"
+	if opts.Location() {
+		fmtString = "%s | %*s | %*s | %*s | %*a | %*a %s | %s\n"
+	}
 	for i, s := range ps {
-		fmt.Fprintf(f, fmtString,
+		args := []interface{}{
 			s.Transaction.Posted.Format(coin.DateFormat),
 			widths[0], s.Transaction.Description,
 			widths[1], coin.ShortenAccountName(strings.TrimPrefix(s.Account.FullName, opts.Prefix()), opts.MaxAcct()),
@@ -82,7 +96,11 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 			widths[2], s.Quantity,
 			tWidth, totals[i],
 			s.Account.CommodityId,
-		)
+		}
+		if opts.Location() {
+			args = append(args, strings.TrimPrefix(s.Transaction.Location(), cwd))
+		}
+		fmt.Fprintf(f, fmtString, args...)
 	}
 }
 
