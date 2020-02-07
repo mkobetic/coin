@@ -79,7 +79,12 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 		if cmd.prices {
 			fmt.Fprintln(f, c.String())
 		} else {
-			fmt.Fprintf(f, "%10s | %s\n", c.Id, c.Name)
+			sym := c.Symbol
+			dl := ' '
+			if len(sym) > 0 && !c.NoMarket {
+				dl = 'Q'
+			}
+			fmt.Fprintf(f, "%10s | %10s | %c | %s\n", c.Id, sym, dl, c.Name)
 		}
 	})
 }

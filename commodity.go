@@ -136,7 +136,8 @@ var commodityBodyREX = rex.MustCompile(``+
 	`(\s+note\s+(?P<note>.+))|`+
 	`(\s+format\s+(?P<format>%s))|`+
 	`(\s+(?P<nomarket>nomarket)\s*)|`+
-	`(\s+symbol\s+(?P<symbol>[\w\.]+))`,
+	`(\s+symbol\s+(?P<symbol>[\w\.]+))|`+
+	`(\s+(?P<default>default)\s*)`,
 	AmountREX)
 
 func (p *Parser) parseCommodity(fn string) (*Commodity, error) {
@@ -160,10 +161,14 @@ func (p *Parser) parseCommodity(fn string) (*Commodity, error) {
 			} else {
 				c.Decimals = len(f) - 1
 			}
-		} else if nm := "nomarket"; nm != "" {
+		} else if match["nomarket"] != "" {
 			c.NoMarket = true
 		} else if s := match["symbol"]; s != "" {
 			c.Symbol = s
+		} else if match["default"] != "" {
+			DefaultCommodityId = c.Id
+		} else {
+			return c, fmt.Errorf("%s - failed to match commodity line: %s", c.Location(), p.Text())
 		}
 	}
 	return c, p.Err()
