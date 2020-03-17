@@ -10,6 +10,6 @@ commodity USD
   symbol USD
 
 test commodities
-       CAD | Canadian Dollar
-       USD | US Dollar
+       CAD |        CAD |   | Canadian Dollar
+       USD |        USD | Q | US Dollar
 end test

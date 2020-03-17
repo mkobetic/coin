@@ -27,9 +27,9 @@ P 2010/06/28 NBC814 18.60 CAD
 P 2010/06/28 IGI268 25.79 CAD
 
 test commodities
-       CAD | 
-    IGI268 | Investors Global Natural Resources Class A
-    NBC814 | Altamira Precision Candian Index Fund
+       CAD |            |   | 
+    IGI268 |            |   | Investors Global Natural Resources Class A
+    NBC814 |            |   | Altamira Precision Candian Index Fund
 end test
 
 test commodities -p

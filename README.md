@@ -5,7 +5,7 @@ Coin is a heavily simplified offshoot of [ledger-cli.org](https://www.ledger-cli
 
 ## COINDB
 
-Coin is written with the intent of maintaining a ledger split across number of files, this makes it easier to navigate a larger ledger with common editors and is more friendly with version control systems (e.g. git) which are also designed to manage multiple files.
+Coin is written with the intent of maintaining a ledger split across number of files. This makes it easier to navigate a larger ledger with common editors and is more friendly with version control systems (e.g. git) which are also designed to manage multiple files.
 
 `COINDB` is simply an environment variable pointing to a directory where `coin` expects to find the ledger files (`.coin`). The obvious organization schemes are splitting the ledger by year, quarter or month. While coin allows mixing any types of entries in the files (just like ledger) it looks for two special file names, `accounts.coin` and `commodities.coin`, and reads those first in order to satisfy the strict requirement that any commodities and accounts are defined upfront.
 
@@ -31,6 +31,7 @@ Coin includes several executables.
 
 `coin` is the main command mimicing the leger cli with a number of subcommands. The subcommands include the usual suspects like `balance` and `register`, but also `accounts`, `commodities` and `test`. For more details see [`cmd/coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin/README.md).
 
+
 ### gc2coin
 
 gnucash import (XML v2 database only), see [`cmd/gc2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/gc2coin/README.md)
@@ -40,14 +41,10 @@ gnucash import (XML v2 database only), see [`cmd/gc2coin/README.md`](https://git
 
 ofx/qfx import, see [`cmd/ofx2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/ofx2coin/README.md)
 
-* ofx.rules file
-
 
 ### csv2coin
 
 csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/csv2coin/README.md)
-
-* csv.rules file
 
 
 ## Assorted Ledger Differences
@@ -58,6 +55,10 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 
 ### Date Entry
 
+Date entry applies to both specifying dates as command line option values or as the input in the coin files.
+Note that using entries that are relative to today in coin files is only intended for initial entry into the ledger,
+and should be promptly reformatted with `coin format` to turn them into absolute entries, otherwise your ledger can become corrupted fairly quickly.
+
 * Dates are entered as [[YY]YY/]M/D, where year can be 2 or 4 digits
 ** if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
 ** if year is omitted its the date closest to today (e.g. on 2020/03/05, 6/22 is 2020/06/22 and 10/22 is 2019/10/22)
@@ -65,6 +66,20 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 ** if month is omitted the date is set to Jan 1st, if month is present it's the first day of that month
 * Date can also include a suffix specifying offset of +/- number of days,weeks,months or years from that date (e.g. -50d)
 ** if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
+
+### Account Entry
+
+Accounts can be entered as full account name path or as shortened versions of the same where some parts of the path are elided as long as the shortened path matches an existing account unambiguously. A full name path match always overrides any partial path matches. Double colon `::` matches any number of path elements.
+
+For example the following expressions could match account `Assets:Investments:Broker:RRSP:Joe:VGRO`:
+* `Joe:VGRO`
+* `A:I::Joe`
+* `Broker::VGRO`
+
+### Amount differences
+
+* an amount is always associated with a commodity
+* amount precission is dictated by the associated commodity, there's no inference of precision from the amount value
 
 ### Commodity differences
 
@@ -79,6 +94,12 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 * account check commodity == directive
 * account selection expressions
 * no account inference => accounts.coin
+
+### Transaction differences
+
+* only date, code, description/payee, and note/comment is recognized in transaction header
+* only account, quantity and optional balance is recognized in any transaction posting
+* posting note/comment is supported as well 
 
 
 ## Implementation Notes

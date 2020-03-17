@@ -18,11 +18,16 @@ The file consists of two sections separated with a single line of 3 dashes (`---
 
 The first section describes known CSV sources and the value mappings for each. Different institutions structure their CSV exports differently, so each is likely to require a different source mapping, possibly several (e.g. if the export doesn't include the account ID, a separate source for each account will be required). Each source is given a name and the source to use for given import is selected via the `-source` option.
 
-The second section provides rules for picking the target accounts based on the transaction descriptions. It works exactly the same as described in [`ofx.rules`](https://github.com/mkobetic/coin/blob/master/cmd/ofx2coin/README.md#ofx.rules)
+The second section provides rules for picking the target accounts based on the transaction descriptions. It works exactly the same as described in [`ofx.rules`](https://github.com/mkobetic/coin/blob/master/cmd/ofx2coin/README.md#ofx.rules). When importing transactions for given account the tool will apply the rule group associated with that account. The account is matched through the account ID associated with the transaction. The same ID must also be associated with an account through the `csv_acctid` directive.
+
+```
+account Assets:Investments
+  csv_acctid XXX
+```
 
 ### source mapping
 
-Each source description starts with a line naming the source and specifying the number of lines to skip before to get to the actual transaction records. The rest of the description consists of lines starting with whitespace and each line describing a rule for extracting a value from a record field or a rule for deriving a value it from the other values. Each line starts with a value name. There should be a line for each of the required values described above. 
+Each source description starts with a line naming the source and specifying the number of lines to skip before to get to the actual transaction records. The rest of the description consists of lines starting with whitespace and each line describing a rule for extracting a value from a record field or a rule for deriving a value from the other values. Each line starts with a value name. There should be a line for each of the required (non optional) values listed above. 
 
 #### extraction rules
 

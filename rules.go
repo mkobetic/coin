@@ -18,7 +18,7 @@ type Rules interface {
 }
 
 type RuleIndex struct {
-	Accounts   map[string]*AccountRules // Maps OFX ID to a set of rules for that account
+	Accounts   map[string]*AccountRules // Maps ID to a set of rules for that account
 	Sets       []*RuleSet
 	SetsByName map[string]*RuleSet
 }

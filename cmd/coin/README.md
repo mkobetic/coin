@@ -1,5 +1,5 @@
 This is the main coin command with subcommands modeled after ledger CLI.
-Use `-h` for detiled option descriptions.
+Use `-h` for detailed option descriptions.
 
 ## balance
 
@@ -7,10 +7,10 @@ Use `-h` for detiled option descriptions.
 
 ## register
 
-* flat and recursive (including sub-accounts) posting lists
-* aggregated amounts by week/month/year
+* flat and recursive (including sub-accounts) posting listings
+* aggregated amounts by week/month/quarter/year
 * recursive and cumulative aggregation
-* top n sub-account aggregations
+* top n sub-account aggregations (the rest as Other)
 * selecting postings in a time range (begin/end)
 * text, json, csv and chart output formats
 
