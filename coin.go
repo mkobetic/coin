@@ -1,3 +1,4 @@
+// Package coin implements a plaintext accounting domail model closely following that of the ledger-cli tool.
 package coin
 
 import (

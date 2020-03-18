@@ -1,3 +1,4 @@
+// Package gnucash allows reading GnuCash v2 XML database and converting it to a coin ledger.
 package gnucash
 
 import (
