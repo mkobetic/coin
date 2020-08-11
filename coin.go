@@ -274,22 +274,36 @@ func ResolveTransactions(checkPostings bool) {
 	})
 }
 
-func MustFindAccount(fullName string) *Account {
-	if a := AccountsByName[fullName]; a != nil {
+// MustFindAccount returns an account matching the pattern.
+// If multiple accounts match and they all have a common parent matching the pattern, return the parent.
+// This is to avoid having to spell out non-leaf accounts in full.
+// Otherwise panic.
+func MustFindAccount(pattern string) *Account {
+	if a := AccountsByName[pattern]; a != nil {
 		return a
 	}
-	as := FindAccounts(fullName)
+	as := FindAccounts(pattern)
+	if len(as) == 0 {
+		panic(fmt.Errorf("Can't find account %s", pattern))
+	}
 	if len(as) == 1 {
 		return as[0]
 	}
-	if len(as) > 1 {
-		msg := fmt.Sprintf("Found %d accounts matching %s", len(as), fullName)
-		for _, a := range as {
-			msg += "\n" + a.FullName
+	parent := as[0].FullName
+	all := true
+	for _, a := range as[1:] {
+		if all = all && strings.HasPrefix(a.FullName, parent); all {
+			break
 		}
-		panic(msg)
 	}
-	panic(fmt.Errorf("Can't find account %s", fullName))
+	if all {
+		return as[0]
+	}
+	msg := fmt.Sprintf("Found %d accounts matching %s", len(as), pattern)
+	for _, a := range as {
+		msg += "\n" + a.FullName
+	}
+	panic(msg)
 }
 
 func FindAccountOfxId(acctId string) *Account {
@@ -327,12 +341,17 @@ func ToRegex(pattern string) *regexp.Regexp {
 }
 
 func FindAccounts(pattern string) (accounts []*Account) {
+	var names []string
 	rx := ToRegex(pattern)
 	AccountsDo(func(a *Account) {
 		if rx.MatchString(a.FullName) {
-			accounts = append(accounts, a)
+			names = append(names, a.FullName)
 		}
 	})
+	sort.Strings(names)
+	for _, n := range names {
+		accounts = append(accounts, AccountsByName[n])
+	}
 	return accounts
 }
 

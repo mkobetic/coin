@@ -1,5 +1,6 @@
 ### Features
 
+* MustFindAccount: try finding shortest prefix when ambiguous
 * balance: csv, json, chart output
 * balance: add -b/-e options
 * stats: check for commodity mismatches in accounts
