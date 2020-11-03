@@ -86,6 +86,7 @@ For example the following expressions could match account `Assets:Investments:Br
 * no prefix commodities (i.e. $10)
 * stricter naming restrictions for commodities (no whitespace, etc) => no need to quote
 * commodity symbol directive - used for transaction and price imports
+* default directive - used to identify the default account commodity
 * no commodity inference => commodities.coin
 
 ### Account differences

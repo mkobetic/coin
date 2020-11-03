@@ -1,11 +1,13 @@
 commodity CAD
+commodity USD
+  default
 
 account Expenses:Food
   commodity CAD
 
 test accounts
-Expenses      | CAD        | 
+Expenses      | USD        | 
 Expenses:Food | CAD        | 
-Root          | CAD        | 
-Unbalanced    | CAD        | 
+Root          | USD        | 
+Unbalanced    | USD        | 
 end test

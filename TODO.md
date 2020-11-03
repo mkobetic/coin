@@ -3,7 +3,6 @@
 * balance: csv, json, chart output
 * balance: add -b/-e options
 * stats: check for commodity mismatches in accounts
-* commodities: add `default` clause
 * test: support for generating test data
 * better usage messages
 * make sure all errors include Location
