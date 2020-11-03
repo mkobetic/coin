@@ -51,7 +51,7 @@ func (a *Account) Write(w io.Writer, ledger bool) error {
 	if a.Description != "" {
 		lines = append(lines, "  note ", a.Description, "\n")
 	}
-	lines = append(lines, `  check commodity == `, a.Commodity.SafeId(ledger), "\n")
+	lines = append(lines, `  commodity `, a.Commodity.SafeId(ledger), "\n")
 	if a.OFXBankId != "" && !ledger {
 		lines = append(lines, `  ofx_bankid `, a.OFXBankId, "\n")
 	}
@@ -76,7 +76,7 @@ var AccountREX = rex.MustCompile(`(?P<account>%s(:%s)*)`, accountNameREX, accoun
 var accountHeadREX = rex.MustCompile(`account\s+%s`, AccountREX)
 var accountBodyREX = rex.MustCompile(``+
 	`(\s+note\s+(?P<note>\S.+))|`+
-	`(\s+check\s+commodity\s+==\s+%s|`+
+	`(\s+commodity\s+%s|`+
 	`(\s+ofx_bankid\s+(?P<ofx_bankid>\d+))|`+
 	`(\s+ofx_acctid\s+(?P<ofx_acctid>\d+))|`+
 	`(\s+csv_acctid\s+(?P<csv_acctid>\w+)))`,

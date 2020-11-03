@@ -1,7 +1,7 @@
 commodity CAD
 
 account Expenses:Food
-  check commodity == CAD
+  commodity CAD
 
 test accounts
 Expenses      | CAD        | 

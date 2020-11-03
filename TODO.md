@@ -1,10 +1,8 @@
 ### Features
 
-* MustFindAccount: try finding shortest prefix when ambiguous
 * balance: csv, json, chart output
 * balance: add -b/-e options
 * stats: check for commodity mismatches in accounts
-* accounts: change `check commodity ==` clause to just `commodity`
 * commodities: add `default` clause
 * test: support for generating test data
 * better usage messages

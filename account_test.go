@@ -25,7 +25,7 @@ func Test_ParseAccount(t *testing.T) {
 	r := strings.NewReader(`
 account Assets:Investments:IVL:US
 	note Investorline
-	check commodity == USD
+	commodity USD
 	ofx_bankid 200000100
 	ofx_acctid 500766075509175102
 `)

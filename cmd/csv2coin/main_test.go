@@ -22,7 +22,7 @@ commodity VXF
 account Assets:Investments
   csv_acctid XXX
 account Assets:Investments:VXF
-  check commodity == VXF
+  commodity VXF
 account Expenses:Fees
 account Income:Dividends
 `)

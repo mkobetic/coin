@@ -91,7 +91,7 @@ For example the following expressions could match account `Assets:Investments:Br
 ### Account differences
 
 * single commodity accounts
-* account check commodity == directive
+* account commodity directive
 * account selection expressions
 * no account inference => accounts.coin
 
