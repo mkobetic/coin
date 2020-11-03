@@ -1,7 +1,6 @@
 ### Features
 
 * balance: csv, json, chart output
-* balance: add -b/-e options
 * stats: check for commodity mismatches in accounts
 * test: support for generating test data
 * better usage messages

@@ -175,25 +175,7 @@ func (cmd *cmdRegister) period() *reducer {
 }
 
 func (cmd *cmdRegister) trim(ps []*coin.Posting) postings {
-	if !cmd.begin.IsZero() {
-		from := sort.Search(len(ps), func(i int) bool {
-			return !ps[i].Transaction.Posted.Before(cmd.begin.Time)
-		})
-		if from == len(ps) {
-			return nil
-		}
-		ps = ps[from:]
-	}
-	if !cmd.end.IsZero() {
-		to := sort.Search(len(ps), func(i int) bool {
-			return !ps[i].Transaction.Posted.Before(cmd.end.Time)
-		})
-		if to == len(ps) {
-			return ps
-		}
-		ps = ps[:to]
-	}
-	return postings(ps)
+	return postings(trim(ps, cmd.begin, cmd.end))
 }
 
 func (cmd *cmdRegister) debugf(format string, args ...interface{}) {

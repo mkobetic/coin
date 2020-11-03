@@ -27,3 +27,30 @@ test balance
     0.00 | -1000.00 CAD | Income
 -1000.00 | -1000.00 CAD | Income:Salary
 end test
+
+test balance -b 2000/01/02
+   0.00 | -520.00 CAD | Assets
+-520.00 | -520.00 CAD | Assets:Bank
+   0.00 |  520.00 CAD | Expenses
+  20.00 |   20.00 CAD | Expenses:Food
+ 500.00 |  500.00 CAD | Expenses:Rent
+end test
+
+test balance -e 2000/01/02
+    0.00 |  1000.00 CAD | Assets
+ 1000.00 |  1000.00 CAD | Assets:Bank
+    0.00 | -1000.00 CAD | Income
+-1000.00 | -1000.00 CAD | Income:Salary
+end test
+
+test balance -z -e 2000/01/02
+    0.00 |     0.00 CAD | Root
+    0.00 |  1000.00 CAD | Assets
+ 1000.00 |  1000.00 CAD | Assets:Bank
+    0.00 |     0.00 CAD | Expenses
+    0.00 |     0.00 CAD | Expenses:Food
+    0.00 |     0.00 CAD | Expenses:Rent
+    0.00 | -1000.00 CAD | Income
+-1000.00 | -1000.00 CAD | Income:Salary
+    0.00 |     0.00 CAD | Unbalanced
+end test
