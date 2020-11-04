@@ -7,6 +7,9 @@
 * make sure all errors include Location
 * register: sorting by quantity to aid finding largest transactions
 * register: more advanced filtering options
+
+### Issues
+
 * how to match :Acct when there's :XAcct as well?
 
 ### Maybe
