@@ -1,7 +1,8 @@
 ### Features
 
-* balance: csv, json, chart output
 * stats: check for commodity mismatches in accounts
+* register: mark cleared postings (postings with balance assertions)
+* balance: csv, json, chart output
 * test: support for generating test data
 * better usage messages
 * make sure all errors include Location

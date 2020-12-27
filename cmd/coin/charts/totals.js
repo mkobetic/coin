@@ -20,7 +20,7 @@ var z = d3.scaleOrdinal(d3.schemeCategory10);
 var xAxis = d3.axisTop(x);
 var yAxis = d3.axisLeft(y);
 
-var layers = d3.stack().keys(data.columns.slice(1))(data);
+var layers = d3.stack().keys(data.columns.slice(1,-1))(data);
 
 y.domain(layers[0].map(function(d) { return d.data.Date; }));
 x.domain([0, d3.max(layers[layers.length - 1], function(d) { return d[1] })]).nice();
@@ -36,7 +36,7 @@ layer.selectAll("rect")
     .enter().append("rect")
     .attr("y", function(d) { return y(d.data.Date); })
     .attr("x", function(d) { return x(d[0]); })
-    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+    .attr("width", function(d) { return 0, x(d[1]) - x(d[0]); })
     .attr("height", y.bandwidth() - 1);
 
 layer.selectAll("text")
@@ -58,12 +58,12 @@ chart.append("g")
     .call(yAxis);
 
 var legend = svg.selectAll(".legend")
-    .data(data.columns.slice(1))
+    .data(data.columns.slice(1,-1))
     .enter().append("g")
     .attr("class", "legend")
     .attr("transform", "translate(" + margin.left + ",0)");
     
-var w = (x.domain()[1]-10)/(data.columns.length-1);
+var w = (x.domain()[1]-10)/(data.columns.length-2);
 
 legend.append("rect")
     .attr("x", function(d,i) { return x(w*i); })
