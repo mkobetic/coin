@@ -16,9 +16,10 @@ func init() {
 
 type cmdStats struct {
 	*flag.FlagSet
-	dupes      bool
-	unbalanced bool
-	begin, end coin.Date
+	dupes               bool
+	unbalanced          bool
+	commodityMismatches bool
+	begin, end          coin.Date
 }
 
 func (_ *cmdStats) newCommand(names ...string) command {
@@ -26,6 +27,7 @@ func (_ *cmdStats) newCommand(names ...string) command {
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.dupes, "d", false, "check for duplicate transactions")
 	cmd.BoolVar(&cmd.unbalanced, "u", false, "check for unbalanced transactions")
+	cmd.BoolVar(&cmd.commodityMismatches, "c", false, "check for commodity mismatches")
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
 	return &cmd
@@ -62,18 +64,23 @@ func (cmd *cmdStats) execute(f io.Writer) {
 		return
 	}
 
-	if cmd.unbalanced {
-		for _, t := range transactions {
-			for _, p := range t.Postings {
-				if p.Account == coin.Unbalanced {
-					fmt.Fprintf(os.Stderr,
-						"UNBALANCED TRANSACTION!\n%s\n%s\n",
-						t.Location(),
-						t)
-				}
+	for _, t := range transactions {
+		for _, p := range t.Postings {
+			if cmd.unbalanced && p.Account == coin.Unbalanced {
+				fmt.Fprintf(os.Stderr,
+					"UNBALANCED TRANSACTION!\n%s\n%s\n",
+					t.Location(),
+					t)
+			}
+			if cmd.commodityMismatches && p.Account.Commodity != p.Quantity.Commodity {
+				fmt.Fprintf(os.Stderr,
+					"COMMODITY MISMATCH %s != %s !\n%s\n%s\n",
+					p.Account.Commodity.Id,
+					p.Quantity.Commodity.Id,
+					t.Location(),
+					t)
 			}
 		}
-		return
 	}
 
 	fmt.Fprintln(f, "Commodities:", len(coin.Commodities))

@@ -69,7 +69,7 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 			cmd.flatAggregatedRegister(f, acc, by)
 		}
 	} else {
-		var opts = options{prefix: acc.FullName, maxAcct: cmd.maxLabelWidth, location: cmd.location}
+		var opts = options{prefix: acc.FullName, maxAcct: cmd.maxLabelWidth, location: cmd.location, commodity: acc.Commodity}
 		if cmd.recurse {
 			var ps postings
 			acc.WithChildrenDo(func(a *coin.Account) {

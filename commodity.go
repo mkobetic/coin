@@ -216,7 +216,7 @@ func (c *Commodity) convert(amount *Amount, c2 *Commodity, previous []*Commodity
 		}
 	}
 	// Didn't find any path that leads to c
-	return nil, fmt.Errorf("Cannot convert %s => %s", c.Id, c2.Id)
+	return nil, fmt.Errorf("Cannot convert %s => %s", c2.Id, c.Id)
 }
 
 func (c *Commodity) NewAmountFloat(f float64) *Amount {

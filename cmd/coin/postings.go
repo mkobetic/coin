@@ -53,7 +53,10 @@ func (ps postings) print(f io.Writer, opts *options) {
 	widths := ps.widths(opts.Prefix())
 	widths[0] = min(widths[0], opts.MaxDesc())
 	widths[3] = min(widths[3], opts.MaxAcct())
-	commodity := ps[0].Account.Commodity
+	commodity := opts.commodity
+	if commodity == nil {
+		commodity = ps[0].Account.Commodity
+	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
 	fmtString := "%s | %*s | %*s | %*a | %*a %s\n"
@@ -84,7 +87,10 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	widths[0] = min(widths[0], opts.MaxDesc())
 	widths[1] = min(widths[1], opts.MaxAcct())
 	widths[3] = min(widths[3], opts.MaxAcct())
-	commodity := ps[0].Account.Commodity
+	commodity := opts.commodity
+	if commodity == nil {
+		commodity = ps[0].Account.Commodity
+	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
 	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s\n"
@@ -112,6 +118,7 @@ type options struct {
 	prefix           string
 	location         bool
 	maxDesc, maxAcct int
+	commodity        *coin.Commodity
 }
 
 func (o *options) MaxDesc() int {
