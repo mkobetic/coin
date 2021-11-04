@@ -19,6 +19,7 @@ var ignore = [][]byte{
 	[]byte("<BANKMSGSET><BANKMSGSETV1>\n"),
 	[]byte("<BANKMSGSETV1><BANKMSGSET>\n"),
 }
+var emptyLine = []byte("\n")
 
 func newBMOReader(r io.Reader) *bmoReader {
 	return &bmoReader{Reader: bufio.NewReader(r)}
@@ -26,7 +27,10 @@ func newBMOReader(r io.Reader) *bmoReader {
 
 type bmoReader struct {
 	*bufio.Reader
-	lastLine []byte
+	lastLine             []byte
+	reachedHeader        bool // to be able to skip initial empty lines
+	reachedBody          bool // to be able to inject missing empty line after header
+	emptyLineAfterHeader bool
 	// observed int
 }
 
@@ -37,6 +41,25 @@ func (r *bmoReader) Read(p []byte) (n int, err error) {
 			r.lastLine, err = r.ReadBytes('\n')
 			if err != nil {
 				return 0, err
+			}
+			if !r.reachedHeader {
+				if bytes.Equal(r.lastLine, emptyLine) {
+					continue loop
+				} else {
+					r.reachedHeader = true
+				}
+			}
+			if !r.reachedBody {
+				if bytes.Equal(r.lastLine, []byte("<OFX>\n")) {
+					r.reachedBody = true
+					if !r.emptyLineAfterHeader {
+						n = copy(p, emptyLine)
+						return n, nil
+					}
+				} else if bytes.Equal(r.lastLine, emptyLine) {
+					r.emptyLineAfterHeader = true
+				}
+				break loop
 			}
 			for _, ignore := range ignore {
 				if bytes.Equal(r.lastLine, ignore) {

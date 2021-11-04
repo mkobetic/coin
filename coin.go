@@ -269,9 +269,7 @@ func ResolveTransactions(checkPostings bool) {
 			a.CheckPostings()
 		}
 	}
-	sort.SliceStable(Transactions, func(i, j int) bool {
-		return Transactions[i].Posted.Before(Transactions[j].Posted)
-	})
+	sort.Stable(Transactions)
 }
 
 // MustFindAccount returns an account matching the pattern.

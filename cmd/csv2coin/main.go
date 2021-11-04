@@ -73,7 +73,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	var transactions []*coin.Transaction
+	var transactions coin.TransactionsByTime
 	for _, fileName := range flag.Args() {
 		file, err := os.Open(fileName)
 		check.NoError(err, "Failed to open %s", fileName)
@@ -84,9 +84,7 @@ func main() {
 	}
 
 	// write transactions
-	sort.SliceStable(transactions, func(i, j int) bool {
-		return transactions[i].Posted.Before(transactions[j].Posted)
-	})
+	sort.Stable(transactions)
 
 	for _, t := range transactions {
 		t.Write(os.Stdout, false)

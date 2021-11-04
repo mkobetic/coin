@@ -3,6 +3,7 @@ package coin
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"time"
 
@@ -22,7 +23,47 @@ type Transaction struct {
 	file       string
 }
 
-var Transactions []*Transaction
+var Transactions TransactionsByTime
+
+type TransactionsByTime []*Transaction
+
+func (transactions TransactionsByTime) Len() int { return len(transactions) }
+func (transactions TransactionsByTime) Swap(i, j int) {
+	transactions[i], transactions[j] = transactions[j], transactions[i]
+}
+func (transactions TransactionsByTime) Less(i, j int) bool {
+	return transactions[i].Posted.Before(transactions[j].Posted) ||
+		(transactions[i].Posted.Equal(transactions[j].Posted) &&
+			!transactions[i].HasBalances() &&
+			transactions[j].HasBalances())
+}
+func (transactions TransactionsByTime) FindEqual(t *Transaction) *Transaction {
+	for _, t2 := range transactions {
+		if t2.IsEqual(t) {
+			return t
+		}
+	}
+	return nil
+}
+func (transactions TransactionsByTime) Includes(t *Transaction) bool {
+	return transactions.FindEqual(t) != nil
+}
+
+// Day returns transactions posted on specified day, assumes transactions are already sorted.
+func (transactions TransactionsByTime) Day(day time.Time) TransactionsByTime {
+	total := len(transactions)
+	start := sort.Search(total, func(i int) bool {
+		return !transactions[i].Posted.Before(day)
+	})
+	if start == total {
+		return nil
+	}
+	total = total - start
+	count := sort.Search(total, func(i int) bool {
+		return transactions[start+i].Posted.After(day)
+	})
+	return transactions[start : start+count]
+}
 
 func (t *Transaction) Write(w io.Writer, ledger bool) error {
 	var notes []string
@@ -178,6 +219,15 @@ func (t *Transaction) Other(s *Posting) *Posting {
 	return nil
 }
 
+func (t *Transaction) HasBalances() bool {
+	for _, p := range t.Postings {
+		if p.Balance != nil {
+			return true
+		}
+	}
+	return false
+}
+
 func (t *Transaction) IsEqual(t2 *Transaction) bool {
 	if !t.Posted.Equal(t2.Posted) {
 		return false
@@ -194,4 +244,12 @@ func (t *Transaction) IsEqual(t2 *Transaction) bool {
 		}
 	}
 	return true
+}
+
+func (t *Transaction) MergeDuplicate(t2 *Transaction) {
+	for i, p := range t.Postings {
+		if p2 := t2.Postings[i]; p.Balance == nil && p2.Balance != nil {
+			p.Balance = p2.Balance
+		}
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mkobetic/coin/assert"
 )
@@ -118,4 +119,32 @@ func Test_ParseTransactionBalance(t *testing.T) {
 	assert.Equal(t, tr.Description, "payee1")
 	assert.Equal(t, len(tr.Postings), 2)
 	assert.Equal(t, fmt.Sprintf("%a", tr.Postings[1].Balance), "50.00")
+}
+
+func Test_TransactionsByTimeDay(t *testing.T) {
+	Year, Month, Day = 2000, 5, 7
+	var transactions TransactionsByTime
+	for _, days := range []int{0, 0, 0, 1, 4, 4, 4, 7, 13, 13, 20} {
+		match := DateREX.Match([]byte(fmt.Sprintf("+%dd", days)))
+		posted := mustParseDate(match, 0)
+		transactions = append(transactions, &Transaction{Posted: posted})
+	}
+	check := func(t *testing.T, day time.Time, count int) {
+		transactions := transactions.Day(day)
+		assert.Equal(t, len(transactions), count, "%v length mismatch", day)
+		for i, tr := range transactions {
+			assert.Equal(t, tr.Posted, day, "%v transaction %d posted date mismatch", day, i)
+		}
+	}
+	check(t, transactions[0].Posted.AddDate(0, 0, -10), 0)
+	check(t, transactions[0].Posted.AddDate(0, 0, -1), 0)
+	check(t, transactions[0].Posted, 3)
+	check(t, transactions[3].Posted, 1)
+	check(t, transactions[3].Posted.AddDate(0, 0, 1), 0)
+	check(t, transactions[4].Posted, 3)
+	check(t, transactions[7].Posted, 1)
+	check(t, transactions[8].Posted, 2)
+	check(t, transactions[10].Posted, 1)
+	check(t, transactions[10].Posted.AddDate(0, 0, 1), 0)
+	check(t, transactions[10].Posted.AddDate(0, 0, 10), 0)
 }

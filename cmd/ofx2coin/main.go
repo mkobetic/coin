@@ -19,14 +19,12 @@ var (
 	dumpOFXIDs = flag.Bool("ids", false, "dump accounts with known ofx ids")
 	dumpRules  = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
 	bmoHack    = flag.Bool("bmo", false, "handle invalid qfx files from Bank of Montreal")
+	keepDupes  = flag.Bool("keep-dupes", false, "keep duplicate transactions")
 )
 
 func main() {
 	flag.Parse()
-
-	coin.LoadFile(coin.CommoditiesFile)
-	coin.LoadFile(coin.AccountsFile)
-	coin.ResolveAccounts()
+	coin.LoadAll()
 
 	if *dumpOFXIDs {
 		coin.AccountsDo(func(a *coin.Account) {
@@ -56,7 +54,7 @@ func main() {
 		return
 	}
 
-	var transactions []*coin.Transaction
+	var transactions coin.TransactionsByTime
 
 	for _, fileName := range flag.Args() {
 		file, err := os.Open(fileName)
@@ -71,9 +69,39 @@ func main() {
 		transactions = append(transactions, batch...)
 	}
 	// write transactions
-	sort.SliceStable(transactions, func(i, j int) bool {
-		return transactions[i].Posted.Before(transactions[j].Posted)
-	})
+	sort.Stable(transactions)
+
+	if !*keepDupes {
+		var filtered, day, oldDay coin.TransactionsByTime
+		var prevDay time.Time
+		for _, t := range transactions {
+			if !t.Posted.Equal(prevDay) {
+				oldDay = coin.Transactions.Day(t.Posted)
+				filtered = append(filtered, day...)
+				day = nil
+				prevDay = t.Posted
+			}
+			if t2 := oldDay.FindEqual(t); t2 != nil {
+				// cannot merge into the old transaction
+				// may lose additional info from the import (e.g. balance :/)
+				fmt.Fprintf(os.Stderr,
+					"DROPPING DUPLICATE TRANSACTION:\n%s\n%s\n",
+					t2.Location(),
+					t)
+				continue
+			}
+			if t2 := day.FindEqual(t); t2 != nil {
+				t2.MergeDuplicate(t)
+				fmt.Fprintf(os.Stderr,
+					"DROPPING DUPLICATE TRANSACTION:\n%s\n",
+					t)
+				continue
+			}
+			day = append(day, t)
+		}
+		filtered = append(filtered, day...) // append last day
+		transactions = filtered
+	}
 
 	for _, t := range transactions {
 		t.Write(os.Stdout, false)
