@@ -1,13 +1,17 @@
 ### Features
 
 * stats: check for commodity mismatches in accounts
-* register: mark cleared postings (postings with balance assertions)
 * balance: csv, json, chart output
 * test: support for generating test data
 * better usage messages
 * make sure all errors include Location
 * register: sorting by quantity to aid finding largest transactions
 * register: more advanced filtering options
+
+#### ofx2coin
+
+* sanitise sensistive information, account/cc numbers
+* commodity mismatches (USD vs CAD)
 
 ### Issues
 
@@ -21,4 +25,4 @@
 * account/commodity renames?
 * language server?
 * lots/costs
-* multiple commodities in single account
+* multiple commodities in single account?

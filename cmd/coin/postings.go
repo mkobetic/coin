@@ -59,11 +59,15 @@ func (ps postings) print(f io.Writer, opts *options) {
 	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
-	fmtString := "%s | %*s | %*s | %*a | %*a %s\n"
+	fmtString := "%s | %*s | %*s | %*a | %*a %s%c\n"
 	if opts.Location() {
-		fmtString = "%s | %*s | %*s | %*a | %*a %s | %s\n"
+		fmtString = "%s | %*s | %*s | %*a | %*a %s%c| %s\n"
 	}
 	for i, s := range ps {
+		reconciled := ' '
+		if s.Balance != nil {
+			reconciled = '*'
+		}
 		args := []interface{}{
 			s.Transaction.Posted.Format(coin.DateFormat),
 			widths[0], s.Transaction.Description,
@@ -71,6 +75,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 			widths[2], s.Quantity,
 			tWidth, totals[i],
 			s.Account.CommodityId,
+			reconciled,
 		}
 		if opts.Location() {
 			args = append(args, trimLocation(s.Transaction.Location()))
@@ -93,11 +98,15 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
-	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s\n"
+	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s%c\n"
 	if opts.Location() {
-		fmtString = "%s | %*s | %*s | %*s | %*a | %*a %s | %s\n"
+		fmtString = "%s | %*s | %*s | %*s | %*a | %*a %s%c| %s\n"
 	}
 	for i, s := range ps {
+		reconciled := ' '
+		if s.Balance != nil {
+			reconciled = '*'
+		}
 		args := []interface{}{
 			s.Transaction.Posted.Format(coin.DateFormat),
 			widths[0], s.Transaction.Description,
@@ -106,6 +115,7 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 			widths[2], s.Quantity,
 			tWidth, totals[i],
 			s.Account.CommodityId,
+			reconciled,
 		}
 		if opts.Location() {
 			args = append(args, trimLocation(s.Transaction.Location()))
