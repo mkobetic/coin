@@ -15,11 +15,13 @@ func init() {
 
 type cmdAccounts struct {
 	*flag.FlagSet
+	closed bool
 }
 
 func (_ *cmdAccounts) newCommand(names ...string) command {
 	var cmd cmdAccounts
 	cmd.FlagSet = newCommand(&cmd, names...)
+	cmd.BoolVar(&cmd.closed, "c", false, "show closed accounts")
 	return &cmd
 }
 
@@ -44,6 +46,9 @@ func (cmd *cmdAccounts) execute(f io.Writer) {
 		}
 	})
 	coin.AccountsDo(func(a *coin.Account) {
+		if !cmd.closed && a.IsClosed() {
+			return
+		}
 		if pattern != nil && !pattern.MatchString(a.FullName) {
 			return
 		}

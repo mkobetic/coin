@@ -26,6 +26,7 @@ func Test_ParseAccount(t *testing.T) {
 account Assets:Investments:IVL:US
 	note Investorline
 	commodity USD
+	closed 2000/10/01
 	ofx_bankid 200000100
 	ofx_acctid 500766075509175102
 `)
@@ -41,4 +42,6 @@ account Assets:Investments:IVL:US
 	assert.Equal(t, a.Description, "Investorline")
 	assert.Equal(t, a.OFXAcctId, "500766075509175102")
 	assert.Equal(t, a.OFXBankId, "200000100")
+	assert.True(t, a.IsClosed())
+	assert.Equal(t, "2000/10/01", a.Closed.Format(DateFormat))
 }

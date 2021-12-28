@@ -10,6 +10,8 @@
 
 #### ofx2coin
 
+* duplicate elimination too aggressive with identical transactions (e.g. 2x ROGERS top up for cell phones)
+  ? duplicate transactions from the same source/file should be kept?
 * sanitise sensistive information, account/cc numbers
 * commodity mismatches (USD vs CAD)
 
@@ -20,7 +22,7 @@
 ### Maybe
 
 * backfill prices from transactions
-* add opened/closed clauses to accounts (ditch the 0 balance filtering)
+* filter out closed accounts where it makes sense (ditch the 0 balance filtering)
 * support for tags?
 * account/commodity renames?
 * language server?

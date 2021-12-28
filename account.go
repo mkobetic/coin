@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/mkobetic/coin/check"
@@ -19,6 +20,7 @@ type Account struct {
 	Code        string
 	Description string
 	CommodityId string
+	Closed      time.Time // the date the account was closed
 
 	Commodity *Commodity
 	Parent    *Account
@@ -76,11 +78,12 @@ var AccountREX = rex.MustCompile(`(?P<account>%s(:%s)*)`, accountNameREX, accoun
 var accountHeadREX = rex.MustCompile(`account\s+%s`, AccountREX)
 var accountBodyREX = rex.MustCompile(``+
 	`(\s+note\s+(?P<note>\S.+))|`+
-	`(\s+commodity\s+%s|`+
+	`(\s+commodity\s+%s)|`+
+	`(\s+closed\s+%s)|`+
 	`(\s+ofx_bankid\s+(?P<ofx_bankid>\d+))|`+
 	`(\s+ofx_acctid\s+(?P<ofx_acctid>\d+))|`+
-	`(\s+csv_acctid\s+(?P<csv_acctid>\w+)))`,
-	CommodityREX)
+	`(\s+csv_acctid\s+(?P<csv_acctid>\w+))`,
+	CommodityREX, DateREX)
 
 func accountFromName(fullName string) *Account {
 	_, name := parentAndName(fullName)
@@ -122,6 +125,8 @@ func (p *Parser) parseAccount(fn string) (*Account, error) {
 			a.Description = n
 		} else if c := match["commodity"]; c != "" {
 			a.CommodityId = c
+		} else if d := match["date"]; d != "" {
+			a.Closed = mustParseDate(match, 0)
 		} else if i := match["ofx_bankid"]; i != "" {
 			a.OFXBankId = i
 		} else if i := match["ofx_acctid"]; i != "" {
@@ -148,6 +153,13 @@ func (a *Account) Location() string {
 
 func (a *Account) Balance() *Amount {
 	return a.balance
+}
+
+func (a *Account) IsClosed() bool {
+	if a == nil {
+		return false
+	}
+	return a.Parent.IsClosed() || !a.Closed.IsZero()
 }
 
 func (a *Account) Depth() int {
