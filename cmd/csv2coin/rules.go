@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -17,26 +16,30 @@ import (
 var separator = []byte("---")
 
 type Field struct {
-	idx int
-	out string
-	re  *rex.Exp
+	idx       *int     // field index for direct fields
+	out       string   // field output template
+	condField string   // names the field to match for conditional derived fields
+	re        *rex.Exp // extraction rex for direct fields or conditional rex for derived fields
 }
 
 func (f *Field) Value(row []string, fields map[string]Fields) string {
-	s := row[f.idx]
-	if f.re == nil {
-		if f.out == "" {
-			return s
-		}
-		return derivedField(f.out, row, fields)
+	if f.idx == nil {
+		return f.derivedField(row, fields)
 	}
-	return directField(s, f.out, f.re)
+	s := row[*f.idx]
+	if f.re == nil {
+		return s
+	}
+	return f.directField(s)
 }
 
-func derivedField(output string, row []string, fields map[string]Fields) string {
-	parts := strings.Split(output, "$")
+func (f *Field) derivedField(row []string, fields map[string]Fields) string {
+	if f.condField != "" && len(f.re.Match([]byte(fields[f.condField].Value(row, fields)))) == 0 {
+		return ""
+	}
+	parts := strings.Split(f.out, "$")
 	if len(parts) == 1 {
-		return output
+		return f.out
 	}
 	out := []string{parts[0]}
 	for _, p := range parts[1:] {
@@ -53,14 +56,14 @@ func derivedField(output string, row []string, fields map[string]Fields) string 
 	return strings.Join(out, "")
 }
 
-func directField(s string, output string, re *rex.Exp) string {
-	match := re.Match([]byte(s))
+func (f *Field) directField(s string) string {
+	match := f.re.Match([]byte(s))
 	if match == nil {
 		return ""
 	}
-	parts := strings.Split(output, "$")
+	parts := strings.Split(f.out, "$")
 	if len(parts) == 1 {
-		return output
+		return f.out
 	}
 	out := []string{parts[0]}
 	for _, p := range parts[1:] {
@@ -91,7 +94,7 @@ type Source struct {
 }
 
 var sourceREX = rex.MustCompile(`^(?P<source>\w+)(\s+(?P<skip>\d+))?\s*$`)
-var derivedFieldRex = rex.MustCompile(`"(?P<code>.*)"`)
+var derivedFieldRex = rex.MustCompile(`"(?P<code>.*)"(\s+(?P<condField>\w+)\s+(?P<condRex>.+))?`)
 var directFieldRex = rex.MustCompile(`(?P<rowIdx>\d+)(\s+"(?P<out>.+)"\s+(?P<rex>.+))?`)
 var fieldREX = rex.MustCompile(`^\s+(?P<field>\w+)\s+(%s|%s)$`, directFieldRex, derivedFieldRex)
 
@@ -114,10 +117,13 @@ func ScanSource(line []byte, s *bufio.Scanner) *Source {
 		var field Field
 		if code := match["code"]; code != "" {
 			field.out = code
+			if field.condField = match["condField"]; field.condField != "" {
+				field.re = rex.MustCompile(strings.TrimSpace(match["condRex"]))
+			}
 		} else {
-			idx := match["rowIdx"]
-			field.idx, err = strconv.Atoi(idx)
+			idx, err := strconv.Atoi(match["rowIdx"])
 			check.NoError(err, "invalid field row index: %s\n", idx)
+			field.idx = &idx
 			field.out = strings.TrimSpace(match["out"])
 			if ex := match["rex"]; ex != "" {
 				field.re = rex.MustCompile(strings.TrimSpace(ex))
@@ -150,6 +156,10 @@ func (s *Source) Write(w io.Writer) {
 	}
 }
 
+func (s *Source) Value(field string, row []string) string {
+	return s.fields[field].Value(row, s.fields)
+}
+
 type Rules struct {
 	sources map[string]*Source
 	*coin.RuleIndex
@@ -162,8 +172,6 @@ func (rules *Rules) Write(w io.Writer) {
 	fmt.Fprintln(w, string(separator))
 	rules.RuleIndex.Write(w)
 }
-
-var fieldsRE = regexp.MustCompile(`^(\w+)\s+([\d,]+)\s*$`)
 
 func ReadRules(r io.Reader) *Rules {
 	rules := Rules{sources: map[string]*Source{}}

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -143,19 +142,23 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 
 	var amount *coin.Amount
 	if amt := valueFor("amount"); amt != "" {
-		amount = coin.MustParseAmount(amt, toAccount.Commodity)
+		commodity := account.Commodity
+		if currency := valueFor("currency"); currency != "" {
+			commodity, found = coin.Commodities[currency]
+			if !found {
+				commodity, found = coin.CommoditiesBySymbol[currency]
+			}
+			check.If(found, "unknown currency %s", currency)
+		}
+		amount = coin.MustParseAmount(amt, commodity)
 	}
 	check.If(amount != nil, "amount not found!")
+	fromAccount := findAccountForCommodity(amount.Commodity, account)
+
 	symbol := valueFor("symbol")
 	if symbol == "" {
-		if account.Commodity != amount.Commodity {
-			account.WithChildrenDo(func(a *coin.Account) {
-				if a.Commodity == amount.Commodity {
-					account = a
-				}
-			})
-		}
-		t.Post(account, toAccount, amount, nil)
+		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
+		t.Post(fromAccount, toAccount, amount, nil)
 		return t
 	}
 	commodity, found := coin.Commodities[symbol]
@@ -163,13 +166,6 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 		commodity, found = coin.CommoditiesBySymbol[symbol]
 	}
 	check.OK(found, "Could not find commodity for symbol %s", symbol)
-	if account.Commodity != commodity {
-		account.WithChildrenDo(func(a *coin.Account) {
-			if a.Commodity == commodity {
-				account = a
-			}
-		})
-	}
 
 	var quantity *coin.Amount
 	if amt := valueFor("quantity"); amt != "" {
@@ -177,20 +173,53 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 	}
 
 	if quantity == nil {
-		t.Post(account, toAccount, amount, nil)
+		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
+		t.Post(fromAccount, toAccount, amount, nil)
 		return t
 	}
+
 	// Quantity and amount cannot be both positive or negative,
 	// if they are amount wins, make quantity the opposite.
 	if quantity.Sign()*amount.Sign() > 0 {
 		quantity = quantity.Negated()
 	}
-	t.PostConversion(account, quantity, nil, toAccount, amount, nil)
+
+	if isInTheTreeOf(toAccount, account) {
+		toAccount = findAccountForCommodity(quantity.Commodity, toAccount)
+	} else {
+		fromAccount = findAccountForCommodity(quantity.Commodity, account)
+		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
+		quantity, amount = amount, quantity
+	}
+
+	t.PostConversion(fromAccount, amount, nil, toAccount, quantity, nil)
 	return t
 }
 
-func isZero(f float64) bool {
-	return f < math.SmallestNonzeroFloat64
+func findAccountForCommodity(c *coin.Commodity, root *coin.Account) *coin.Account {
+	if root.Commodity == c {
+		return root
+	}
+	account := coin.Unbalanced
+	root.WithChildrenDo(func(a *coin.Account) {
+		if a.Commodity == c {
+			account = a
+		}
+	})
+	return account
+}
+
+func isInTheTreeOf(child, parent *coin.Account) bool {
+	if child == parent {
+		return true
+	}
+	found := false
+	parent.WithChildrenDo(func(a *coin.Account) {
+		if a == child {
+			found = true
+		}
+	})
+	return found
 }
 
 var labels = []string{
@@ -198,8 +227,9 @@ var labels = []string{
 	"description", // transaction description
 	"date",        // date of the transaction
 	"amount",      // the cost of the transaction
-	"symbol",      // symbol of the commodity that was traded
-	"quantity",    // quantity of the commodity that was traded
+	"currency",    // optional currency of the transaction cost
+	"symbol",      // optional symbol of the commodity that was traded
+	"quantity",    // optional quantity of the commodity that was traded
 	"note",        // optional note associated with the transaction
 }
 
@@ -211,7 +241,7 @@ func parseFields(list string) map[string]Fields {
 	for i, s := range idxs {
 		c, err := strconv.Atoi(s)
 		check.NoError(err, "%s is not a valid column index", i)
-		fields[labels[i]] = Fields{&Field{c, "", nil}}
+		fields[labels[i]] = Fields{&Field{&c, "", "", nil}}
 	}
 	return fields
 }

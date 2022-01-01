@@ -6,11 +6,15 @@ Converts CSV files to coin transactions.
 * description - transaction description
 * date - date of the transaction
 * amount - the cost of the transaction
+* currency - (optional) currency of the transaction cost
 * symbol - (optional) symbol of the commodity that was traded
 * quantity - (optional) quantity of the commodity that was traded
 * note - (optional) note associated with the transaction
 
-Conversion of individual CSV records (lines) to these values is driven by import rules. Import rules are usually described in `$COINDB/csv.rules` file. Alternatively, if the values can be directly lifted from the full contents of specific fields of the CSV records, this mapping can be provided directly on the commandline as a list of field indexs through the `-fields` option. The order of indexes follows the order of values in the list above, e.g. `-fields=3,0,2,6,1,7` for an import that won't have notes.
+Conversion of individual CSV records (lines) to these values is driven by import rules. Import rules are usually described in `$COINDB/csv.rules` file. Alternatively, if the values can be directly lifted from the full contents of specific fields of the CSV records, this mapping can be provided directly on the commandline as a list of field indexs through the `-fields` option. The order of indexes follows the order of values in the list above, e.g. `-fields=3,0,2,6,1,7,8` for an import that won't have notes.
+
+The transaction is composed with `account` being the "from" account. The "to" account will be produced by the rules or it is the Unbalanced account. If `symbol` and `quantity` are present the transaction will be posted as a conversion between the symbol commodity and the currency commodity. If commodity doesn't match the account a sub-account with the matching commodity will be substituted.
+
 
 ## csv.rules
 
@@ -45,7 +49,9 @@ source 2
 
 #### derivation rules
 
-Derivation rule composes the value out of other values defined in the source. The rule has a single expression enclosed in doublequotes that is a template of the value referencing other values in the source by name. The example uses constant `123` as the account ID and composes the `note` value out of two separate record fields 1 and 0.
+Derivation rule composes the value out of other values defined in the source. The rule starts with an expression enclosed in doublequotes that is a template of the value referencing other values in the source by name. The example uses constant `123` as the `account` and composes the `note` value out of two separate record fields 1 and 0.
+
+Optionally the first expression can be followed by a field name followed by a second expression that continues until the end of the line and contains a regular expression. These parameters represent a condition that is satisfied when the field value matches the regular expression. The rule yields an empty string if the condition is not satisfied. The example will yield `symbol` value `USD` if `description` has Interest or Dividend in its value.
 
 ```
 source 1
@@ -54,4 +60,5 @@ source 1
   note1 1
   note2 0
   note "${note2} => ${note1}"
+  symbol "USD" description Interest|Dividend
 ```
