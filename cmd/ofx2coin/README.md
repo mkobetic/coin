@@ -6,6 +6,8 @@ Converts OFX/QFX files into coin transactions
 * converts OFX bank/credit card transactions to coin transactions
   using the provided rules to match the transaction description/payees to target accounts.
 * if match is not found the target account is set to `Unbalanced` and needs to be corrected manually
+* attaches balance to the last imported transaction
+* performs basic duplicate detection and removes duplicate transactions unless told not to (removals are reported)
 * outputs all transactions sorted by date
 
 ## ofx.rules

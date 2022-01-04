@@ -1,10 +1,11 @@
 ### Features
 
 * stats: check for commodity mismatches in accounts
+* stats: check closed accounts have 0 balance
+* register: show description/notes
+* better usage messages
 * balance: csv, json, chart output
 * test: support for generating test data
-* better usage messages
-* make sure all errors include Location
 * register: sorting by quantity to aid finding largest transactions
 * register: more advanced filtering options
 

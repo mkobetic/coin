@@ -193,7 +193,7 @@ func ResolveAccounts() {
 			continue
 		}
 		p := AccountsByName[pName]
-		check.If(p != nil, "Missing account %s\n", pName)
+		check.If(p != nil, "Missing account %s (%s)\n", pName, a.Location())
 		p.adopt(a)
 	}
 

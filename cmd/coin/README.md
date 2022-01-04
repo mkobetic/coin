@@ -4,6 +4,9 @@ Use `-h` for detailed option descriptions.
 ## balance
 
 * print account balances
+* select time range to total (begin/end)
+* zero balance and closed account suppression (optional)
+* filtering to top N levels of accounts for display
 
 ## register
 
@@ -17,6 +20,7 @@ Use `-h` for detailed option descriptions.
 ## accounts
 
 * list accounts and commodities
+* suppress closed accounts (optional)
 
 ## commodities
 

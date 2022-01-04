@@ -177,15 +177,16 @@ func (a *Account) CheckPostings() {
 	a.balance = NewZeroAmount(a.Commodity)
 	for _, s := range a.Postings {
 		err := a.balance.AddIn(s.Quantity)
-		check.NoError(err, "couldn't add %a %s to balance %a %s\n",
-			s.Quantity, s.Quantity.Commodity, a.Balance(), a.Balance().Commodity)
+		check.NoError(err, "couldn't add %a %s to balance %a %s: %s\n",
+			s.Quantity, s.Quantity.Commodity, a.Balance(), a.Balance().Commodity, s.Transaction.Location())
 		if s.Balance != nil {
 			warn.If(!a.balance.IsEqual(s.Balance),
-				"%s: %s balance is %a, should be %a\n",
+				"%s: %s balance is %a, should be %a: %s\n",
 				a.FullName,
 				s.Transaction.Posted.Format(DateFormat),
 				a.balance,
 				s.Balance,
+				s.Transaction.Location(),
 			)
 		}
 	}
