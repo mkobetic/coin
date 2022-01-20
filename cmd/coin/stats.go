@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 
 	"github.com/mkobetic/coin"
@@ -53,7 +52,7 @@ func (cmd *cmdStats) execute(f io.Writer) {
 			}
 			for _, t2 := range day {
 				if t.IsEqual(t2) {
-					fmt.Fprintf(os.Stderr,
+					fmt.Fprintf(f,
 						"DUPLICATE TRANSACTION?\n%s\n%s\n%s\n%s\n",
 						t2.Location(), t2,
 						t.Location(), t)
@@ -65,18 +64,24 @@ func (cmd *cmdStats) execute(f io.Writer) {
 	}
 
 	for _, t := range transactions {
+		if cmd.commodityMismatches && len(t.Postings) == 2 {
+			if p1, p2 := t.Postings[0], t.Postings[1]; p1.Quantity.IsEqual(p2.Quantity.Negated()) &&
+				p1.Quantity.Commodity != p2.Quantity.Commodity {
+				fmt.Fprintf(f,
+					"BAD CONVERSION: %s %a %s => %a %s : %s\n",
+					t.Posted.Format(coin.DateFormat),
+					p1.Quantity,
+					p1.Quantity.Commodity.Id,
+					p2.Quantity,
+					p2.Quantity.Commodity.Id,
+					t.Location(),
+				)
+			}
+		}
 		for _, p := range t.Postings {
 			if cmd.unbalanced && p.Account == coin.Unbalanced {
-				fmt.Fprintf(os.Stderr,
+				fmt.Fprintf(f,
 					"UNBALANCED TRANSACTION!\n%s\n%s\n",
-					t.Location(),
-					t)
-			}
-			if cmd.commodityMismatches && p.Account.Commodity != p.Quantity.Commodity {
-				fmt.Fprintf(os.Stderr,
-					"COMMODITY MISMATCH %s != %s !\n%s\n%s\n",
-					p.Account.Commodity.Id,
-					p.Quantity.Commodity.Id,
 					t.Location(),
 					t)
 			}

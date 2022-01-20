@@ -1,0 +1,21 @@
+commodity CAD
+commodity USD
+
+account Assets:CAD
+  commodity CAD
+account Assets:USD
+  commodity USD
+account Expenses:Food
+  commodity CAD
+
+2001 something
+  E:Food  10 CAD
+  A:USD  -10 USD
+
+test stats -c
+BAD CONVERSION 10.00 CAD => -10.00 USD: tests/cmd/stat/mismatch.test:11
+Commodities: 2
+Prices: 0
+Accounts: 7
+Transactions: 1
+end test

@@ -40,7 +40,7 @@ func (ps postings) totals(com *coin.Commodity) (ts []*coin.Amount) {
 	total := coin.NewZeroAmount(com)
 	for _, p := range ps {
 		err := total.AddIn(p.Quantity)
-		check.NoError(err, "adding posting for %s: %s\n", p.Account.FullName, p.Quantity.Location())
+		check.NoError(err, "adding posting for %s: %s\n", p.Account.FullName, p.Transaction.Location())
 		ts = append(ts, total.Copy())
 	}
 	return ts

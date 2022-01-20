@@ -8,11 +8,13 @@ import (
 	"github.com/mkobetic/coin/assert"
 )
 
-var cad *Commodity
+var cad, usd *Commodity
 
 func init() {
 	Commodities["CAD"] = &Commodity{Id: "CAD", Decimals: 2}
+	Commodities["USD"] = &Commodity{Id: "USD", Decimals: 2}
 	cad = DefaultCommodity()
+	usd = Commodities["USD"]
 }
 
 func Test_ParseAmount(t *testing.T) {
@@ -44,6 +46,15 @@ func Test_AmountWidth(t *testing.T) {
 		width := amt.Width(fix.decimals)
 		assert.Equal(t, width, fix.width, "%d. not equal", i)
 	}
+}
+
+func Test_AmountIsEqual(t *testing.T) {
+	amt1, err := parseAmount("12.33", cad)
+	assert.NoError(t, err)
+	amt2, err := parseAmount("12.33", usd)
+	assert.NoError(t, err)
+	assert.True(t, amt1.IsEqual(amt2))
+	assert.True(t, amt1.Commodity != amt2.Commodity)
 }
 
 func Test_FormatWidthAmount(t *testing.T) {

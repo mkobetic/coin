@@ -1,6 +1,6 @@
 ### Features
 
-* stats: check for commodity mismatches in accounts
+* register: cache balance on posting, show global totals with begin/end
 * stats: check closed accounts have 0 balance
 * register: show description/notes
 * better usage messages

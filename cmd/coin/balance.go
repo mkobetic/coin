@@ -45,7 +45,7 @@ func (cmd *cmdBalance) execute(f io.Writer) {
 		total := coin.NewZeroAmount(a.Commodity)
 		for _, p := range trim(a.Postings, cmd.begin, cmd.end) {
 			err := total.AddIn(p.Quantity)
-			check.NoError(err, "adding posting for %s: %s\n", a.FullName, p.Quantity.Location())
+			check.NoError(err, "adding posting for %s: %s\n", a.FullName, p.Transaction.Location())
 		}
 		totals[a] = total
 		cumulative[a] = total.Copy()

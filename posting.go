@@ -18,7 +18,7 @@ type Posting struct {
 }
 
 func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger bool) error {
-	commodity := s.Account.Commodity
+	commodity := s.Quantity.Commodity
 	_, err := fmt.Fprintf(w, "%*s%-*s  %*.*f %s",
 		accountOffset, "",
 		accountWidth, s.Account.FullName,
