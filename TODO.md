@@ -2,7 +2,10 @@
 
 * register: cache balance on posting, show global totals with begin/end
 * stats: check closed accounts have 0 balance
+* register: show posting commodity (not just total commodity)
 * register: show description/notes
+* register: recursive register prints transactions within the parent tree twice
+* register: recurisve register totals are useless
 * better usage messages
 * balance: csv, json, chart output
 * test: support for generating test data
