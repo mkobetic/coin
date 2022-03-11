@@ -1,0 +1,29 @@
+{
+  "name": "coin",
+  "version": "1.0.0",
+  "description": "coin companion",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc ",
+    "test": "jest --no-cache --runInBand --env='node' --forceExit",
+    "lint": "prettier --check . && eslint .",
+    "autolint": "prettier --write . && eslint --fix ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/mkobetic/coin"
+  },
+  "author": "Martin Kobetic",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^7.9.0"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "eslint": "^8.14.0",
+    "jest": "^28.1.0",
+    "prettier": "^2.6.2",
+    "ts-jest": "^28.0.1",
+    "typescript": "^4.6.4"
+  }
+}

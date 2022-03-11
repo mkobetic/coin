@@ -1,6 +1,7 @@
 package coin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -73,4 +74,14 @@ func (p *Price) String() string {
 
 func (p *Price) Location() string {
 	return fmt.Sprintf("%s:%d", p.file, p.line)
+}
+
+func (p *Price) MarshalJSON() ([]byte, error) {
+	value := map[string]interface{}{
+		"time":      p.Time.Format(DateFormat),
+		"commodity": p.Commodity.Id,
+		"currency":  p.Currency.Id,
+		"value":     p.Value,
+	}
+	return json.MarshalIndent(value, "", "\t")
 }
