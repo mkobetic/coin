@@ -1,6 +1,7 @@
 package coin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"sort"
@@ -292,4 +293,22 @@ func writeStrings(w io.Writer, err error, ss ...string) error {
 		}
 	}
 	return nil
+}
+
+func (t *Transaction) MarshalJSON() ([]byte, error) {
+	var value = map[string]interface{}{
+		"description": t.Description,
+		"postings":    t.Postings,
+		"posted":      t.Posted.Format(DateFormat),
+	}
+	if len(t.Notes) > 0 {
+		value["notes"] = t.Notes
+	}
+	if len(t.Code) > 0 {
+		value["code"] = t.Code
+	}
+	if len(t.Tags) > 0 {
+		value["tags"] = t.Tags
+	}
+	return json.MarshalIndent(value, "", "\t")
 }

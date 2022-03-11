@@ -1,3 +1,5 @@
+.DS_Store
 bin/
 tmp/
 node_modules
+cmd/coin2html/test.html

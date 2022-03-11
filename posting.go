@@ -1,6 +1,7 @@
 package coin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -69,4 +70,20 @@ func (p *Posting) MoveTo(a *Account) {
 
 func (p *Posting) drop() {
 	p.Account.deletePosting(p)
+}
+
+func (p *Posting) MarshalJSON() ([]byte, error) {
+	var value = map[string]interface{}{
+		"account":          p.Account.FullName,
+		"quantity":         p.Quantity,
+		"balance":          p.Balance,
+		"balance_asserted": p.BalanceAsserted,
+	}
+	if len(p.Notes) > 0 {
+		value["notes"] = p.Notes
+	}
+	if p.Tags != nil {
+		value["tags"] = p.Tags
+	}
+	return json.MarshalIndent(value, "", "\t")
 }
