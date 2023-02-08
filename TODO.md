@@ -1,6 +1,7 @@
 ### Features
 
 * thousand separator in amounts
+* check for account/cc numbers in transactions
 * balance: last reconciled posting date
 * register: sorting by quantity to aid finding largest transactions
 * register: cache balance on posting, show global totals with begin/end

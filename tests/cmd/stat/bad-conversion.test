@@ -13,7 +13,7 @@ account Expenses:Food
   A:USD  -10 USD
 
 test stats -c
-BAD CONVERSION 10.00 CAD => -10.00 USD: tests/cmd/stat/mismatch.test:11
+BAD CONVERSION: 2001/01/01 10.00 CAD => -10.00 USD : tests/cmd/stat/bad-conversion.test:11
 Commodities: 2
 Prices: 0
 Accounts: 7
