@@ -8,12 +8,13 @@
 * stats: check closed accounts have 0 balance
 * register: show posting commodity (not just total commodity)
 * register: show description/notes
-* register: recursive register prints transactions within the parent tree twice
-* register: recursive register totals are useless
+* register: recursive prints transactions within the parent tree twice
+* register: recursive totals are useless
 * better usage messages
 * balance: csv, json, chart output
 * test: support for generating test data
 * register: more advanced filtering options
+* stats: aggregate transaction/price stats by time (-y, -q, -m) and begin/end
 
 #### ofx2coin
 
@@ -35,3 +36,4 @@
 * language server?
 * lots/costs
 * multiple commodities in single account?
+* query language
