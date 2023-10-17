@@ -128,7 +128,7 @@ func readTransactions(r io.Reader, rules *coin.RuleIndex) (transactions []*coin.
 			transactions = append(transactions,
 				newTransaction(rules,
 					t.DtPosted.Time,
-					t.Name.String(),
+					t.Name.String()+t.Memo.String(),
 					t.TrnAmt.Rat,
 					balance,
 				))
