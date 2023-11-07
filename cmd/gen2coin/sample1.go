@@ -1,0 +1,45 @@
+package main
+
+import (
+	"strings"
+
+	"github.com/mkobetic/coin"
+)
+
+const sample1setup = `
+commodity CAD
+  default
+
+account Assets:Bank:Checking
+account Liabilities:MasterCard
+account Liabilities:Amex
+account Income:Salary
+account Expenses:Groceries
+`
+
+func sample1() []*rule {
+	r := strings.NewReader(sample1setup)
+	coin.Load(r, "")
+	coin.ResolveAll()
+
+	return []*rule{
+		newRule(weekly(1, 2, weekday...),
+			"Costco",
+			"Checking|MasterCard|Amex",
+			"Groceries",
+			100, 1000, "CAD",
+		),
+		newRule(weekly(2, 1, anyday...),
+			"FARM BOY|FRESHCO|LOBLAWS|LOEB|SOBEY'S|NO FRILLS",
+			"Checking|MasterCard|Amex",
+			"Groceries",
+			30, 200, "CAD",
+		),
+		newRule(monthly(2, 1, 15, -1),
+			"ACME Inc",
+			"Salary",
+			"Checking",
+			2000, 2000, "CAD",
+		),
+	}
+}

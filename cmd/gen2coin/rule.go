@@ -3,6 +3,7 @@ package main
 import (
 	"math/big"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/mkobetic/coin"
@@ -34,6 +35,17 @@ type rule struct {
 	payees   []string
 }
 
+func newRule(dates dateGen, payees, from, to string, min, max int, commodity string) *rule {
+	return &rule{
+		dates:  dates,
+		payees: strings.Split(payees, "|"),
+		from:   toAccounts(strings.Split(from, "|")),
+		to:     toAccounts(strings.Split(to, "|")),
+		min:    toAmount(min, commodity),
+		max:    toAmount(max, commodity),
+	}
+}
+
 func (r *rule) generate(begin, end time.Time) []*coin.Transaction {
 	var transactions []*coin.Transaction
 	for _, posted := range r.dates(begin, end) {
@@ -44,7 +56,7 @@ func (r *rule) generate(begin, end time.Time) []*coin.Transaction {
 		t := &coin.Transaction{
 			Posted:      posted,
 			Description: payee}
-		t.Post(from, to, amt, nil)
+		t.Post(to, from, amt, nil)
 		transactions = append(transactions, t)
 	}
 	return transactions
@@ -57,7 +69,34 @@ func amtBetween(a, b *coin.Amount) *coin.Amount {
 	amt := new(big.Int).Sub(b.Int, a.Int)
 	diff := new(big.Int).Rand(rnd, amt)
 	return &coin.Amount{
-		a.Add(a.Int, diff),
+		diff.Add(diff, a.Int),
 		a.Commodity,
 	}
+}
+
+func toAccounts(patterns []string) (accounts []*coin.Account) {
+	for _, p := range patterns {
+		accounts = append(accounts, coin.MustFindAccount(p))
+	}
+	return accounts
+}
+
+func toAmount(amt int, com string) *coin.Amount {
+	c := coin.MustFindCommodity(com, "")
+	a := big.NewInt(int64(amt) * pow(10, c.Decimals))
+	return &coin.Amount{a, c}
+}
+
+func pow(base, exp int) (res int64) {
+	bitMask := 1
+	pow := int64(base)
+	res = 1
+	for bitMask <= exp {
+		if bitMask&exp != 0 {
+			res *= pow
+		}
+		pow *= pow
+		bitMask <<= 1
+	}
+	return res
 }
