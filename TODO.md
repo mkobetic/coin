@@ -2,7 +2,10 @@
 
 * thousand separator in amounts
 * check for account/cc numbers in transactions
+* fmt: remove extra whitespace from payee
+* move postings between accounts/rename account
 * balance: last reconciled posting date
+* register: filter by payee
 * register: sorting by quantity to aid finding largest transactions
 * register: cache balance on posting, show global totals with begin/end
 * stats: check closed accounts have 0 balance
