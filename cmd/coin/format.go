@@ -19,13 +19,15 @@ type cmdFormat struct {
 	*flag.FlagSet
 	ledger  bool
 	replace bool
+	trimWS  bool
 }
 
 func (*cmdFormat) newCommand(names ...string) command {
 	var cmd cmdFormat
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.ledger, "ledger", false, "use ledger compatible format")
-	cmd.BoolVar(&cmd.replace, "replace", false, "format files in place")
+	cmd.BoolVar(&cmd.replace, "i", false, "format files in-place")
+	cmd.BoolVar(&cmd.trimWS, "t", false, "trim excessive whitespace")
 	return &cmd
 }
 
@@ -47,6 +49,10 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 			f = tf
 		}
 		for _, t := range coin.Transactions {
+			if cmd.trimWS {
+				t.Description = trimWS(t.Description)
+				t.Note = trimWS(t.Note)
+			}
 			t.Write(f, cmd.ledger)
 			fmt.Fprintln(f)
 		}
