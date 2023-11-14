@@ -18,7 +18,7 @@ type cmdAccounts struct {
 	closed bool
 }
 
-func (_ *cmdAccounts) newCommand(names ...string) command {
+func (*cmdAccounts) newCommand(names ...string) command {
 	var cmd cmdAccounts
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.closed, "c", false, "show closed accounts")

@@ -21,7 +21,7 @@ type cmdFormat struct {
 	replace bool
 }
 
-func (_ *cmdFormat) newCommand(names ...string) command {
+func (*cmdFormat) newCommand(names ...string) command {
 	var cmd cmdFormat
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.ledger, "ledger", false, "use ledger compatible format")

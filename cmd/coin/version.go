@@ -16,7 +16,7 @@ type cmdVersion struct {
 	*flag.FlagSet
 }
 
-func (_ *cmdVersion) newCommand(names ...string) command {
+func (*cmdVersion) newCommand(names ...string) command {
 	var cmd cmdVersion
 	cmd.FlagSet = newCommand(&cmd, names...)
 	return &cmd

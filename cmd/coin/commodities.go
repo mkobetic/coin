@@ -26,7 +26,7 @@ type cmdCommodities struct {
 	prices    bool
 }
 
-func (_ *cmdCommodities) newCommand(names ...string) command {
+func (*cmdCommodities) newCommand(names ...string) command {
 	var cmd cmdCommodities
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.getQuotes, "q", false, "get current quotes for all commodities")

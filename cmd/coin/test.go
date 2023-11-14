@@ -20,7 +20,7 @@ type cmdTest struct {
 	*flag.FlagSet
 }
 
-func (_ *cmdTest) newCommand(names ...string) command {
+func (*cmdTest) newCommand(names ...string) command {
 	var cmd cmdTest
 	cmd.FlagSet = newCommand(&cmd, names...)
 	return &cmd

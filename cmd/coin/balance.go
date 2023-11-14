@@ -20,7 +20,7 @@ type cmdBalance struct {
 	level       int
 }
 
-func (_ *cmdBalance) newCommand(names ...string) command {
+func (*cmdBalance) newCommand(names ...string) command {
 	var cmd cmdBalance
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.Var(&cmd.begin, "b", "begin balance from this date")

@@ -3,7 +3,7 @@ package main
 import (
 	"compress/gzip"
 	"encoding/base64"
-	"io/ioutil"
+	"io"
 	"sort"
 	"strings"
 
@@ -17,7 +17,7 @@ import (
 func decode(name, encoded string) (decoded []byte) {
 	r, err := gzip.NewReader(base64.NewDecoder(base64.StdEncoding, strings.NewReader(encoded)))
 	check.NoError(err, "opening %s", name)
-	decoded, err = ioutil.ReadAll(r)
+	decoded, err = io.ReadAll(r)
 	check.NoError(err, "reading %s", name)
 	return decoded
 }

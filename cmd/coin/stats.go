@@ -21,7 +21,7 @@ type cmdStats struct {
 	begin, end          coin.Date
 }
 
-func (_ *cmdStats) newCommand(names ...string) command {
+func (*cmdStats) newCommand(names ...string) command {
 	var cmd cmdStats
 	cmd.FlagSet = newCommand(&cmd, names...)
 	cmd.BoolVar(&cmd.dupes, "d", false, "check for duplicate transactions")
