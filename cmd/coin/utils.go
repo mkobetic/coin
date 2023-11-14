@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"compress/gzip"
 	"encoding/base64"
 	"io"
@@ -42,4 +44,27 @@ func trim(ps []*coin.Posting, begin, end coin.Date) []*coin.Posting {
 		ps = ps[:to]
 	}
 	return ps
+}
+
+func trimWS(in string) string {
+	lines := bufio.NewScanner(strings.NewReader(in))
+	var w strings.Builder
+	lIsFirst := true
+	for lines.Scan() {
+		if !lIsFirst {
+			w.WriteByte('\n')
+		}
+		lIsFirst = false
+		words := bufio.NewScanner(bytes.NewReader(lines.Bytes()))
+		words.Split(bufio.ScanWords)
+		wIsFirst := true
+		for words.Scan() {
+			if !wIsFirst {
+				w.WriteByte(' ')
+			}
+			w.Write(words.Bytes())
+			wIsFirst = false
+		}
+	}
+	return w.String()
 }
