@@ -8,6 +8,7 @@ import (
 	"path"
 
 	"github.com/mkobetic/coin"
+	"github.com/mkobetic/coin/check"
 )
 
 func init() {
@@ -42,9 +43,7 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 		coin.ResolveTransactions(false)
 		if cmd.replace {
 			tf, err = os.CreateTemp(path.Dir(fn), path.Base(fn))
-			if err != nil {
-				panic(err)
-			}
+			check.NoError(err, "creating temp file")
 			f = tf
 		}
 		for _, t := range coin.Transactions {
@@ -52,12 +51,10 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 			fmt.Fprintln(f)
 		}
 		if cmd.replace {
-			if err = os.Remove(fn); err != nil {
-				panic(err)
-			}
-			if err = os.Rename(tf.Name(), fn); err != nil {
-				panic(err)
-			}
+			err = os.Remove(fn)
+			check.NoError(err, "deleting old file")
+			err = os.Rename(tf.Name(), fn)
+			check.NoError(err, "renaming temp file")
 		}
 		// Note that this doesn't properly get rid of transactions,
 		// postings are still referenced through the accounts,
