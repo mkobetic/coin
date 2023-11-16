@@ -31,11 +31,14 @@ func main() {
 	if begin.IsZero() {
 		begin = end.AddDate(0, -3, 0)
 	}
-	var transactions coin.TransactionsByTime
+	var transactions samples
 	for _, r := range sample1() {
-		transactions = append(transactions, r.generate(begin, end)...)
+		transactions = append(transactions, r.generateTransactions(begin, end)...)
 	}
 	sort.Stable(transactions)
+	for _, s := range transactions {
+		s.generatePostings(s.Transaction)
+	}
 	for _, t := range transactions {
 		t.Write(os.Stdout, false)
 		fmt.Fprintln(os.Stdout)

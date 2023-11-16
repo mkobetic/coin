@@ -2,12 +2,12 @@
 
 * register: show description/notes
 * test: support for generating test data
+* include directive
+* register: filter by payee
 * thousand separator in amounts
 * check for account/cc numbers in transactions
-
 * move postings between accounts/rename account
 * balance: last reconciled posting date
-* register: filter by payee
 * register: sorting by quantity to aid finding largest transactions
 * register: show account balances with begin/end
 * stats: check closed accounts have 0 balance
