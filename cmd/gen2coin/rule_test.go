@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/big"
 	"testing"
 
 	"github.com/mkobetic/coin"
@@ -23,10 +24,11 @@ func Test_Pow(t *testing.T) {
 
 func Test_AmtBetween(t *testing.T) {
 	cad := &coin.Commodity{Id: "CAD", Decimals: 2}
-	a := coin.MustParseAmount("10", cad)
-	b := coin.MustParseAmount("1000000", cad)
-	r := amtBetween(a, b)
-	t.Error(r)
-	assert.True(t, r.IsLessThan(b))
-	assert.True(t, a.IsLessThan(r))
+	act := &coin.Account{Name: "A", Commodity: cad}
+	a := big.NewInt(10)
+	b := big.NewInt(1000000)
+	r := amtBetween(int(a.Int64()), int(b.Int64()), act, nil).Int
+	r = r.Div(r, big.NewInt(100)) // drop the 2 decimals
+	assert.True(t, r.Cmp(b) == -1)
+	assert.True(t, a.Cmp(r) == -1)
 }
