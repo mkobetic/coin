@@ -47,5 +47,11 @@ func sample1() []*rule {
 			"MasterCard",
 			TO_BALANCE, TO_BALANCE,
 		),
+		newRule(monthly(1, 1, -1, -2, -3),
+			"repay",
+			"Checking",
+			"Amex",
+			TO_BALANCE, TO_BALANCE,
+		),
 	}
 }

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"math/big"
 	"math/rand"
 	"strings"
 	"time"
 
 	"github.com/mkobetic/coin"
+	"github.com/mkobetic/coin/check"
 )
 
 /*
@@ -84,9 +86,16 @@ func (r *rule) generatePostings(t *coin.Transaction) {
 	to := r.to[rnd.Intn(len(r.to))]
 	amt := amtBetween(r.min, r.max, from, to)
 	t.Post(to, from, amt, nil)
+	check.NoError(to.Balance().AddIn(amt), "failed to update balance")
+	check.NoError(from.Balance().AddIn(amt.Negated()), "failed to update balance")
 }
 
 func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
+	if a > constants {
+		return getBalance(a, from, to)
+	} else if b > constants {
+		return getBalance(b, from, to)
+	}
 	if a > b {
 		a, b = b, a
 	}
@@ -97,6 +106,17 @@ func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 	return &coin.Amount{
 		big.NewInt(int64(amt) * pow(10, from.Commodity.Decimals)),
 		from.Commodity,
+	}
+}
+
+func getBalance(a int, from, to *coin.Account) *coin.Amount {
+	switch a {
+	case FROM_BALANCE:
+		return from.Balance().Negated()
+	case TO_BALANCE:
+		return to.Balance().Negated()
+	default:
+		panic(fmt.Errorf("invalid constant: %d", a))
 	}
 }
 
