@@ -1,0 +1,51 @@
+account Expenses:Water
+  commodity CAD
+
+account Expenses
+  commodity CAD
+
+account Liabilities
+  commodity CAD
+
+account Assets:Bank:Checking
+  commodity CAD
+
+account Liabilities:MasterCard
+  commodity CAD
+
+account Expenses:Heat
+  commodity CAD
+
+account Income:Salary
+  commodity CAD
+
+account Expenses:Groceries
+  commodity CAD
+
+account Income
+  commodity CAD
+
+account Assets:Bank
+  commodity CAD
+
+account Liabilities:Amex
+  commodity CAD
+
+account Root
+  commodity CAD
+
+account Expenses:Electricity
+  commodity CAD
+
+account Unbalanced
+  commodity CAD
+
+account Assets
+  commodity CAD
+
+account Assets:Bank:Savings
+  commodity CAD
+
+account Income:Interest
+  commodity CAD
+
