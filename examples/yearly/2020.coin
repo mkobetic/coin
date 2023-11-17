@@ -1,0 +1,932 @@
+2020/01/01 Enbridge Gas
+  Expenses:Heat          158.00 CAD
+  Assets:Bank:Checking  -158.00 CAD
+
+2020/01/01 Hydro One
+  Expenses:Electricity   78.00 CAD
+  Assets:Bank:Checking  -78.00 CAD
+
+2020/01/01 monthly savings
+  Assets:Bank:Savings    310.00 CAD
+  Assets:Bank:Checking  -310.00 CAD
+
+2020/01/02 NO FRILLS
+  Expenses:Groceries   90.00 CAD
+  Liabilities:Amex    -90.00 CAD
+
+2020/01/04 SOBEY'S
+  Expenses:Groceries     63.00 CAD
+  Assets:Bank:Checking  -63.00 CAD
+
+2020/01/07 FARM BOY
+  Expenses:Groceries   60.00 CAD
+  Liabilities:Amex    -60.00 CAD
+
+2020/01/11 FARM BOY
+  Expenses:Groceries     147.00 CAD
+  Assets:Bank:Checking  -147.00 CAD
+
+2020/01/14 LOEB
+  Expenses:Groceries   101.00 CAD
+  Liabilities:Amex    -101.00 CAD
+
+2020/01/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/01/16 Costco
+  Expenses:Groceries     417.00 CAD
+  Assets:Bank:Checking  -417.00 CAD
+
+2020/01/17 FARM BOY
+  Expenses:Groceries       150.00 CAD
+  Liabilities:MasterCard  -150.00 CAD
+
+2020/01/17 City Water&Sewer
+  Expenses:Water         104.00 CAD
+  Assets:Bank:Checking  -104.00 CAD
+
+2020/01/19 NO FRILLS
+  Expenses:Groceries     172.00 CAD
+  Assets:Bank:Checking  -172.00 CAD
+
+2020/01/24 SOBEY'S
+  Expenses:Groceries   106.00 CAD
+  Liabilities:Amex    -106.00 CAD
+
+2020/01/27 Costco
+  Expenses:Groceries       691.00 CAD
+  Liabilities:MasterCard  -691.00 CAD
+
+2020/01/28 SOBEY'S
+  Expenses:Groceries     108.00 CAD
+  Assets:Bank:Checking  -108.00 CAD
+
+2020/01/30 repay balance
+  Liabilities:Amex       357.00 CAD
+  Assets:Bank:Checking  -357.00 CAD
+
+2020/01/31 SOBEY'S
+  Expenses:Groceries       65.00 CAD
+  Liabilities:MasterCard  -65.00 CAD
+
+2020/01/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/01/31 repay balance
+  Liabilities:MasterCard   1421.00 CAD
+  Assets:Bank:Checking    -1421.00 CAD
+
+2020/01/31 monthly interest %2/12
+  Assets:Bank:Savings   90.52 CAD
+  Income:Interest      -90.52 CAD
+
+2020/02/01 Enbridge Gas
+  Expenses:Heat          171.00 CAD
+  Assets:Bank:Checking  -171.00 CAD
+
+2020/02/01 Hydro One
+  Expenses:Electricity   69.00 CAD
+  Assets:Bank:Checking  -69.00 CAD
+
+2020/02/01 monthly savings
+  Assets:Bank:Savings    482.00 CAD
+  Assets:Bank:Checking  -482.00 CAD
+
+2020/02/03 LOEB
+  Expenses:Groceries   35.00 CAD
+  Liabilities:Amex    -35.00 CAD
+
+2020/02/06 FARM BOY
+  Expenses:Groceries     98.00 CAD
+  Assets:Bank:Checking  -98.00 CAD
+
+2020/02/13 Costco
+  Expenses:Groceries   516.00 CAD
+  Liabilities:Amex    -516.00 CAD
+
+2020/02/14 NO FRILLS
+  Expenses:Groceries       185.00 CAD
+  Liabilities:MasterCard  -185.00 CAD
+
+2020/02/15 NO FRILLS
+  Expenses:Groceries       65.00 CAD
+  Liabilities:MasterCard  -65.00 CAD
+
+2020/02/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/02/18 LOBLAWS
+  Expenses:Groceries     30.00 CAD
+  Assets:Bank:Checking  -30.00 CAD
+
+2020/02/20 FARM BOY
+  Expenses:Groceries       63.00 CAD
+  Liabilities:MasterCard  -63.00 CAD
+
+2020/02/24 Costco
+  Expenses:Groceries       911.00 CAD
+  Liabilities:MasterCard  -911.00 CAD
+
+2020/02/27 FARM BOY
+  Expenses:Groceries       34.00 CAD
+  Liabilities:MasterCard  -34.00 CAD
+
+2020/02/27 repay balance
+  Liabilities:MasterCard   1258.00 CAD
+  Assets:Bank:Checking    -1258.00 CAD
+
+2020/02/28 LOEB
+  Expenses:Groceries     162.00 CAD
+  Assets:Bank:Checking  -162.00 CAD
+
+2020/02/29 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/02/29 repay balance
+  Liabilities:Amex       551.00 CAD
+  Assets:Bank:Checking  -551.00 CAD
+
+2020/02/29 monthly interest %2/12
+  Assets:Bank:Savings   91.48 CAD
+  Income:Interest      -91.48 CAD
+
+2020/03/01 Enbridge Gas
+  Expenses:Heat          124.00 CAD
+  Assets:Bank:Checking  -124.00 CAD
+
+2020/03/01 Hydro One
+  Expenses:Electricity   95.00 CAD
+  Assets:Bank:Checking  -95.00 CAD
+
+2020/03/01 monthly savings
+  Assets:Bank:Savings    317.00 CAD
+  Assets:Bank:Checking  -317.00 CAD
+
+2020/03/04 FRESHCO
+  Expenses:Groceries     172.00 CAD
+  Assets:Bank:Checking  -172.00 CAD
+
+2020/03/05 FARM BOY
+  Expenses:Groceries     199.00 CAD
+  Assets:Bank:Checking  -199.00 CAD
+
+2020/03/09 Costco
+  Expenses:Groceries       700.00 CAD
+  Liabilities:MasterCard  -700.00 CAD
+
+2020/03/11 LOEB
+  Expenses:Groceries       49.00 CAD
+  Liabilities:MasterCard  -49.00 CAD
+
+2020/03/14 FARM BOY
+  Expenses:Groceries       181.00 CAD
+  Liabilities:MasterCard  -181.00 CAD
+
+2020/03/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/03/17 SOBEY'S
+  Expenses:Groceries       139.00 CAD
+  Liabilities:MasterCard  -139.00 CAD
+
+2020/03/17 City Water&Sewer
+  Expenses:Water         116.00 CAD
+  Assets:Bank:Checking  -116.00 CAD
+
+2020/03/21 SOBEY'S
+  Expenses:Groceries     196.00 CAD
+  Assets:Bank:Checking  -196.00 CAD
+
+2020/03/24 Costco
+  Expenses:Groceries       242.00 CAD
+  Liabilities:MasterCard  -242.00 CAD
+
+2020/03/24 LOEB
+  Expenses:Groceries     134.00 CAD
+  Assets:Bank:Checking  -134.00 CAD
+
+2020/03/25 SOBEY'S
+  Expenses:Groceries   118.00 CAD
+  Liabilities:Amex    -118.00 CAD
+
+2020/03/29 repay balance
+  Liabilities:Amex       118.00 CAD
+  Assets:Bank:Checking  -118.00 CAD
+
+2020/03/30 FARM BOY
+  Expenses:Groceries       76.00 CAD
+  Liabilities:MasterCard  -76.00 CAD
+
+2020/03/31 FRESHCO
+  Expenses:Groceries   92.00 CAD
+  Liabilities:Amex    -92.00 CAD
+
+2020/03/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/03/31 repay balance
+  Liabilities:MasterCard   1387.00 CAD
+  Assets:Bank:Checking    -1387.00 CAD
+
+2020/03/31 monthly interest %2/12
+  Assets:Bank:Savings   92.16 CAD
+  Income:Interest      -92.16 CAD
+
+2020/04/01 Enbridge Gas
+  Expenses:Heat          153.00 CAD
+  Assets:Bank:Checking  -153.00 CAD
+
+2020/04/01 Hydro One
+  Expenses:Electricity   62.00 CAD
+  Assets:Bank:Checking  -62.00 CAD
+
+2020/04/01 monthly savings
+  Assets:Bank:Savings    416.00 CAD
+  Assets:Bank:Checking  -416.00 CAD
+
+2020/04/05 SOBEY'S
+  Expenses:Groceries   135.00 CAD
+  Liabilities:Amex    -135.00 CAD
+
+2020/04/07 LOEB
+  Expenses:Groceries       58.00 CAD
+  Liabilities:MasterCard  -58.00 CAD
+
+2020/04/08 Costco
+  Expenses:Groceries   977.00 CAD
+  Liabilities:Amex    -977.00 CAD
+
+2020/04/13 LOBLAWS
+  Expenses:Groceries     151.00 CAD
+  Assets:Bank:Checking  -151.00 CAD
+
+2020/04/14 LOEB
+  Expenses:Groceries     70.00 CAD
+  Assets:Bank:Checking  -70.00 CAD
+
+2020/04/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/04/20 LOBLAWS
+  Expenses:Groceries       35.00 CAD
+  Liabilities:MasterCard  -35.00 CAD
+
+2020/04/21 Costco
+  Expenses:Groceries     903.00 CAD
+  Assets:Bank:Checking  -903.00 CAD
+
+2020/04/21 FRESHCO
+  Expenses:Groceries   31.00 CAD
+  Liabilities:Amex    -31.00 CAD
+
+2020/04/29 repay balance
+  Liabilities:MasterCard   93.00 CAD
+  Assets:Bank:Checking    -93.00 CAD
+
+2020/04/29 repay balance
+  Liabilities:Amex       1235.00 CAD
+  Assets:Bank:Checking  -1235.00 CAD
+
+2020/04/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/04/30 monthly interest %2/12
+  Assets:Bank:Savings   93.00 CAD
+  Income:Interest      -93.00 CAD
+
+2020/05/01 FRESHCO
+  Expenses:Groceries     187.00 CAD
+  Assets:Bank:Checking  -187.00 CAD
+
+2020/05/01 Enbridge Gas
+  Expenses:Heat          184.00 CAD
+  Assets:Bank:Checking  -184.00 CAD
+
+2020/05/01 Hydro One
+  Expenses:Electricity   55.00 CAD
+  Assets:Bank:Checking  -55.00 CAD
+
+2020/05/01 monthly savings
+  Assets:Bank:Savings    479.00 CAD
+  Assets:Bank:Checking  -479.00 CAD
+
+2020/05/02 LOBLAWS
+  Expenses:Groceries     45.00 CAD
+  Assets:Bank:Checking  -45.00 CAD
+
+2020/05/05 FARM BOY
+  Expenses:Groceries   67.00 CAD
+  Liabilities:Amex    -67.00 CAD
+
+2020/05/06 Costco
+  Expenses:Groceries       575.00 CAD
+  Liabilities:MasterCard  -575.00 CAD
+
+2020/05/07 LOEB
+  Expenses:Groceries     98.00 CAD
+  Assets:Bank:Checking  -98.00 CAD
+
+2020/05/15 LOBLAWS
+  Expenses:Groceries   70.00 CAD
+  Liabilities:Amex    -70.00 CAD
+
+2020/05/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/05/16 SOBEY'S
+  Expenses:Groceries   84.00 CAD
+  Liabilities:Amex    -84.00 CAD
+
+2020/05/17 City Water&Sewer
+  Expenses:Water         101.00 CAD
+  Assets:Bank:Checking  -101.00 CAD
+
+2020/05/20 Costco
+  Expenses:Groceries   351.00 CAD
+  Liabilities:Amex    -351.00 CAD
+
+2020/05/22 LOBLAWS
+  Expenses:Groceries     66.00 CAD
+  Assets:Bank:Checking  -66.00 CAD
+
+2020/05/23 SOBEY'S
+  Expenses:Groceries     91.00 CAD
+  Assets:Bank:Checking  -91.00 CAD
+
+2020/05/26 SOBEY'S
+  Expenses:Groceries   125.00 CAD
+  Liabilities:Amex    -125.00 CAD
+
+2020/05/28 NO FRILLS
+  Expenses:Groceries     101.00 CAD
+  Assets:Bank:Checking  -101.00 CAD
+
+2020/05/29 repay balance
+  Liabilities:MasterCard   575.00 CAD
+  Assets:Bank:Checking    -575.00 CAD
+
+2020/05/29 repay balance
+  Liabilities:Amex       697.00 CAD
+  Assets:Bank:Checking  -697.00 CAD
+
+2020/05/31 FARM BOY
+  Expenses:Groceries       86.00 CAD
+  Liabilities:MasterCard  -86.00 CAD
+
+2020/05/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/05/31 monthly interest %2/12
+  Assets:Bank:Savings   93.96 CAD
+  Income:Interest      -93.96 CAD
+
+2020/06/01 Enbridge Gas
+  Expenses:Heat          136.00 CAD
+  Assets:Bank:Checking  -136.00 CAD
+
+2020/06/01 Hydro One
+  Expenses:Electricity   90.00 CAD
+  Assets:Bank:Checking  -90.00 CAD
+
+2020/06/01 monthly savings
+  Assets:Bank:Savings    399.00 CAD
+  Assets:Bank:Checking  -399.00 CAD
+
+2020/06/05 Costco
+  Expenses:Groceries       595.00 CAD
+  Liabilities:MasterCard  -595.00 CAD
+
+2020/06/06 FARM BOY
+  Expenses:Groceries     177.00 CAD
+  Assets:Bank:Checking  -177.00 CAD
+
+2020/06/07 SOBEY'S
+  Expenses:Groceries     41.00 CAD
+  Assets:Bank:Checking  -41.00 CAD
+
+2020/06/10 LOBLAWS
+  Expenses:Groceries     79.00 CAD
+  Assets:Bank:Checking  -79.00 CAD
+
+2020/06/14 FRESHCO
+  Expenses:Groceries     31.00 CAD
+  Assets:Bank:Checking  -31.00 CAD
+
+2020/06/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/06/17 Costco
+  Expenses:Groceries     825.00 CAD
+  Assets:Bank:Checking  -825.00 CAD
+
+2020/06/18 FARM BOY
+  Expenses:Groceries   79.00 CAD
+  Liabilities:Amex    -79.00 CAD
+
+2020/06/22 LOEB
+  Expenses:Groceries       49.00 CAD
+  Liabilities:MasterCard  -49.00 CAD
+
+2020/06/25 NO FRILLS
+  Expenses:Groceries   145.00 CAD
+  Liabilities:Amex    -145.00 CAD
+
+2020/06/28 FRESHCO
+  Expenses:Groceries   96.00 CAD
+  Liabilities:Amex    -96.00 CAD
+
+2020/06/29 repay balance
+  Liabilities:MasterCard   730.00 CAD
+  Assets:Bank:Checking    -730.00 CAD
+
+2020/06/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/06/30 repay balance
+  Liabilities:Amex       320.00 CAD
+  Assets:Bank:Checking  -320.00 CAD
+
+2020/06/30 monthly interest %2/12
+  Assets:Bank:Savings   94.78 CAD
+  Income:Interest      -94.78 CAD
+
+2020/07/01 Enbridge Gas
+  Expenses:Heat          150.00 CAD
+  Assets:Bank:Checking  -150.00 CAD
+
+2020/07/01 Hydro One
+  Expenses:Electricity   56.00 CAD
+  Assets:Bank:Checking  -56.00 CAD
+
+2020/07/01 monthly savings
+  Assets:Bank:Savings    476.00 CAD
+  Assets:Bank:Checking  -476.00 CAD
+
+2020/07/03 Costco
+  Expenses:Groceries   143.00 CAD
+  Liabilities:Amex    -143.00 CAD
+
+2020/07/03 NO FRILLS
+  Expenses:Groceries   133.00 CAD
+  Liabilities:Amex    -133.00 CAD
+
+2020/07/07 LOEB
+  Expenses:Groceries       157.00 CAD
+  Liabilities:MasterCard  -157.00 CAD
+
+2020/07/11 SOBEY'S
+  Expenses:Groceries   198.00 CAD
+  Liabilities:Amex    -198.00 CAD
+
+2020/07/12 FARM BOY
+  Expenses:Groceries     130.00 CAD
+  Assets:Bank:Checking  -130.00 CAD
+
+2020/07/14 NO FRILLS
+  Expenses:Groceries     91.00 CAD
+  Assets:Bank:Checking  -91.00 CAD
+
+2020/07/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/07/17 Costco
+  Expenses:Groceries     817.00 CAD
+  Assets:Bank:Checking  -817.00 CAD
+
+2020/07/17 City Water&Sewer
+  Expenses:Water         121.00 CAD
+  Assets:Bank:Checking  -121.00 CAD
+
+2020/07/20 SOBEY'S
+  Expenses:Groceries     87.00 CAD
+  Assets:Bank:Checking  -87.00 CAD
+
+2020/07/24 NO FRILLS
+  Expenses:Groceries     157.00 CAD
+  Assets:Bank:Checking  -157.00 CAD
+
+2020/07/26 LOEB
+  Expenses:Groceries     97.00 CAD
+  Assets:Bank:Checking  -97.00 CAD
+
+2020/07/28 NO FRILLS
+  Expenses:Groceries     86.00 CAD
+  Assets:Bank:Checking  -86.00 CAD
+
+2020/07/29 Costco
+  Expenses:Groceries     679.00 CAD
+  Assets:Bank:Checking  -679.00 CAD
+
+2020/07/30 repay balance
+  Liabilities:MasterCard   157.00 CAD
+  Assets:Bank:Checking    -157.00 CAD
+
+2020/07/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/07/31 repay balance
+  Liabilities:Amex       474.00 CAD
+  Assets:Bank:Checking  -474.00 CAD
+
+2020/07/31 monthly interest %2/12
+  Assets:Bank:Savings   95.73 CAD
+  Income:Interest      -95.73 CAD
+
+2020/08/01 Enbridge Gas
+  Expenses:Heat          186.00 CAD
+  Assets:Bank:Checking  -186.00 CAD
+
+2020/08/01 Hydro One
+  Expenses:Electricity   71.00 CAD
+  Assets:Bank:Checking  -71.00 CAD
+
+2020/08/01 monthly savings
+  Assets:Bank:Savings    482.00 CAD
+  Assets:Bank:Checking  -482.00 CAD
+
+2020/08/04 LOBLAWS
+  Expenses:Groceries   145.00 CAD
+  Liabilities:Amex    -145.00 CAD
+
+2020/08/07 FRESHCO
+  Expenses:Groceries     94.00 CAD
+  Assets:Bank:Checking  -94.00 CAD
+
+2020/08/10 Costco
+  Expenses:Groceries       988.00 CAD
+  Liabilities:MasterCard  -988.00 CAD
+
+2020/08/10 FRESHCO
+  Expenses:Groceries   144.00 CAD
+  Liabilities:Amex    -144.00 CAD
+
+2020/08/11 SOBEY'S
+  Expenses:Groceries       107.00 CAD
+  Liabilities:MasterCard  -107.00 CAD
+
+2020/08/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/08/16 FARM BOY
+  Expenses:Groceries     95.00 CAD
+  Assets:Bank:Checking  -95.00 CAD
+
+2020/08/20 SOBEY'S
+  Expenses:Groceries       168.00 CAD
+  Liabilities:MasterCard  -168.00 CAD
+
+2020/08/25 Costco
+  Expenses:Groceries   316.00 CAD
+  Liabilities:Amex    -316.00 CAD
+
+2020/08/25 LOEB
+  Expenses:Groceries       138.00 CAD
+  Liabilities:MasterCard  -138.00 CAD
+
+2020/08/26 NO FRILLS
+  Expenses:Groceries     122.00 CAD
+  Assets:Bank:Checking  -122.00 CAD
+
+2020/08/30 repay balance
+  Liabilities:MasterCard   1401.00 CAD
+  Assets:Bank:Checking    -1401.00 CAD
+
+2020/08/30 repay balance
+  Liabilities:Amex       605.00 CAD
+  Assets:Bank:Checking  -605.00 CAD
+
+2020/08/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/08/31 monthly interest %2/12
+  Assets:Bank:Savings   96.69 CAD
+  Income:Interest      -96.69 CAD
+
+2020/09/01 NO FRILLS
+  Expenses:Groceries   52.00 CAD
+  Liabilities:Amex    -52.00 CAD
+
+2020/09/01 Enbridge Gas
+  Expenses:Heat          170.00 CAD
+  Assets:Bank:Checking  -170.00 CAD
+
+2020/09/01 Hydro One
+  Expenses:Electricity   75.00 CAD
+  Assets:Bank:Checking  -75.00 CAD
+
+2020/09/01 monthly savings
+  Assets:Bank:Savings    494.00 CAD
+  Assets:Bank:Checking  -494.00 CAD
+
+2020/09/04 LOEB
+  Expenses:Groceries       151.00 CAD
+  Liabilities:MasterCard  -151.00 CAD
+
+2020/09/07 SOBEY'S
+  Expenses:Groceries       48.00 CAD
+  Liabilities:MasterCard  -48.00 CAD
+
+2020/09/09 Costco
+  Expenses:Groceries   375.00 CAD
+  Liabilities:Amex    -375.00 CAD
+
+2020/09/12 LOEB
+  Expenses:Groceries       56.00 CAD
+  Liabilities:MasterCard  -56.00 CAD
+
+2020/09/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/09/16 City Water&Sewer
+  Expenses:Water         100.00 CAD
+  Assets:Bank:Checking  -100.00 CAD
+
+2020/09/17 NO FRILLS
+  Expenses:Groceries     166.00 CAD
+  Assets:Bank:Checking  -166.00 CAD
+
+2020/09/19 FRESHCO
+  Expenses:Groceries   196.00 CAD
+  Liabilities:Amex    -196.00 CAD
+
+2020/09/22 LOEB
+  Expenses:Groceries     104.00 CAD
+  Assets:Bank:Checking  -104.00 CAD
+
+2020/09/23 Costco
+  Expenses:Groceries       326.00 CAD
+  Liabilities:MasterCard  -326.00 CAD
+
+2020/09/26 SOBEY'S
+  Expenses:Groceries     130.00 CAD
+  Assets:Bank:Checking  -130.00 CAD
+
+2020/09/27 NO FRILLS
+  Expenses:Groceries   88.00 CAD
+  Liabilities:Amex    -88.00 CAD
+
+2020/09/29 repay balance
+  Liabilities:MasterCard   581.00 CAD
+  Assets:Bank:Checking    -581.00 CAD
+
+2020/09/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/09/30 repay balance
+  Liabilities:Amex       711.00 CAD
+  Assets:Bank:Checking  -711.00 CAD
+
+2020/09/30 monthly interest %2/12
+  Assets:Bank:Savings   97.68 CAD
+  Income:Interest      -97.68 CAD
+
+2020/10/01 Enbridge Gas
+  Expenses:Heat          189.00 CAD
+  Assets:Bank:Checking  -189.00 CAD
+
+2020/10/01 Hydro One
+  Expenses:Electricity   58.00 CAD
+  Assets:Bank:Checking  -58.00 CAD
+
+2020/10/01 monthly savings
+  Assets:Bank:Savings    454.00 CAD
+  Assets:Bank:Checking  -454.00 CAD
+
+2020/10/02 FARM BOY
+  Expenses:Groceries   182.00 CAD
+  Liabilities:Amex    -182.00 CAD
+
+2020/10/05 NO FRILLS
+  Expenses:Groceries   39.00 CAD
+  Liabilities:Amex    -39.00 CAD
+
+2020/10/06 NO FRILLS
+  Expenses:Groceries     69.00 CAD
+  Assets:Bank:Checking  -69.00 CAD
+
+2020/10/07 Costco
+  Expenses:Groceries     905.00 CAD
+  Assets:Bank:Checking  -905.00 CAD
+
+2020/10/11 LOBLAWS
+  Expenses:Groceries       57.00 CAD
+  Liabilities:MasterCard  -57.00 CAD
+
+2020/10/15 LOEB
+  Expenses:Groceries       184.00 CAD
+  Liabilities:MasterCard  -184.00 CAD
+
+2020/10/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/10/19 Costco
+  Expenses:Groceries   566.00 CAD
+  Liabilities:Amex    -566.00 CAD
+
+2020/10/22 NO FRILLS
+  Expenses:Groceries   83.00 CAD
+  Liabilities:Amex    -83.00 CAD
+
+2020/10/24 NO FRILLS
+  Expenses:Groceries   61.00 CAD
+  Liabilities:Amex    -61.00 CAD
+
+2020/10/25 NO FRILLS
+  Expenses:Groceries     196.00 CAD
+  Assets:Bank:Checking  -196.00 CAD
+
+2020/10/29 LOEB
+  Expenses:Groceries     153.00 CAD
+  Assets:Bank:Checking  -153.00 CAD
+
+2020/10/29 repay balance
+  Liabilities:Amex       931.00 CAD
+  Assets:Bank:Checking  -931.00 CAD
+
+2020/10/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/10/31 repay balance
+  Liabilities:MasterCard   241.00 CAD
+  Assets:Bank:Checking    -241.00 CAD
+
+2020/10/31 monthly interest %2/12
+  Assets:Bank:Savings   98.60 CAD
+  Income:Interest      -98.60 CAD
+
+2020/11/01 Enbridge Gas
+  Expenses:Heat          108.00 CAD
+  Assets:Bank:Checking  -108.00 CAD
+
+2020/11/01 Hydro One
+  Expenses:Electricity   64.00 CAD
+  Assets:Bank:Checking  -64.00 CAD
+
+2020/11/01 monthly savings
+  Assets:Bank:Savings    444.00 CAD
+  Assets:Bank:Checking  -444.00 CAD
+
+2020/11/02 SOBEY'S
+  Expenses:Groceries     55.00 CAD
+  Assets:Bank:Checking  -55.00 CAD
+
+2020/11/05 Costco
+  Expenses:Groceries       996.00 CAD
+  Liabilities:MasterCard  -996.00 CAD
+
+2020/11/05 FRESHCO
+  Expenses:Groceries       76.00 CAD
+  Liabilities:MasterCard  -76.00 CAD
+
+2020/11/09 FRESHCO
+  Expenses:Groceries   117.00 CAD
+  Liabilities:Amex    -117.00 CAD
+
+2020/11/12 FRESHCO
+  Expenses:Groceries   192.00 CAD
+  Liabilities:Amex    -192.00 CAD
+
+2020/11/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/11/16 FARM BOY
+  Expenses:Groceries     39.00 CAD
+  Assets:Bank:Checking  -39.00 CAD
+
+2020/11/16 City Water&Sewer
+  Expenses:Water         120.00 CAD
+  Assets:Bank:Checking  -120.00 CAD
+
+2020/11/17 Costco
+  Expenses:Groceries   762.00 CAD
+  Liabilities:Amex    -762.00 CAD
+
+2020/11/18 FARM BOY
+  Expenses:Groceries       177.00 CAD
+  Liabilities:MasterCard  -177.00 CAD
+
+2020/11/26 FARM BOY
+  Expenses:Groceries       47.00 CAD
+  Liabilities:MasterCard  -47.00 CAD
+
+2020/11/27 FARM BOY
+  Expenses:Groceries       181.00 CAD
+  Liabilities:MasterCard  -181.00 CAD
+
+2020/11/28 repay balance
+  Liabilities:MasterCard   1477.00 CAD
+  Assets:Bank:Checking    -1477.00 CAD
+
+2020/11/28 repay balance
+  Liabilities:Amex       1071.00 CAD
+  Assets:Bank:Checking  -1071.00 CAD
+
+2020/11/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/11/30 monthly interest %2/12
+  Assets:Bank:Savings   99.50 CAD
+  Income:Interest      -99.50 CAD
+
+2020/12/01 NO FRILLS
+  Expenses:Groceries   34.00 CAD
+  Liabilities:Amex    -34.00 CAD
+
+2020/12/01 Enbridge Gas
+  Expenses:Heat          171.00 CAD
+  Assets:Bank:Checking  -171.00 CAD
+
+2020/12/01 Hydro One
+  Expenses:Electricity   66.00 CAD
+  Assets:Bank:Checking  -66.00 CAD
+
+2020/12/01 monthly savings
+  Assets:Bank:Savings    302.00 CAD
+  Assets:Bank:Checking  -302.00 CAD
+
+2020/12/03 Costco
+  Expenses:Groceries   122.00 CAD
+  Liabilities:Amex    -122.00 CAD
+
+2020/12/05 FARM BOY
+  Expenses:Groceries       110.00 CAD
+  Liabilities:MasterCard  -110.00 CAD
+
+2020/12/09 LOEB
+  Expenses:Groceries     79.00 CAD
+  Assets:Bank:Checking  -79.00 CAD
+
+2020/12/12 FRESHCO
+  Expenses:Groceries   63.00 CAD
+  Liabilities:Amex    -63.00 CAD
+
+2020/12/13 NO FRILLS
+  Expenses:Groceries     41.00 CAD
+  Assets:Bank:Checking  -41.00 CAD
+
+2020/12/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/12/18 Costco
+  Expenses:Groceries       225.00 CAD
+  Liabilities:MasterCard  -225.00 CAD
+
+2020/12/19 NO FRILLS
+  Expenses:Groceries   94.00 CAD
+  Liabilities:Amex    -94.00 CAD
+
+2020/12/21 FRESHCO
+  Expenses:Groceries     182.00 CAD
+  Assets:Bank:Checking  -182.00 CAD
+
+2020/12/24 FARM BOY
+  Expenses:Groceries       78.00 CAD
+  Liabilities:MasterCard  -78.00 CAD
+
+2020/12/27 SOBEY'S
+  Expenses:Groceries   144.00 CAD
+  Liabilities:Amex    -144.00 CAD
+
+2020/12/29 Costco
+  Expenses:Groceries     225.00 CAD
+  Assets:Bank:Checking  -225.00 CAD
+
+2020/12/29 repay balance
+  Liabilities:MasterCard   413.00 CAD
+  Assets:Bank:Checking    -413.00 CAD
+
+2020/12/29 repay balance
+  Liabilities:Amex       457.00 CAD
+  Assets:Bank:Checking  -457.00 CAD
+
+2020/12/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2020/12/31 monthly interest %2/12
+  Assets:Bank:Savings   100.17 CAD
+  Income:Interest      -100.17 CAD
+

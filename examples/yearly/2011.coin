@@ -1,0 +1,928 @@
+2011/01/01 Enbridge Gas
+  Expenses:Heat          187.00 CAD
+  Assets:Bank:Checking  -187.00 CAD
+
+2011/01/01 Hydro One
+  Expenses:Electricity   69.00 CAD
+  Assets:Bank:Checking  -69.00 CAD
+
+2011/01/01 monthly savings
+  Assets:Bank:Savings    469.00 CAD
+  Assets:Bank:Checking  -469.00 CAD
+
+2011/01/02 LOEB
+  Expenses:Groceries   109.00 CAD
+  Liabilities:Amex    -109.00 CAD
+
+2011/01/07 LOBLAWS
+  Expenses:Groceries       190.00 CAD
+  Liabilities:MasterCard  -190.00 CAD
+
+2011/01/11 NO FRILLS
+  Expenses:Groceries       82.00 CAD
+  Liabilities:MasterCard  -82.00 CAD
+
+2011/01/13 FRESHCO
+  Expenses:Groceries     178.00 CAD
+  Assets:Bank:Checking  -178.00 CAD
+
+2011/01/14 Costco
+  Expenses:Groceries   877.00 CAD
+  Liabilities:Amex    -877.00 CAD
+
+2011/01/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/01/16 SOBEY'S
+  Expenses:Groceries     64.00 CAD
+  Assets:Bank:Checking  -64.00 CAD
+
+2011/01/17 City Water&Sewer
+  Expenses:Water         140.00 CAD
+  Assets:Bank:Checking  -140.00 CAD
+
+2011/01/20 LOBLAWS
+  Expenses:Groceries   34.00 CAD
+  Liabilities:Amex    -34.00 CAD
+
+2011/01/25 FARM BOY
+  Expenses:Groceries     149.00 CAD
+  Assets:Bank:Checking  -149.00 CAD
+
+2011/01/27 Costco
+  Expenses:Groceries       601.00 CAD
+  Liabilities:MasterCard  -601.00 CAD
+
+2011/01/29 LOBLAWS
+  Expenses:Groceries     31.00 CAD
+  Assets:Bank:Checking  -31.00 CAD
+
+2011/01/30 repay balance
+  Liabilities:Amex       1020.00 CAD
+  Assets:Bank:Checking  -1020.00 CAD
+
+2011/01/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/01/31 repay balance
+  Liabilities:MasterCard   873.00 CAD
+  Assets:Bank:Checking    -873.00 CAD
+
+2011/01/31 monthly interest %2/12
+  Assets:Bank:Savings   8.82 CAD
+  Income:Interest      -8.82 CAD
+
+2011/02/01 LOBLAWS
+  Expenses:Groceries   90.00 CAD
+  Liabilities:Amex    -90.00 CAD
+
+2011/02/01 Enbridge Gas
+  Expenses:Heat          117.00 CAD
+  Assets:Bank:Checking  -117.00 CAD
+
+2011/02/01 Hydro One
+  Expenses:Electricity   63.00 CAD
+  Assets:Bank:Checking  -63.00 CAD
+
+2011/02/01 monthly savings
+  Assets:Bank:Savings    360.00 CAD
+  Assets:Bank:Checking  -360.00 CAD
+
+2011/02/02 NO FRILLS
+  Expenses:Groceries     175.00 CAD
+  Assets:Bank:Checking  -175.00 CAD
+
+2011/02/06 FRESHCO
+  Expenses:Groceries   101.00 CAD
+  Liabilities:Amex    -101.00 CAD
+
+2011/02/09 NO FRILLS
+  Expenses:Groceries     189.00 CAD
+  Assets:Bank:Checking  -189.00 CAD
+
+2011/02/11 Costco
+  Expenses:Groceries   722.00 CAD
+  Liabilities:Amex    -722.00 CAD
+
+2011/02/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/02/16 FRESHCO
+  Expenses:Groceries       108.00 CAD
+  Liabilities:MasterCard  -108.00 CAD
+
+2011/02/18 SOBEY'S
+  Expenses:Groceries     116.00 CAD
+  Assets:Bank:Checking  -116.00 CAD
+
+2011/02/23 Costco
+  Expenses:Groceries       201.00 CAD
+  Liabilities:MasterCard  -201.00 CAD
+
+2011/02/24 FARM BOY
+  Expenses:Groceries   121.00 CAD
+  Liabilities:Amex    -121.00 CAD
+
+2011/02/26 NO FRILLS
+  Expenses:Groceries     118.00 CAD
+  Assets:Bank:Checking  -118.00 CAD
+
+2011/02/27 repay balance
+  Liabilities:MasterCard   309.00 CAD
+  Assets:Bank:Checking    -309.00 CAD
+
+2011/02/28 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/02/28 repay balance
+  Liabilities:Amex       1034.00 CAD
+  Assets:Bank:Checking  -1034.00 CAD
+
+2011/02/28 monthly interest %2/12
+  Assets:Bank:Savings   9.43 CAD
+  Income:Interest      -9.43 CAD
+
+2011/03/01 NO FRILLS
+  Expenses:Groceries       39.00 CAD
+  Liabilities:MasterCard  -39.00 CAD
+
+2011/03/01 Enbridge Gas
+  Expenses:Heat          146.00 CAD
+  Assets:Bank:Checking  -146.00 CAD
+
+2011/03/01 Hydro One
+  Expenses:Electricity   75.00 CAD
+  Assets:Bank:Checking  -75.00 CAD
+
+2011/03/01 monthly savings
+  Assets:Bank:Savings    346.00 CAD
+  Assets:Bank:Checking  -346.00 CAD
+
+2011/03/04 NO FRILLS
+  Expenses:Groceries     150.00 CAD
+  Assets:Bank:Checking  -150.00 CAD
+
+2011/03/08 Costco
+  Expenses:Groceries     598.00 CAD
+  Assets:Bank:Checking  -598.00 CAD
+
+2011/03/11 SOBEY'S
+  Expenses:Groceries     199.00 CAD
+  Assets:Bank:Checking  -199.00 CAD
+
+2011/03/12 FRESHCO
+  Expenses:Groceries   36.00 CAD
+  Liabilities:Amex    -36.00 CAD
+
+2011/03/14 FRESHCO
+  Expenses:Groceries     179.00 CAD
+  Assets:Bank:Checking  -179.00 CAD
+
+2011/03/15 FRESHCO
+  Expenses:Groceries       157.00 CAD
+  Liabilities:MasterCard  -157.00 CAD
+
+2011/03/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/03/17 City Water&Sewer
+  Expenses:Water         132.00 CAD
+  Assets:Bank:Checking  -132.00 CAD
+
+2011/03/21 Costco
+  Expenses:Groceries   548.00 CAD
+  Liabilities:Amex    -548.00 CAD
+
+2011/03/21 NO FRILLS
+  Expenses:Groceries   166.00 CAD
+  Liabilities:Amex    -166.00 CAD
+
+2011/03/25 LOEB
+  Expenses:Groceries   134.00 CAD
+  Liabilities:Amex    -134.00 CAD
+
+2011/03/27 LOEB
+  Expenses:Groceries     128.00 CAD
+  Assets:Bank:Checking  -128.00 CAD
+
+2011/03/29 FARM BOY
+  Expenses:Groceries   60.00 CAD
+  Liabilities:Amex    -60.00 CAD
+
+2011/03/29 repay balance
+  Liabilities:Amex       944.00 CAD
+  Assets:Bank:Checking  -944.00 CAD
+
+2011/03/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/03/31 repay balance
+  Liabilities:MasterCard   196.00 CAD
+  Assets:Bank:Checking    -196.00 CAD
+
+2011/03/31 monthly interest %2/12
+  Assets:Bank:Savings   10.02 CAD
+  Income:Interest      -10.02 CAD
+
+2011/04/01 Enbridge Gas
+  Expenses:Heat          106.00 CAD
+  Assets:Bank:Checking  -106.00 CAD
+
+2011/04/01 Hydro One
+  Expenses:Electricity   54.00 CAD
+  Assets:Bank:Checking  -54.00 CAD
+
+2011/04/01 monthly savings
+  Assets:Bank:Savings    386.00 CAD
+  Assets:Bank:Checking  -386.00 CAD
+
+2011/04/05 NO FRILLS
+  Expenses:Groceries     189.00 CAD
+  Assets:Bank:Checking  -189.00 CAD
+
+2011/04/08 Costco
+  Expenses:Groceries       963.00 CAD
+  Liabilities:MasterCard  -963.00 CAD
+
+2011/04/09 FARM BOY
+  Expenses:Groceries     114.00 CAD
+  Assets:Bank:Checking  -114.00 CAD
+
+2011/04/11 LOEB
+  Expenses:Groceries     87.00 CAD
+  Assets:Bank:Checking  -87.00 CAD
+
+2011/04/15 SOBEY'S
+  Expenses:Groceries     80.00 CAD
+  Assets:Bank:Checking  -80.00 CAD
+
+2011/04/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/04/20 NO FRILLS
+  Expenses:Groceries       140.00 CAD
+  Liabilities:MasterCard  -140.00 CAD
+
+2011/04/22 Costco
+  Expenses:Groceries     363.00 CAD
+  Assets:Bank:Checking  -363.00 CAD
+
+2011/04/22 LOBLAWS
+  Expenses:Groceries   111.00 CAD
+  Liabilities:Amex    -111.00 CAD
+
+2011/04/29 NO FRILLS
+  Expenses:Groceries     161.00 CAD
+  Assets:Bank:Checking  -161.00 CAD
+
+2011/04/30 FARM BOY
+  Expenses:Groceries       79.00 CAD
+  Liabilities:MasterCard  -79.00 CAD
+
+2011/04/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/04/30 repay balance
+  Liabilities:MasterCard   1182.00 CAD
+  Assets:Bank:Checking    -1182.00 CAD
+
+2011/04/30 repay balance
+  Liabilities:Amex       111.00 CAD
+  Assets:Bank:Checking  -111.00 CAD
+
+2011/04/30 monthly interest %2/12
+  Assets:Bank:Savings   10.68 CAD
+  Income:Interest      -10.68 CAD
+
+2011/05/01 Enbridge Gas
+  Expenses:Heat          174.00 CAD
+  Assets:Bank:Checking  -174.00 CAD
+
+2011/05/01 Hydro One
+  Expenses:Electricity   91.00 CAD
+  Assets:Bank:Checking  -91.00 CAD
+
+2011/05/01 monthly savings
+  Assets:Bank:Savings    490.00 CAD
+  Assets:Bank:Checking  -490.00 CAD
+
+2011/05/03 NO FRILLS
+  Expenses:Groceries       66.00 CAD
+  Liabilities:MasterCard  -66.00 CAD
+
+2011/05/04 Costco
+  Expenses:Groceries       307.00 CAD
+  Liabilities:MasterCard  -307.00 CAD
+
+2011/05/04 LOBLAWS
+  Expenses:Groceries   84.00 CAD
+  Liabilities:Amex    -84.00 CAD
+
+2011/05/09 NO FRILLS
+  Expenses:Groceries       178.00 CAD
+  Liabilities:MasterCard  -178.00 CAD
+
+2011/05/10 FRESHCO
+  Expenses:Groceries     147.00 CAD
+  Assets:Bank:Checking  -147.00 CAD
+
+2011/05/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/05/16 Costco
+  Expenses:Groceries   255.00 CAD
+  Liabilities:Amex    -255.00 CAD
+
+2011/05/17 City Water&Sewer
+  Expenses:Water         136.00 CAD
+  Assets:Bank:Checking  -136.00 CAD
+
+2011/05/19 FARM BOY
+  Expenses:Groceries     174.00 CAD
+  Assets:Bank:Checking  -174.00 CAD
+
+2011/05/21 FRESHCO
+  Expenses:Groceries     97.00 CAD
+  Assets:Bank:Checking  -97.00 CAD
+
+2011/05/24 FRESHCO
+  Expenses:Groceries       176.00 CAD
+  Liabilities:MasterCard  -176.00 CAD
+
+2011/05/27 FARM BOY
+  Expenses:Groceries   182.00 CAD
+  Liabilities:Amex    -182.00 CAD
+
+2011/05/29 repay balance
+  Liabilities:MasterCard   727.00 CAD
+  Assets:Bank:Checking    -727.00 CAD
+
+2011/05/29 repay balance
+  Liabilities:Amex       521.00 CAD
+  Assets:Bank:Checking  -521.00 CAD
+
+2011/05/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/05/31 monthly interest %2/12
+  Assets:Bank:Savings   11.52 CAD
+  Income:Interest      -11.52 CAD
+
+2011/06/01 SOBEY'S
+  Expenses:Groceries       99.00 CAD
+  Liabilities:MasterCard  -99.00 CAD
+
+2011/06/01 Enbridge Gas
+  Expenses:Heat          101.00 CAD
+  Assets:Bank:Checking  -101.00 CAD
+
+2011/06/01 Hydro One
+  Expenses:Electricity   60.00 CAD
+  Assets:Bank:Checking  -60.00 CAD
+
+2011/06/01 monthly savings
+  Assets:Bank:Savings    386.00 CAD
+  Assets:Bank:Checking  -386.00 CAD
+
+2011/06/02 NO FRILLS
+  Expenses:Groceries   119.00 CAD
+  Liabilities:Amex    -119.00 CAD
+
+2011/06/03 Costco
+  Expenses:Groceries     845.00 CAD
+  Assets:Bank:Checking  -845.00 CAD
+
+2011/06/08 NO FRILLS
+  Expenses:Groceries       124.00 CAD
+  Liabilities:MasterCard  -124.00 CAD
+
+2011/06/09 SOBEY'S
+  Expenses:Groceries     107.00 CAD
+  Assets:Bank:Checking  -107.00 CAD
+
+2011/06/13 Costco
+  Expenses:Groceries     460.00 CAD
+  Assets:Bank:Checking  -460.00 CAD
+
+2011/06/15 FRESHCO
+  Expenses:Groceries       45.00 CAD
+  Liabilities:MasterCard  -45.00 CAD
+
+2011/06/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/06/18 NO FRILLS
+  Expenses:Groceries     180.00 CAD
+  Assets:Bank:Checking  -180.00 CAD
+
+2011/06/22 SOBEY'S
+  Expenses:Groceries     153.00 CAD
+  Assets:Bank:Checking  -153.00 CAD
+
+2011/06/25 NO FRILLS
+  Expenses:Groceries   96.00 CAD
+  Liabilities:Amex    -96.00 CAD
+
+2011/06/28 repay balance
+  Liabilities:MasterCard   268.00 CAD
+  Assets:Bank:Checking    -268.00 CAD
+
+2011/06/29 repay balance
+  Liabilities:Amex       215.00 CAD
+  Assets:Bank:Checking  -215.00 CAD
+
+2011/06/30 Costco
+  Expenses:Groceries       683.00 CAD
+  Liabilities:MasterCard  -683.00 CAD
+
+2011/06/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/06/30 monthly interest %2/12
+  Assets:Bank:Savings   12.18 CAD
+  Income:Interest      -12.18 CAD
+
+2011/07/01 FARM BOY
+  Expenses:Groceries       36.00 CAD
+  Liabilities:MasterCard  -36.00 CAD
+
+2011/07/01 Enbridge Gas
+  Expenses:Heat          106.00 CAD
+  Assets:Bank:Checking  -106.00 CAD
+
+2011/07/01 Hydro One
+  Expenses:Electricity   53.00 CAD
+  Assets:Bank:Checking  -53.00 CAD
+
+2011/07/01 monthly savings
+  Assets:Bank:Savings    337.00 CAD
+  Assets:Bank:Checking  -337.00 CAD
+
+2011/07/02 FARM BOY
+  Expenses:Groceries   89.00 CAD
+  Liabilities:Amex    -89.00 CAD
+
+2011/07/06 FRESHCO
+  Expenses:Groceries   33.00 CAD
+  Liabilities:Amex    -33.00 CAD
+
+2011/07/07 SOBEY'S
+  Expenses:Groceries       193.00 CAD
+  Liabilities:MasterCard  -193.00 CAD
+
+2011/07/10 LOEB
+  Expenses:Groceries       112.00 CAD
+  Liabilities:MasterCard  -112.00 CAD
+
+2011/07/12 SOBEY'S
+  Expenses:Groceries   89.00 CAD
+  Liabilities:Amex    -89.00 CAD
+
+2011/07/15 Costco
+  Expenses:Groceries       900.00 CAD
+  Liabilities:MasterCard  -900.00 CAD
+
+2011/07/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/07/17 City Water&Sewer
+  Expenses:Water         112.00 CAD
+  Assets:Bank:Checking  -112.00 CAD
+
+2011/07/19 FARM BOY
+  Expenses:Groceries       195.00 CAD
+  Liabilities:MasterCard  -195.00 CAD
+
+2011/07/21 NO FRILLS
+  Expenses:Groceries       102.00 CAD
+  Liabilities:MasterCard  -102.00 CAD
+
+2011/07/25 Costco
+  Expenses:Groceries     188.00 CAD
+  Assets:Bank:Checking  -188.00 CAD
+
+2011/07/26 NO FRILLS
+  Expenses:Groceries     152.00 CAD
+  Assets:Bank:Checking  -152.00 CAD
+
+2011/07/27 NO FRILLS
+  Expenses:Groceries     106.00 CAD
+  Assets:Bank:Checking  -106.00 CAD
+
+2011/07/29 repay balance
+  Liabilities:MasterCard   2221.00 CAD
+  Assets:Bank:Checking    -2221.00 CAD
+
+2011/07/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/07/31 repay balance
+  Liabilities:Amex       211.00 CAD
+  Assets:Bank:Checking  -211.00 CAD
+
+2011/07/31 monthly interest %2/12
+  Assets:Bank:Savings   12.76 CAD
+  Income:Interest      -12.76 CAD
+
+2011/08/01 Enbridge Gas
+  Expenses:Heat          199.00 CAD
+  Assets:Bank:Checking  -199.00 CAD
+
+2011/08/01 Hydro One
+  Expenses:Electricity   66.00 CAD
+  Assets:Bank:Checking  -66.00 CAD
+
+2011/08/01 monthly savings
+  Assets:Bank:Savings    453.00 CAD
+  Assets:Bank:Checking  -453.00 CAD
+
+2011/08/02 FARM BOY
+  Expenses:Groceries     151.00 CAD
+  Assets:Bank:Checking  -151.00 CAD
+
+2011/08/04 FARM BOY
+  Expenses:Groceries       185.00 CAD
+  Liabilities:MasterCard  -185.00 CAD
+
+2011/08/08 NO FRILLS
+  Expenses:Groceries     57.00 CAD
+  Assets:Bank:Checking  -57.00 CAD
+
+2011/08/11 Costco
+  Expenses:Groceries       127.00 CAD
+  Liabilities:MasterCard  -127.00 CAD
+
+2011/08/11 FARM BOY
+  Expenses:Groceries       97.00 CAD
+  Liabilities:MasterCard  -97.00 CAD
+
+2011/08/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/08/16 NO FRILLS
+  Expenses:Groceries       135.00 CAD
+  Liabilities:MasterCard  -135.00 CAD
+
+2011/08/20 LOEB
+  Expenses:Groceries     126.00 CAD
+  Assets:Bank:Checking  -126.00 CAD
+
+2011/08/24 FRESHCO
+  Expenses:Groceries     194.00 CAD
+  Assets:Bank:Checking  -194.00 CAD
+
+2011/08/26 Costco
+  Expenses:Groceries     728.00 CAD
+  Assets:Bank:Checking  -728.00 CAD
+
+2011/08/26 LOEB
+  Expenses:Groceries       184.00 CAD
+  Liabilities:MasterCard  -184.00 CAD
+
+2011/08/28 LOEB
+  Expenses:Groceries       198.00 CAD
+  Liabilities:MasterCard  -198.00 CAD
+
+2011/08/29 repay balance
+  Liabilities:Amex      0.00 CAD
+  Assets:Bank:Checking  0.00 CAD
+
+2011/08/30 LOBLAWS
+  Expenses:Groceries       120.00 CAD
+  Liabilities:MasterCard  -120.00 CAD
+
+2011/08/30 repay balance
+  Liabilities:MasterCard   1046.00 CAD
+  Assets:Bank:Checking    -1046.00 CAD
+
+2011/08/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/08/31 monthly interest %2/12
+  Assets:Bank:Savings   13.54 CAD
+  Income:Interest      -13.54 CAD
+
+2011/09/01 Enbridge Gas
+  Expenses:Heat          126.00 CAD
+  Assets:Bank:Checking  -126.00 CAD
+
+2011/09/01 Hydro One
+  Expenses:Electricity   72.00 CAD
+  Assets:Bank:Checking  -72.00 CAD
+
+2011/09/01 monthly savings
+  Assets:Bank:Savings    352.00 CAD
+  Assets:Bank:Checking  -352.00 CAD
+
+2011/09/05 FRESHCO
+  Expenses:Groceries   71.00 CAD
+  Liabilities:Amex    -71.00 CAD
+
+2011/09/08 Costco
+  Expenses:Groceries   164.00 CAD
+  Liabilities:Amex    -164.00 CAD
+
+2011/09/08 FARM BOY
+  Expenses:Groceries     174.00 CAD
+  Assets:Bank:Checking  -174.00 CAD
+
+2011/09/13 FARM BOY
+  Expenses:Groceries     108.00 CAD
+  Assets:Bank:Checking  -108.00 CAD
+
+2011/09/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/09/16 City Water&Sewer
+  Expenses:Water         104.00 CAD
+  Assets:Bank:Checking  -104.00 CAD
+
+2011/09/17 FRESHCO
+  Expenses:Groceries   171.00 CAD
+  Liabilities:Amex    -171.00 CAD
+
+2011/09/20 Costco
+  Expenses:Groceries   223.00 CAD
+  Liabilities:Amex    -223.00 CAD
+
+2011/09/20 SOBEY'S
+  Expenses:Groceries     189.00 CAD
+  Assets:Bank:Checking  -189.00 CAD
+
+2011/09/24 FARM BOY
+  Expenses:Groceries   91.00 CAD
+  Liabilities:Amex    -91.00 CAD
+
+2011/09/28 SOBEY'S
+  Expenses:Groceries       168.00 CAD
+  Liabilities:MasterCard  -168.00 CAD
+
+2011/09/29 NO FRILLS
+  Expenses:Groceries   42.00 CAD
+  Liabilities:Amex    -42.00 CAD
+
+2011/09/29 repay balance
+  Liabilities:Amex       762.00 CAD
+  Assets:Bank:Checking  -762.00 CAD
+
+2011/09/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/09/30 repay balance
+  Liabilities:MasterCard   168.00 CAD
+  Assets:Bank:Checking    -168.00 CAD
+
+2011/09/30 monthly interest %2/12
+  Assets:Bank:Savings   14.15 CAD
+  Income:Interest      -14.15 CAD
+
+2011/10/01 Enbridge Gas
+  Expenses:Heat          179.00 CAD
+  Assets:Bank:Checking  -179.00 CAD
+
+2011/10/01 Hydro One
+  Expenses:Electricity   96.00 CAD
+  Assets:Bank:Checking  -96.00 CAD
+
+2011/10/01 monthly savings
+  Assets:Bank:Savings    480.00 CAD
+  Assets:Bank:Checking  -480.00 CAD
+
+2011/10/02 FARM BOY
+  Expenses:Groceries   94.00 CAD
+  Liabilities:Amex    -94.00 CAD
+
+2011/10/03 Costco
+  Expenses:Groceries       771.00 CAD
+  Liabilities:MasterCard  -771.00 CAD
+
+2011/10/04 LOBLAWS
+  Expenses:Groceries       147.00 CAD
+  Liabilities:MasterCard  -147.00 CAD
+
+2011/10/09 FRESHCO
+  Expenses:Groceries     179.00 CAD
+  Assets:Bank:Checking  -179.00 CAD
+
+2011/10/13 SOBEY'S
+  Expenses:Groceries       59.00 CAD
+  Liabilities:MasterCard  -59.00 CAD
+
+2011/10/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/10/20 Costco
+  Expenses:Groceries     318.00 CAD
+  Assets:Bank:Checking  -318.00 CAD
+
+2011/10/20 LOEB
+  Expenses:Groceries     178.00 CAD
+  Assets:Bank:Checking  -178.00 CAD
+
+2011/10/22 SOBEY'S
+  Expenses:Groceries       33.00 CAD
+  Liabilities:MasterCard  -33.00 CAD
+
+2011/10/25 FRESHCO
+  Expenses:Groceries       122.00 CAD
+  Liabilities:MasterCard  -122.00 CAD
+
+2011/10/29 FRESHCO
+  Expenses:Groceries       127.00 CAD
+  Liabilities:MasterCard  -127.00 CAD
+
+2011/10/29 repay balance
+  Liabilities:Amex       94.00 CAD
+  Assets:Bank:Checking  -94.00 CAD
+
+2011/10/30 repay balance
+  Liabilities:MasterCard   1259.00 CAD
+  Assets:Bank:Checking    -1259.00 CAD
+
+2011/10/31 LOBLAWS
+  Expenses:Groceries   32.00 CAD
+  Liabilities:Amex    -32.00 CAD
+
+2011/10/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/10/31 monthly interest %2/12
+  Assets:Bank:Savings   14.97 CAD
+  Income:Interest      -14.97 CAD
+
+2011/11/01 Costco
+  Expenses:Groceries       554.00 CAD
+  Liabilities:MasterCard  -554.00 CAD
+
+2011/11/01 FARM BOY
+  Expenses:Groceries     194.00 CAD
+  Assets:Bank:Checking  -194.00 CAD
+
+2011/11/01 Enbridge Gas
+  Expenses:Heat          173.00 CAD
+  Assets:Bank:Checking  -173.00 CAD
+
+2011/11/01 Hydro One
+  Expenses:Electricity   68.00 CAD
+  Assets:Bank:Checking  -68.00 CAD
+
+2011/11/01 monthly savings
+  Assets:Bank:Savings    305.00 CAD
+  Assets:Bank:Checking  -305.00 CAD
+
+2011/11/11 LOEB
+  Expenses:Groceries       41.00 CAD
+  Liabilities:MasterCard  -41.00 CAD
+
+2011/11/12 LOEB
+  Expenses:Groceries   63.00 CAD
+  Liabilities:Amex    -63.00 CAD
+
+2011/11/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/11/16 Costco
+  Expenses:Groceries       392.00 CAD
+  Liabilities:MasterCard  -392.00 CAD
+
+2011/11/16 City Water&Sewer
+  Expenses:Water         142.00 CAD
+  Assets:Bank:Checking  -142.00 CAD
+
+2011/11/18 FRESHCO
+  Expenses:Groceries     91.00 CAD
+  Assets:Bank:Checking  -91.00 CAD
+
+2011/11/19 LOEB
+  Expenses:Groceries   79.00 CAD
+  Liabilities:Amex    -79.00 CAD
+
+2011/11/23 LOEB
+  Expenses:Groceries       111.00 CAD
+  Liabilities:MasterCard  -111.00 CAD
+
+2011/11/25 LOBLAWS
+  Expenses:Groceries     94.00 CAD
+  Assets:Bank:Checking  -94.00 CAD
+
+2011/11/27 FRESHCO
+  Expenses:Groceries       56.00 CAD
+  Liabilities:MasterCard  -56.00 CAD
+
+2011/11/30 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/11/30 repay balance
+  Liabilities:MasterCard   1154.00 CAD
+  Assets:Bank:Checking    -1154.00 CAD
+
+2011/11/30 repay balance
+  Liabilities:Amex       174.00 CAD
+  Assets:Bank:Checking  -174.00 CAD
+
+2011/11/30 monthly interest %2/12
+  Assets:Bank:Savings   15.51 CAD
+  Income:Interest      -15.51 CAD
+
+2011/12/01 Enbridge Gas
+  Expenses:Heat          165.00 CAD
+  Assets:Bank:Checking  -165.00 CAD
+
+2011/12/01 Hydro One
+  Expenses:Electricity   83.00 CAD
+  Assets:Bank:Checking  -83.00 CAD
+
+2011/12/01 monthly savings
+  Assets:Bank:Savings    438.00 CAD
+  Assets:Bank:Checking  -438.00 CAD
+
+2011/12/02 Costco
+  Expenses:Groceries       945.00 CAD
+  Liabilities:MasterCard  -945.00 CAD
+
+2011/12/02 FRESHCO
+  Expenses:Groceries     61.00 CAD
+  Assets:Bank:Checking  -61.00 CAD
+
+2011/12/04 FRESHCO
+  Expenses:Groceries       135.00 CAD
+  Liabilities:MasterCard  -135.00 CAD
+
+2011/12/06 LOBLAWS
+  Expenses:Groceries   61.00 CAD
+  Liabilities:Amex    -61.00 CAD
+
+2011/12/13 Costco
+  Expenses:Groceries       986.00 CAD
+  Liabilities:MasterCard  -986.00 CAD
+
+2011/12/15 FARM BOY
+  Expenses:Groceries       133.00 CAD
+  Liabilities:MasterCard  -133.00 CAD
+
+2011/12/15 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/12/17 FRESHCO
+  Expenses:Groceries   72.00 CAD
+  Liabilities:Amex    -72.00 CAD
+
+2011/12/18 FRESHCO
+  Expenses:Groceries     196.00 CAD
+  Assets:Bank:Checking  -196.00 CAD
+
+2011/12/24 LOBLAWS
+  Expenses:Groceries       116.00 CAD
+  Liabilities:MasterCard  -116.00 CAD
+
+2011/12/25 FARM BOY
+  Expenses:Groceries       95.00 CAD
+  Liabilities:MasterCard  -95.00 CAD
+
+2011/12/27 Costco
+  Expenses:Groceries   581.00 CAD
+  Liabilities:Amex    -581.00 CAD
+
+2011/12/28 LOEB
+  Expenses:Groceries       155.00 CAD
+  Liabilities:MasterCard  -155.00 CAD
+
+2011/12/30 repay balance
+  Liabilities:MasterCard   2565.00 CAD
+  Assets:Bank:Checking    -2565.00 CAD
+
+2011/12/31 ACME Inc
+  Assets:Bank:Checking   2000.00 CAD
+  Income:Salary         -2000.00 CAD
+
+2011/12/31 repay balance
+  Liabilities:Amex       714.00 CAD
+  Assets:Bank:Checking  -714.00 CAD
+
+2011/12/31 monthly interest %2/12
+  Assets:Bank:Savings   16.26 CAD
+  Income:Interest      -16.26 CAD
+

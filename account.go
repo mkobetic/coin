@@ -153,6 +153,9 @@ func (a *Account) Location() string {
 }
 
 func (a *Account) Balance() *Amount {
+	if a.balance == nil {
+		a.balance = NewZeroAmount(a.Commodity)
+	}
 	return a.balance
 }
 
@@ -171,25 +174,24 @@ func (a *Account) Depth() int {
 }
 
 func (a *Account) CheckPostings() {
-	a.balance = NewZeroAmount(a.Commodity)
 	if len(a.Postings) == 0 {
 		return
 	}
 	for _, s := range a.Postings {
-		err := a.balance.AddIn(s.Quantity)
+		err := a.Balance().AddIn(s.Quantity)
 		check.NoError(err, "couldn't add %a %s to balance %a %s: %s\n",
 			s.Quantity, s.Quantity.Commodity, a.Balance(), a.Balance().Commodity, s.Transaction.Location())
 		if s.Balance != nil {
-			warn.If(!a.balance.IsEqual(s.Balance),
+			warn.If(!a.Balance().IsEqual(s.Balance),
 				"%s: %s balance is %a, should be %a: %s\n",
 				a.FullName,
 				s.Transaction.Posted.Format(DateFormat),
-				a.balance,
+				a.Balance(),
 				s.Balance,
 				s.Transaction.Location(),
 			)
 		} else {
-			s.Balance = a.balance.Copy()
+			s.Balance = a.Balance().Copy()
 		}
 	}
 }

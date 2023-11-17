@@ -12,7 +12,7 @@ LDFLAGS += -X "github.com/mkobetic/coin.GoVersion=$(GO_VERSION)"
 BUILD := CGO_ENABLED=0 go install
 TEST := CGO_ENABLED=0 go test
 
-build: coin gc2coin ofx2coin csv2coin
+build: coin gc2coin ofx2coin csv2coin gen2coin
 
 cmd/coin/charts.go: cmd/coin/charts/*.js cmd/coin/charts/*.css
 	go generate ./cmd/coin
@@ -29,6 +29,8 @@ ofx2coin: *.go cmd/ofx2coin/*.go
 csv2coin: *.go cmd/csv2coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/csv2coin
 
+gen2coin: *.go cmd/gen2coin/*.go
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/gen2coin
 
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/
@@ -53,5 +55,8 @@ cover:
 browse-coverage:
 	$(TEST) -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
+
+setup:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 .PHONY: test test-fixtures test-go fmt lint cover browse-coverage
