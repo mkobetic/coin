@@ -34,8 +34,8 @@ func (transactions TransactionsByTime) Swap(i, j int) {
 func (transactions TransactionsByTime) Less(i, j int) bool {
 	return transactions[i].Posted.Before(transactions[j].Posted) ||
 		(transactions[i].Posted.Equal(transactions[j].Posted) &&
-			!transactions[i].HasBalances() &&
-			transactions[j].HasBalances())
+			!transactions[i].HasReconciledPosting() &&
+			transactions[j].HasReconciledPosting())
 }
 func (transactions TransactionsByTime) FindEqual(t *Transaction) *Transaction {
 	for _, t2 := range transactions {
@@ -219,9 +219,9 @@ func (t *Transaction) Other(s *Posting) *Posting {
 	return nil
 }
 
-func (t *Transaction) HasBalances() bool {
+func (t *Transaction) HasReconciledPosting() bool {
 	for _, p := range t.Postings {
-		if p.Balance != nil {
+		if p.Reconciled {
 			return true
 		}
 	}
@@ -250,6 +250,7 @@ func (t *Transaction) MergeDuplicate(t2 *Transaction) {
 	for i, p := range t.Postings {
 		if p2 := t2.Postings[i]; p.Balance == nil && p2.Balance != nil {
 			p.Balance = p2.Balance
+			p.Reconciled = p2.Reconciled
 		}
 	}
 }

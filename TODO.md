@@ -1,21 +1,21 @@
 ### Features
 
+* register: show description/notes
+* test: support for generating test data
 * thousand separator in amounts
 * check for account/cc numbers in transactions
-* fmt: remove extra whitespace from payee
+
 * move postings between accounts/rename account
 * balance: last reconciled posting date
 * register: filter by payee
 * register: sorting by quantity to aid finding largest transactions
-* register: cache balance on posting, show global totals with begin/end
+* register: show account balances with begin/end
 * stats: check closed accounts have 0 balance
 * register: show posting commodity (not just total commodity)
-* register: show description/notes
 * register: recursive prints transactions within the parent tree twice
 * register: recursive totals are useless
 * better usage messages
 * balance: csv, json, chart output
-* test: support for generating test data
 * register: more advanced filtering options
 * stats: aggregate transaction/price stats by time (-y, -q, -m) and begin/end
 
@@ -25,6 +25,7 @@
   ? duplicate transactions from the same source/file should be kept?
 * sanitise sensistive information, account/cc numbers
 * commodity mismatches (USD vs CAD)
+* use ofxid for deduping
 
 ### Issues
 

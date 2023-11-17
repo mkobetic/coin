@@ -12,7 +12,8 @@ type Posting struct {
 	Transaction *Transaction
 	Account     *Account
 	Quantity    *Amount // posting amount
-	Balance     *Amount // optional account balance assertion
+	Balance     *Amount // account balance as of this posting
+	Reconciled  bool    // was balance explicitly asserted in the ledger (only set after ResolveTransactions())
 
 	accountName string
 }
@@ -26,7 +27,7 @@ func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth in
 	if err != nil {
 		return err
 	}
-	if s.Balance != nil {
+	if s.Reconciled {
 		if _, err = io.WriteString(w, " = "); err != nil {
 			return err
 		}

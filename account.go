@@ -40,6 +40,7 @@ type Account struct {
 
 /*
 account Expenses:Food
+
 	note This account is all about the chicken!
 	alias food
 	payee ^(KFC|Popeyes)$
@@ -170,11 +171,10 @@ func (a *Account) Depth() int {
 }
 
 func (a *Account) CheckPostings() {
+	a.balance = NewZeroAmount(a.Commodity)
 	if len(a.Postings) == 0 {
-		a.balance = NewZeroAmount(a.Commodity)
 		return
 	}
-	a.balance = NewZeroAmount(a.Commodity)
 	for _, s := range a.Postings {
 		err := a.balance.AddIn(s.Quantity)
 		check.NoError(err, "couldn't add %a %s to balance %a %s: %s\n",
@@ -188,6 +188,9 @@ func (a *Account) CheckPostings() {
 				s.Balance,
 				s.Transaction.Location(),
 			)
+			s.Reconciled = true
+		} else {
+			s.Balance = a.balance.Copy()
 		}
 	}
 }
