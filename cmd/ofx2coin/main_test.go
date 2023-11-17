@@ -66,9 +66,6 @@ func Test_ReadTransactions(t *testing.T) {
 		t.FailNow()
 	}
 	assert.Equal(t, len(txs), 10)
-	// We don't resolve the transactions,
-	// so set Reconciled on last transaction so that it writes the balance.
-	txs[9].Postings[1].Reconciled = true
 	for i, tx := range []string{
 		`2019/01/04 [CK]NO.272
   Unbalanced             704.00 CAD

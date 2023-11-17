@@ -65,7 +65,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 	}
 	for i, s := range ps {
 		reconciled := ' '
-		if s.Reconciled {
+		if s.BalanceAsserted {
 			reconciled = '*'
 		}
 		args := []interface{}{
@@ -104,7 +104,7 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	}
 	for i, s := range ps {
 		reconciled := ' '
-		if s.Reconciled {
+		if s.BalanceAsserted {
 			reconciled = '*'
 		}
 		args := []interface{}{

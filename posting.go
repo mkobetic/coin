@@ -9,11 +9,11 @@ import (
 type Posting struct {
 	Note string
 
-	Transaction *Transaction
-	Account     *Account
-	Quantity    *Amount // posting amount
-	Balance     *Amount // account balance as of this posting
-	Reconciled  bool    // was balance explicitly asserted in the ledger (only set after ResolveTransactions())
+	Transaction     *Transaction
+	Account         *Account
+	Quantity        *Amount // posting amount
+	Balance         *Amount // account balance as of this posting
+	BalanceAsserted bool    // was balance explicitly asserted in the ledger
 
 	accountName string
 }
@@ -27,7 +27,7 @@ func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth in
 	if err != nil {
 		return err
 	}
-	if s.Reconciled {
+	if s.BalanceAsserted {
 		if _, err = io.WriteString(w, " = "); err != nil {
 			return err
 		}

@@ -188,7 +188,6 @@ func (a *Account) CheckPostings() {
 				s.Balance,
 				s.Transaction.Location(),
 			)
-			s.Reconciled = true
 		} else {
 			s.Balance = a.balance.Copy()
 		}

@@ -34,8 +34,8 @@ func (transactions TransactionsByTime) Swap(i, j int) {
 func (transactions TransactionsByTime) Less(i, j int) bool {
 	return transactions[i].Posted.Before(transactions[j].Posted) ||
 		(transactions[i].Posted.Equal(transactions[j].Posted) &&
-			!transactions[i].HasReconciledPosting() &&
-			transactions[j].HasReconciledPosting())
+			!transactions[i].HasBalanceAssertions() &&
+			transactions[j].HasBalanceAssertions())
 }
 func (transactions TransactionsByTime) FindEqual(t *Transaction) *Transaction {
 	for _, t2 := range transactions {
@@ -165,6 +165,7 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 			if err != nil {
 				return nil, err
 			}
+			s.BalanceAsserted = true
 		}
 		t.Postings = append(t.Postings, s)
 	}
@@ -201,8 +202,8 @@ func (t *Transaction) PostConversion(
 	toAmount *Amount,
 	toBalance *Amount,
 ) {
-	sFrom := &Posting{Account: from, Quantity: fromAmount, Balance: fromBalance}
-	sTo := &Posting{Account: to, Quantity: toAmount, Balance: toBalance}
+	sFrom := &Posting{Account: from, Quantity: fromAmount, Balance: fromBalance, BalanceAsserted: fromBalance != nil}
+	sTo := &Posting{Account: to, Quantity: toAmount, Balance: toBalance, BalanceAsserted: toBalance != nil}
 	if fromAmount.Sign() < 0 {
 		t.Postings = append(t.Postings, sTo, sFrom)
 	} else {
@@ -219,9 +220,9 @@ func (t *Transaction) Other(s *Posting) *Posting {
 	return nil
 }
 
-func (t *Transaction) HasReconciledPosting() bool {
+func (t *Transaction) HasBalanceAssertions() bool {
 	for _, p := range t.Postings {
-		if p.Reconciled {
+		if p.BalanceAsserted {
 			return true
 		}
 	}
@@ -250,7 +251,7 @@ func (t *Transaction) MergeDuplicate(t2 *Transaction) {
 	for i, p := range t.Postings {
 		if p2 := t2.Postings[i]; p.Balance == nil && p2.Balance != nil {
 			p.Balance = p2.Balance
-			p.Reconciled = p2.Reconciled
+			p.BalanceAsserted = p2.BalanceAsserted
 		}
 	}
 }
