@@ -56,4 +56,7 @@ browse-coverage:
 	$(TEST) -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
+setup:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
 .PHONY: test test-fixtures test-go fmt lint cover browse-coverage

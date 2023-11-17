@@ -22,7 +22,7 @@ account Expenses:Electricity
 account Expenses:Water
 `
 
-func sample1() []*rule {
+func personal() []*rule {
 	r := strings.NewReader(sample1setup)
 	coin.Load(r, "")
 	coin.ResolveAll()

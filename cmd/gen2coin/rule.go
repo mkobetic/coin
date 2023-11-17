@@ -12,42 +12,51 @@ import (
 )
 
 /*
+
+Every rule is intended to generate a specific type of transaction.
+The date generator is invoked to produce a sequence of dates and a transaction
+is created for each of those with a randomly picked payee from the rule's list.
+
+Transaction postings are generated separately after all the transactions have been sorted.
+This allows generating posting amounts based on the running balances of the involved accounts
+Accounts are again picked randomly from the rule's list.
+
 	commodity CAD
+		default
 
 	account Assets:Bank:Checking
-	  commodity CAD
 	account Liabilities:Credit:Card1
-	  commodity CAD
 	account Liabilities:Credit:Card2
-	  commodity CAD
 	account Expenses:Groceries
-	  commodity CAD
 	account Expenses:Dining
-	  commodity CAD
 
-	<-2,8> FOOD MART|WENDY'S|BURGERKING
-		Groceries|Dining <30,200> CAD
+	<dateGen> FOOD MART|WENDY'S|BURGERKING
+		Groceries|Dining <30,200>
 		Checking|Card1|Card2
 */
 
 const (
-	constants = iota + 1<<31
-	FROM_BALANCE
-	TO_BALANCE
+	// these are special min values (large enough to not interfere with useful numeric values)
+	constants    = iota + 1<<31
+	FROM_BALANCE // use the 'from' account balance
+	TO_BALANCE   // use the 'to' account balance
 )
 
 type rule struct {
-	from, to []*coin.Account
-	dates    dateGen
-	min, max int
-	payees   []string
+	dates    dateGen         // date generator
+	payees   []string        // list of possible payees
+	from, to []*coin.Account // list of possible from and to accounts
+	min, max int             // min and max amount value (see constants above)
 }
 
+// sample bundles a rule and a generated transaction together.
+// this allows using the same rule later to generate postings.
 type sample struct {
 	*rule
 	*coin.Transaction
 }
 
+// sortable sample list
 type samples []sample
 
 func (transactions samples) Len() int { return len(transactions) }
@@ -90,9 +99,10 @@ func (r *rule) generatePostings(t *coin.Transaction) {
 	check.NoError(from.Balance().AddIn(amt.Negated()), "failed to update balance")
 }
 
+// generate amount given min/max and from/to accounts.
 func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 	if a > constants {
-		return getBalance(a, b, from, to)
+		return amtFromBalance(a, b, from, to)
 	}
 	if a > b {
 		a, b = b, a
@@ -108,9 +118,9 @@ func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 }
 
 // Compute the amount from the balance of one of the accounts.
-// The divisor can be used to compute a percentage of the balance,
+// The divisor can be used to compute a percentage of the balance (e.g. 2% => divisor=50),
 // this can be used to generate interest transactions.
-func getBalance(account, divisor int, from, to *coin.Account) *coin.Amount {
+func amtFromBalance(account, divisor int, from, to *coin.Account) *coin.Amount {
 	var amt *coin.Amount
 	switch account {
 	case FROM_BALANCE:

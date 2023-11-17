@@ -1,3 +1,4 @@
+// Command gen2coin generates a ledger sample based on a specified time range and a set of internal rules.
 package main
 
 import (
@@ -7,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/mkobetic/coin"
@@ -20,11 +20,27 @@ var (
 	rnd             = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
+const (
+	usage = `Usage: gen2coin [flags] [directory path]
+
+Generates a ledger sample based on internally defined rules.
+If directory path is absent, output transactions to stdout.
+Otherwise generates accounts, commodities and transactions files as directed.
+
+Flags:`
+)
+
 func init() {
-	flag.Var(&begin, "b", "begin ledger on or after this date")
-	flag.Var(&end, "e", "end ledger on or before this date")
-	flag.BoolVar(&byYear, "y", false, "split ledger by year")
-	flag.BoolVar(&byMonth, "m", false, "split ledger by month")
+	flag.Var(&begin, "b", "begin ledger on or after this date (default: -3 months)")
+	flag.Var(&end, "e", "end ledger on or before this date (default: today)")
+	flag.BoolVar(&byYear, "y", false, "split ledger into multiple files by year")
+	flag.BoolVar(&byMonth, "m", false, "split ledger into multiple files by month")
+
+	flag.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintln(w, usage)
+		flag.PrintDefaults()
+	}
 }
 
 func main() {
@@ -45,7 +61,7 @@ func main() {
 		begin = end.AddDate(0, -3, 0)
 	}
 	var transactions samples
-	for _, r := range sample1() {
+	for _, r := range personal() {
 		transactions = append(transactions, r.generateTransactions(begin, end)...)
 	}
 	sort.Stable(transactions)
@@ -85,7 +101,7 @@ func main() {
 		labeler = func(t time.Time) string { return t.Format("2006-01") }
 	}
 
-	for label, batch := range getBatches(transactions, labeler) {
+	for label, batch := range batchesByLabel(transactions, labeler) {
 		w, err = os.Create(filepath.Join(dir, label+".coin"))
 		check.NoError(err, "opening transaction file %s.coin", label)
 		for _, t := range batch {
@@ -96,15 +112,15 @@ func main() {
 	}
 }
 
-func getBatches(transactions samples, label func(t time.Time) string) map[string]samples {
+func batchesByLabel(transactions samples, labeler func(t time.Time) string) map[string]samples {
 	batches := make(map[string]samples)
 	if len(transactions) == 0 {
 		return batches
 	}
 	var batch samples
-	previous := label(transactions[0].Posted)
+	previous := labeler(transactions[0].Posted)
 	for _, t := range transactions {
-		next := label(t.Posted)
+		next := labeler(t.Posted)
 		if previous == next {
 			batch = append(batch, t)
 		} else {
@@ -116,13 +132,4 @@ func getBatches(transactions samples, label func(t time.Time) string) map[string
 	// add the last batch
 	batches[previous] = batch
 	return batches
-}
-
-func mustParse(s string) coin.Item {
-	p := coin.NewParser(strings.NewReader(s))
-	i, err := p.Next("")
-	if err != nil {
-		panic(err)
-	}
-	return i
 }

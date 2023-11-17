@@ -1,21 +1,18 @@
-Generates sample ledgers based on specified time range and rules.
+Generates a ledger sample based on a specified time range and a set of internal rules (see rules_*.go files).
 
+```
+% gen2coin -h  
+Usage: gen2coin [flags] [directory path]
 
-/*
-	commodity CAD
+Generates a ledger sample based on internally defined rules.
+If directory path is absent, output transactions to stdout.
+Otherwise generates acounts, commodities and transactions files as directed.
 
-	account Assets:Bank:Checking
-	  commodity CAD
-	account Liabilities:Credit:Card1
-	  commodity CAD
-	account Liabilities:Credit:Card2
-	  commodity CAD
-	account Expenses:Groceries
-	  commodity CAD
-	account Expenses:Dining
-	  commodity CAD
-
-	<-2,8> FOOD MART|WENDY'S|BURGERKING
-		Groceries|Dining <30,200>
-		Checking|Card1|Card2
-*/
+Flags:
+  -b value
+        begin ledger on or after this date (default: -3 months)
+  -e value
+        end ledger on or before this date (default: today)
+  -m    split ledger into multiple files by month
+  -y    split ledger into multiple files by year
+```
