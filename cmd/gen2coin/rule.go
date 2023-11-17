@@ -92,9 +92,7 @@ func (r *rule) generatePostings(t *coin.Transaction) {
 
 func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 	if a > constants {
-		return getBalance(a, from, to)
-	} else if b > constants {
-		return getBalance(b, from, to)
+		return getBalance(a, b, from, to)
 	}
 	if a > b {
 		a, b = b, a
@@ -109,15 +107,21 @@ func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 	}
 }
 
-func getBalance(a int, from, to *coin.Account) *coin.Amount {
-	switch a {
+// Compute the amount from the balance of one of the accounts.
+// The divisor can be used to compute a percentage of the balance,
+// this can be used to generate interest transactions.
+func getBalance(account, divisor int, from, to *coin.Account) *coin.Amount {
+	var amt *coin.Amount
+	switch account {
 	case FROM_BALANCE:
-		return from.Balance().Negated()
+		amt = from.Balance().Negated()
 	case TO_BALANCE:
-		return to.Balance().Negated()
+		amt = to.Balance().Negated()
 	default:
-		panic(fmt.Errorf("invalid constant: %d", a))
+		panic(fmt.Errorf("invalid constant: %d", account))
 	}
+	amt.Div(amt.Int, big.NewInt(int64(divisor)))
+	return amt
 }
 
 func toAccounts(patterns []string) (accounts []*coin.Account) {

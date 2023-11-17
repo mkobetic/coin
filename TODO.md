@@ -3,6 +3,7 @@
 * register: show description/notes
 * test: support for generating test data
 * include directive
+* test: enable writing tests for the format command
 * register: filter by payee
 * thousand separator in amounts
 * check for account/cc numbers in transactions
