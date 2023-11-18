@@ -1,9 +1,9 @@
 ### Features
 
 * register: show description/notes
-* test: support for generating test data
 * include directive
 * test: enable writing tests for the format command
+* better usage messages
 * register: filter by payee
 * thousand separator in amounts
 * check for account/cc numbers in transactions
@@ -15,7 +15,6 @@
 * register: show posting commodity (not just total commodity)
 * register: recursive prints transactions within the parent tree twice
 * register: recursive totals are useless
-* better usage messages
 * balance: csv, json, chart output
 * register: more advanced filtering options
 * stats: aggregate transaction/price stats by time (-y, -q, -m) and begin/end
@@ -24,7 +23,7 @@
 
 * duplicate elimination too aggressive with identical transactions (e.g. 2x ROGERS top up for cell phones)
   ? duplicate transactions from the same source/file should be kept?
-* sanitise sensistive information, account/cc numbers
+* sanitize sensitive information, account/cc numbers
 * commodity mismatches (USD vs CAD)
 * use ofxid for deduping
 

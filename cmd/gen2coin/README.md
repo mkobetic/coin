@@ -6,7 +6,7 @@ Usage: gen2coin [flags] [directory path]
 
 Generates a ledger sample based on internally defined rules.
 If directory path is absent, output transactions to stdout.
-Otherwise generates acounts, commodities and transactions files as directed.
+Otherwise generates accounts, commodities and transactions files as directed.
 
 Flags:
   -b value

@@ -1,11 +1,13 @@
-**NB:** This is still a work in progress, a lot of information is missing and will be filled in later.
+**NB:** This is still a work in progress, a lot of information is missing and is filled in gradually.
 
 Coin is a heavily simplified offshoot of [ledger-cli.org](https://www.ledger-cli.org/). The idea of [plain text accounting](https://plaintextaccounting.org/) is brilliant, and ledger implements it beautifully. However ledger makes certain fundamental tradeoffs that have implications that some may find undesirable. For example its extreme flexibility in how amounts and commodities can be written (prefix/postfix/symbolic etc) forces commodities that include numbers to be quoted. That gets annoying when your ledger includes a lot of mutual fund names. Coin sacrifices this flexibility to avoid quoting.
 
+Coin is written with the intent of maintaining a ledger split across number of files. This makes it easier to navigate a larger ledger with common editors and is more friendly with version control systems (e.g. git) which are also designed to manage multiple files.
+
+![Demo of navigation from register report in the VS Code terminal to the corresponding transaction in the VS Code editor](/location-navigation.webm)
+
 
 ## COINDB
-
-Coin is written with the intent of maintaining a ledger split across number of files. This makes it easier to navigate a larger ledger with common editors and is more friendly with version control systems (e.g. git) which are also designed to manage multiple files.
 
 `COINDB` is simply an environment variable pointing to a directory where `coin` expects to find the ledger files (`.coin`). The obvious organization schemes are splitting the ledger by year, quarter or month. While coin allows mixing any types of entries in the files (just like ledger) it looks for two special file names, `accounts.coin` and `commodities.coin`, and reads those first in order to satisfy the strict requirement that any commodities and accounts are defined upfront.
 
@@ -29,7 +31,7 @@ Coin includes several executables.
 
 ### coin
 
-`coin` is the main command mimicing the leger cli with a number of subcommands. The subcommands include the usual suspects like `balance` and `register`, but also `accounts`, `commodities` and `test`. For more details see [`cmd/coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin/README.md).
+`coin` is the main command mimicking the leger cli with a number of subcommands. The subcommands include the usual suspects like `balance` and `register`, but also `accounts`, `commodities` and `test`. For more details see [`cmd/coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin/README.md).
 
 
 ### gc2coin
@@ -47,6 +49,11 @@ ofx/qfx import, see [`cmd/ofx2coin/README.md`](https://github.com/mkobetic/coin/
 csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/csv2coin/README.md)
 
 
+### gen2coin
+
+generates ledger samples for testing or demos, see [`cmd/gen2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/gen2coin/README.md)
+
+
 ## Assorted Ledger Differences
 (besides vastly reduced set of commands/options and capabilities)
 
@@ -60,12 +67,12 @@ Note that using entries that are relative to today in coin files is only intende
 and should be promptly reformatted with `coin format` to turn them into absolute entries, otherwise your ledger can become corrupted fairly quickly.
 
 * Dates are entered as [[YY]YY/]M/D, where year can be 2 or 4 digits
-** if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
-** if year is omitted its the date closest to today (e.g. on 2020/03/05, 6/22 is 2020/06/22 and 10/22 is 2019/10/22)
+  * if year is 2 digits, it is the year closest to today (e.g. in 2020, 92 is 1992 and 55 is 2055).
+  * if year is omitted its the date closest to today (e.g. on 2020/03/05, 6/22 is 2020/06/22 and 10/22 is 2019/10/22)
 * Date can also be entered as YYYY[/M]
-** if month is omitted the date is set to Jan 1st, if month is present it's the first day of that month
+  * if month is omitted the date is set to Jan 1st, if month is present it's the first day of that month
 * Date can also include a suffix specifying offset of +/- number of days,weeks,months or years from that date (e.g. -50d)
-** if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
+  * if only offset is specified, it is offset from today (e.g. on 2020/03/05, +2m is 2020/05/05 and -2d is 2020/03/03)
 
 ### Account Entry
 
@@ -79,7 +86,7 @@ For example the following expressions could match account `Assets:Investments:Br
 ### Amount differences
 
 * an amount is always associated with a commodity
-* amount precission is dictated by the associated commodity, there's no inference of precision from the amount value
+* amount precision is dictated by the associated commodity, there's no inference of precision from the amount values
 
 ### Commodity differences
 
