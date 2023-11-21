@@ -19,7 +19,8 @@ import (
 const usage = `Usage: csv2coin [flags] files...
 
 Converts CSV files to coin transactions based on a set of rules (see README).
-`
+
+Flags:`
 
 var (
 	fields      = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")

@@ -18,7 +18,8 @@ import (
 const usage = `Usage: ofx2coin [flags] files...
 
 Converts OFX/QFX files into coin transactions based on a set of rules (see README).
-`
+
+Flags:`
 
 var (
 	dumpOFXIDs = flag.Bool("ids", false, "dump accounts with known ofx ids")

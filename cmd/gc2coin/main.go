@@ -15,7 +15,8 @@ import (
 const usage = `Usage: gc2coin [flags]
 
 Converts GnuCash XML database (v2) to a coin transactions.
-`
+
+Flags:`
 
 var (
 	gnucashDB = flag.String("gnucashdb", os.Getenv("GNUCASHDB"), "path to the database")
