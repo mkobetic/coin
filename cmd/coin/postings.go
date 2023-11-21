@@ -81,6 +81,9 @@ func (ps postings) print(f io.Writer, opts *options) {
 			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
+		if opts.showNotes && (len(s.Note) > 0 || len(s.Transaction.Note) > 0) {
+			printNotes(f, strings.Repeat(" ", len(args[0].(string)))+" ;", s)
+		}
 	}
 }
 
@@ -121,7 +124,24 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
+		if opts.showNotes && (len(s.Note) > 0 || len(s.Transaction.Note) > 0) {
+			printNotes(f, strings.Repeat(" ", len(args[0].(string)))+" ;", s)
+		}
 	}
+}
+
+func printNotes(w io.Writer, prefix string, p *coin.Posting) {
+	var notes string
+	if len(p.Note) > 0 {
+		notes = p.Note
+	}
+	if len(p.Transaction.Note) > 0 {
+		if len(notes) > 0 {
+			notes += "\n"
+		}
+		notes += p.Transaction.Note
+	}
+	printLines(w, prefix, notes)
 }
 
 type options struct {
@@ -129,6 +149,7 @@ type options struct {
 	location         bool
 	maxDesc, maxAcct int
 	commodity        *coin.Commodity
+	showNotes        bool
 }
 
 func (o *options) MaxDesc() int {

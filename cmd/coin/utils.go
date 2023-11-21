@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"sort"
 	"strings"
@@ -67,4 +68,11 @@ func trimWS(in string) string {
 		}
 	}
 	return w.String()
+}
+
+func printLines(w io.Writer, prefix string, lines string) {
+	text := bufio.NewScanner(strings.NewReader(lines))
+	for text.Scan() {
+		fmt.Fprintln(w, prefix, text.Text())
+	}
 }

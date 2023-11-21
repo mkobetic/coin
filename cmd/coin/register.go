@@ -27,6 +27,7 @@ type cmdRegister struct {
 	maxLabelWidth     int
 	location          bool
 	output            string
+	showNotes         bool
 }
 
 func (*cmdRegister) newCommand(names ...string) command {
@@ -50,6 +51,7 @@ Lists or aggregate postings from the specified account.`)
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
 	cmd.BoolVar(&cmd.location, "f", false, "include file location on postings in non-aggregated results")
 	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv, chart")
+	cmd.BoolVar(&cmd.showNotes, "n", false, "show transaction notes if present (non-aggregated)")
 	return &cmd
 }
 
@@ -71,7 +73,13 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 			cmd.flatAggregatedRegister(f, acc, by)
 		}
 	} else {
-		var opts = options{prefix: acc.FullName, maxAcct: cmd.maxLabelWidth, location: cmd.location, commodity: acc.Commodity}
+		var opts = options{
+			prefix:    acc.FullName,
+			maxAcct:   cmd.maxLabelWidth,
+			location:  cmd.location,
+			commodity: acc.Commodity,
+			showNotes: cmd.showNotes,
+		}
 		if cmd.recurse {
 			var ps postings
 			acc.WithChildrenDo(func(a *coin.Account) {
