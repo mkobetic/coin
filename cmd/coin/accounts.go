@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"regexp"
@@ -14,13 +13,16 @@ func init() {
 }
 
 type cmdAccounts struct {
-	*flag.FlagSet
+	flagsWithUsage
 	closed bool
 }
 
 func (*cmdAccounts) newCommand(names ...string) command {
 	var cmd cmdAccounts
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(accounts|acc|a) [flags]
+
+Lists accounts and their commodities.`)
 	cmd.BoolVar(&cmd.closed, "c", false, "show closed accounts")
 	return &cmd
 }

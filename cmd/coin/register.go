@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -17,7 +16,7 @@ func init() {
 }
 
 type cmdRegister struct {
-	*flag.FlagSet
+	flagsWithUsage
 	verbose           bool
 	recurse           bool
 	begin, end        coin.Date
@@ -33,6 +32,9 @@ type cmdRegister struct {
 func (*cmdRegister) newCommand(names ...string) command {
 	var cmd cmdRegister
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(register|reg|r) [flags] account
+
+Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.verbose, "v", false, "log debug info to stderr")
 	cmd.BoolVar(&cmd.recurse, "r", false, "include subaccount postings in parent accounts")
 	cmd.Var(&cmd.begin, "b", "begin register from this date")

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -17,12 +16,15 @@ func init() {
 }
 
 type cmdTest struct {
-	*flag.FlagSet
+	flagsWithUsage
 }
 
 func (*cmdTest) newCommand(names ...string) command {
 	var cmd cmdTest
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(test|t)
+
+Execute any test clauses found in the ledger (see tests/ directory).`)
 	return &cmd
 }
 

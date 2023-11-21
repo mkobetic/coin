@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"sort"
@@ -14,7 +13,7 @@ func init() {
 }
 
 type cmdStats struct {
-	*flag.FlagSet
+	flagsWithUsage
 	dupes               bool
 	unbalanced          bool
 	commodityMismatches bool
@@ -24,6 +23,9 @@ type cmdStats struct {
 func (*cmdStats) newCommand(names ...string) command {
 	var cmd cmdStats
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(stats|s) [flags]
+
+Perform checks and print statistics about the ledger.`)
 	cmd.BoolVar(&cmd.dupes, "d", false, "check for duplicate transactions")
 	cmd.BoolVar(&cmd.unbalanced, "u", false, "check for unbalanced transactions")
 	cmd.BoolVar(&cmd.commodityMismatches, "c", false, "check for commodity mismatches")

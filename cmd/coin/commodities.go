@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -21,7 +20,7 @@ func init() {
 }
 
 type cmdCommodities struct {
-	*flag.FlagSet
+	flagsWithUsage
 	getQuotes bool
 	prices    bool
 }
@@ -29,6 +28,9 @@ type cmdCommodities struct {
 func (*cmdCommodities) newCommand(names ...string) command {
 	var cmd cmdCommodities
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(commodities|com|c) [flags]
+
+Lists commodities and prices.`)
 	cmd.BoolVar(&cmd.getQuotes, "q", false, "get current quotes for all commodities")
 	cmd.BoolVar(&cmd.prices, "p", false, "print commodity price stats")
 	return &cmd

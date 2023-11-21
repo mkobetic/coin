@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -16,7 +15,7 @@ func init() {
 }
 
 type cmdFormat struct {
-	*flag.FlagSet
+	flagsWithUsage
 	ledger  bool
 	replace bool
 	trimWS  bool
@@ -25,9 +24,12 @@ type cmdFormat struct {
 func (*cmdFormat) newCommand(names ...string) command {
 	var cmd cmdFormat
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(format|fmt|f) [flags] files...
+
+Output transactions from specified files sorted and in the standard format.`)
 	cmd.BoolVar(&cmd.ledger, "ledger", false, "use ledger compatible format")
 	cmd.BoolVar(&cmd.replace, "i", false, "format files in-place")
-	cmd.BoolVar(&cmd.trimWS, "t", false, "trim excessive whitespace")
+	cmd.BoolVar(&cmd.trimWS, "t", false, "trim excessive whitespace from descriptions")
 	return &cmd
 }
 
