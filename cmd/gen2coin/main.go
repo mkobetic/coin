@@ -20,15 +20,13 @@ var (
 	rnd             = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
-const (
-	usage = `Usage: gen2coin [flags] [directory path]
+const usage = `Usage: gen2coin [flags] [directory path]
 
 Generates a ledger sample based on internally defined rules.
 If directory path is absent, output transactions to stdout.
 Otherwise generates accounts, commodities and transactions files as directed.
 
 Flags:`
-)
 
 func init() {
 	flag.Var(&begin, "b", "begin ledger on or after this date (default: -3 months)")

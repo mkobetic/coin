@@ -3,7 +3,6 @@
 * register: show description/notes
 * include directive
 * test: enable writing tests for the format command
-* better usage messages
 * register: filter by payee
 * thousand separator in amounts
 * check for account/cc numbers in transactions
@@ -16,6 +15,7 @@
 * register: recursive prints transactions within the parent tree twice
 * register: recursive totals are useless
 * balance: csv, json, chart output
+* register/balance: markdown output
 * register: more advanced filtering options
 * stats: aggregate transaction/price stats by time (-y, -q, -m) and begin/end
 

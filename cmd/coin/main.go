@@ -14,17 +14,17 @@ var (
 )
 
 type command interface {
-	// constructor
-	newCommand(...string) command
+	// constructor (used by test command)
+	newCommand(names ...string) command
 
 	// execution
 	init()
 	execute(io.Writer)
 
 	// flag.FlagSet
-	Parse(arguments []string) error
-	PrintDefaults()
 	Name() string
+	Parse(arguments []string) error
+	Usage() // this is from flagsWithUsage
 }
 
 func newCommand(cmd command, names ...string) *flag.FlagSet {
@@ -33,6 +33,20 @@ func newCommand(cmd command, names ...string) *flag.FlagSet {
 		aliases[n] = cmd
 	}
 	return flag.NewFlagSet(names[0], flag.ExitOnError)
+}
+
+type flagsWithUsage struct{ *flag.FlagSet }
+
+func (f flagsWithUsage) Usage() {
+	f.FlagSet.Usage()
+}
+
+func setUsage(fs *flag.FlagSet, usage string) {
+	fs.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintln(w, usage)
+		fs.PrintDefaults()
+	}
 }
 
 func main() {
@@ -48,9 +62,13 @@ func main() {
 	}
 	cmd := aliases[cmdArg]
 	if cmd == nil {
-		fmt.Printf("Unknown command %s\n", cmdArg)
+		if cmdArg != "-h" {
+			fmt.Fprintf(os.Stderr, "Unknown command %s\n", cmdArg)
+		}
+		fmt.Fprintln(os.Stderr, "Usage: coin [cmd] ...")
 		for _, c := range commands {
-			c.PrintDefaults()
+			fmt.Fprintf(os.Stderr, "\nCommand ")
+			c.Usage()
 		}
 		os.Exit(1)
 	}

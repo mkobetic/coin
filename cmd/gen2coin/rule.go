@@ -112,8 +112,8 @@ func amtBetween(a, b int, from, to *coin.Account) *coin.Amount {
 		amt = a + rnd.Intn(b-a)
 	}
 	return &coin.Amount{
-		big.NewInt(int64(amt) * pow(10, from.Commodity.Decimals)),
-		from.Commodity,
+		Int:       big.NewInt(int64(amt) * pow(10, from.Commodity.Decimals)),
+		Commodity: from.Commodity,
 	}
 }
 

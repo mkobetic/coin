@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 
@@ -13,12 +12,15 @@ func init() {
 }
 
 type cmdVersion struct {
-	*flag.FlagSet
+	flagsWithUsage
 }
 
 func (*cmdVersion) newCommand(names ...string) command {
 	var cmd cmdVersion
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(version|ver|v)
+
+Print version information about the coin executable.`)
 	return &cmd
 }
 

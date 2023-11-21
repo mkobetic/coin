@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 
@@ -14,7 +13,7 @@ func init() {
 }
 
 type cmdBalance struct {
-	*flag.FlagSet
+	flagsWithUsage
 	begin, end  coin.Date
 	zeroBalance bool
 	level       int
@@ -23,6 +22,9 @@ type cmdBalance struct {
 func (*cmdBalance) newCommand(names ...string) command {
 	var cmd cmdBalance
 	cmd.FlagSet = newCommand(&cmd, names...)
+	setUsage(cmd.FlagSet, `(balance|bal|b) [flags] [account]
+
+Lists balances for account and its subaccounts (default: Root).`)
 	cmd.Var(&cmd.begin, "b", "begin balance from this date")
 	cmd.Var(&cmd.end, "e", "end balance on this date")
 	cmd.BoolVar(&cmd.zeroBalance, "z", false, "list accounts with zero total balance")
