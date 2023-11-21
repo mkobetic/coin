@@ -15,12 +15,25 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
+const usage = `Usage: ofx2coin [flags] files...
+
+Converts OFX/QFX files into coin transactions based on a set of rules (see README).
+`
+
 var (
 	dumpOFXIDs = flag.Bool("ids", false, "dump accounts with known ofx ids")
 	dumpRules  = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
 	bmoHack    = flag.Bool("bmo", false, "handle invalid qfx files from Bank of Montreal")
 	keepDupes  = flag.Bool("keep-dupes", false, "keep duplicate transactions")
 )
+
+func init() {
+	flag.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintln(w, usage)
+		flag.PrintDefaults()
+	}
+}
 
 func main() {
 	flag.Parse()

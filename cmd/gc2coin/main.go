@@ -12,11 +12,24 @@ import (
 	"github.com/mkobetic/coin/gnucash"
 )
 
+const usage = `Usage: gc2coin [flags]
+
+Converts GnuCash XML database (v2) to a coin transactions.
+`
+
 var (
 	gnucashDB = flag.String("gnucashdb", os.Getenv("GNUCASHDB"), "path to the database")
 	yearly    = flag.Bool("y", false, "split transactions into separate files by year (requires COINDB directory)")
 	ledger    = flag.Bool("l", false, "write ledger friendly format")
 )
+
+func init() {
+	flag.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintln(w, usage)
+		flag.PrintDefaults()
+	}
+}
 
 func next(fn string) (*os.File, func()) {
 	if coin.DB == "" {

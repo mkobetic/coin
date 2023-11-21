@@ -16,6 +16,11 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
+const usage = `Usage: csv2coin [flags] files...
+
+Converts CSV files to coin transactions based on a set of rules (see README).
+`
+
 var (
 	fields      = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
 	source      = flag.String("source", "", "which source rules to use to read the files")
@@ -24,6 +29,14 @@ var (
 
 	accountsByCSVId = map[string]*coin.Account{}
 )
+
+func init() {
+	flag.Usage = func() {
+		w := flag.CommandLine.Output()
+		fmt.Fprintln(w, usage)
+		flag.PrintDefaults()
+	}
+}
 
 func main() {
 	flag.Parse()
