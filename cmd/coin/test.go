@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/mkobetic/coin"
 	"github.com/pmezard/go-difflib/difflib"
@@ -17,6 +18,7 @@ func init() {
 
 type cmdTest struct {
 	flagsWithUsage
+	verbose bool
 }
 
 func (*cmdTest) newCommand(names ...string) command {
@@ -25,7 +27,9 @@ func (*cmdTest) newCommand(names ...string) command {
 	setUsage(cmd.FlagSet, `(test|t)
 
 Execute any test clauses found in the ledger (see tests/ directory).`)
+	cmd.BoolVar(&cmd.verbose, "v", false, "print OK result for every test, not just for each file")
 	return &cmd
+
 }
 
 func (cmd *cmdTest) init() {
@@ -34,6 +38,10 @@ func (cmd *cmdTest) init() {
 }
 
 func (cmd *cmdTest) execute(f io.Writer) {
+	if len(coin.Tests) == 0 {
+		return
+	}
+	lastTestFile := file(coin.Tests[0])
 	for _, t := range coin.Tests {
 		var args []string
 		scanner := bufio.NewScanner(bytes.NewReader(t.Cmd))
@@ -59,7 +67,13 @@ func (cmd *cmdTest) execute(f io.Writer) {
 		var b bytes.Buffer
 		command.execute(&b)
 		if bytes.Equal(b.Bytes(), t.Result) {
-			fmt.Fprintf(f, "OK %s %s\n", t.Location(), t.Cmd)
+			testFile := file(t)
+			if cmd.verbose {
+				fmt.Fprintf(f, "OK %s %s\n", t.Location(), t.Cmd)
+			} else if lastTestFile != testFile {
+				fmt.Fprintf(f, "OK %s\n", lastTestFile)
+			}
+			lastTestFile = testFile
 			continue
 		}
 		fmt.Fprintf(f, "FAIL %s %s\n", t.Location(), t.Cmd)
@@ -72,4 +86,12 @@ func (cmd *cmdTest) execute(f io.Writer) {
 				Context:  3,
 			})
 	}
+	if !cmd.verbose {
+		fmt.Fprintf(f, "OK %s\n", lastTestFile)
+	}
+}
+
+func file(t *coin.Test) string {
+	file, _, _ := strings.Cut(t.Location(), ":")
+	return file
 }
