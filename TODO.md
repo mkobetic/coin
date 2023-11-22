@@ -1,12 +1,11 @@
 ### Features
 
-* register: show description/notes
-* include directive
-* test: enable writing tests for the format command
+* test: verbose and terse results
 * register: filter by payee
+* include directive
+* move postings between accounts/rename account
 * thousand separator in amounts
 * check for account/cc numbers in transactions
-* move postings between accounts/rename account
 * balance: last reconciled posting date
 * register: sorting by quantity to aid finding largest transactions
 * register: show account balances with begin/end
@@ -25,7 +24,7 @@
   ? duplicate transactions from the same source/file should be kept?
 * sanitize sensitive information, account/cc numbers
 * commodity mismatches (USD vs CAD)
-* use ofxid for deduping
+* use ofxid for deduping (need tags?)
 
 ### Issues
 

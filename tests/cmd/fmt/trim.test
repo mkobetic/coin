@@ -1,0 +1,46 @@
+commodity CAD
+  format 1.00 CAD
+
+account Assets:Bank
+account Income:Salary
+account Expenses:Food
+account Expenses:Rent
+
+2000       ACME    Inc    ;     gimme
+  Bank 1000 CAD
+  Salary
+
+2000/02    Loeb       ;  yum    yum     yum    
+  Food
+  ;    one
+  ;           two
+  ; three
+  Bank -20 CAD ; four
+
+2000/03/03
+  ;    one
+  ;           two
+  ; three 
+  Rent 500 CAD
+  Bank
+
+test format -t
+2000/01/01 ACME Inc ; gimme
+  Assets:Bank     1000.00 CAD
+  Income:Salary  -1000.00 CAD
+
+2000/02/01 Loeb ; yum yum yum
+  Expenses:Food   20.00 CAD
+    ;    one
+    ;           two
+    ; three
+  Assets:Bank    -20.00 CAD
+
+2000/03/03 
+  ; one
+  ; two
+  ; three
+  Expenses:Rent   500.00 CAD
+  Assets:Bank    -500.00 CAD
+
+end test
