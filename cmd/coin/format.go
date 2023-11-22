@@ -40,6 +40,10 @@ func (cmd *cmdFormat) init() {
 }
 
 func (cmd *cmdFormat) execute(f io.Writer) {
+	if len(cmd.Args()) == 0 {
+		cmd.writeTransactions(f)
+		return
+	}
 	for _, fn := range cmd.Args() {
 		var err error
 		var tf *os.File
@@ -50,14 +54,7 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 			check.NoError(err, "creating temp file")
 			f = tf
 		}
-		for _, t := range coin.Transactions {
-			if cmd.trimWS {
-				t.Description = trimWS(t.Description)
-				t.Note = trimWS(t.Note)
-			}
-			t.Write(f, cmd.ledger)
-			fmt.Fprintln(f)
-		}
+		cmd.writeTransactions(f)
 		if cmd.replace {
 			err = os.Remove(fn)
 			check.NoError(err, "deleting old file")
@@ -68,5 +65,16 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 		// postings are still referenced through the accounts,
 		// but we don't care in this case.
 		coin.Transactions = nil
+	}
+}
+
+func (cmd *cmdFormat) writeTransactions(f io.Writer) {
+	for _, t := range coin.Transactions {
+		if cmd.trimWS {
+			t.Description = trimWS(t.Description)
+			t.Note = trimWS(t.Note)
+		}
+		t.Write(f, cmd.ledger)
+		fmt.Fprintln(f)
 	}
 }
