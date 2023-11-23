@@ -44,18 +44,20 @@ func (cmd *cmdTest) execute(f io.Writer) {
 	lastTestFile := file(coin.Tests[0])
 	for _, t := range coin.Tests {
 		var args []string
-		scanner := bufio.NewScanner(bytes.NewReader(t.Cmd))
+		scanner := bufio.NewScanner(strings.NewReader(t.Cmd))
 		scanner.Split(bufio.ScanWords)
 		for scanner.Scan() {
 			args = append(args, scanner.Text())
 		}
 		if len(args) == 0 {
-			fmt.Fprintf(os.Stderr, "test item is missing command")
+			fmt.Fprintf(os.Stderr, "FAIL: test item is missing command %s\n", t.Location())
 			return
 		}
+		// fmt.Println(args)
+		// continue
 		command, found := aliases[args[0]]
 		if !found {
-			fmt.Fprintf(os.Stderr, "test command unknown: %s", args[0])
+			fmt.Fprintf(os.Stderr, "FAIL: command unknown: %s %s\n", args[0], t.Location())
 			return
 		}
 		command = command.newCommand(command.Name())
