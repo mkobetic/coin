@@ -204,3 +204,14 @@ Date,:Rent,:Food
 2010/06,500.00,250.00
 2010/07,500.00,300.00
 end test
+
+test register -p Fresh Bank
+Assets:Bank CAD
+2010/01/20 | Freshco | Expense:Food | -150.00 |  -150.00 CAD 
+2010/01/28 | Freshco | Expense:Food | -100.00 |  -250.00 CAD 
+2010/02/02 | Freshco | Expense:Food | -100.00 |  -350.00 CAD 
+2010/03/08 | Freshco | Expense:Food | -200.00 |  -550.00 CAD 
+2010/05/05 | Freshco | Expense:Food | -300.00 |  -850.00 CAD 
+2010/06/22 | Freshco | Expense:Food | -250.00 | -1100.00 CAD 
+2010/07/03 | Freshco | Expense:Food | -300.00 | -1400.00 CAD 
+end test

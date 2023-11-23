@@ -1,9 +1,7 @@
 ### Features
 
-* test: verbose and terse results
-* register: filter by payee
-* include directive
 * move postings between accounts/rename account
+* include directive
 * thousand separator in amounts
 * check for account/cc numbers in transactions
 * balance: last reconciled posting date

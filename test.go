@@ -7,7 +7,7 @@ import (
 )
 
 type Test struct {
-	Cmd    []byte
+	Cmd    string
 	Result []byte
 
 	line uint
@@ -18,7 +18,7 @@ var testHead = regexp.MustCompile(`test\s+(.+)`)
 
 func (p *Parser) parseTest(fn string) (*Test, error) {
 	matches := testHead.FindSubmatch(p.Bytes())
-	t := &Test{Cmd: matches[1], line: p.lineNr, file: fn}
+	t := &Test{Cmd: string(matches[1]), line: p.lineNr, file: fn}
 	var b bytes.Buffer
 	for p.Scan() {
 		if bytes.Equal((bytes.TrimSpace(p.Bytes())), []byte("end test")) {

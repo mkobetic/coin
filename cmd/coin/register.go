@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -28,6 +29,7 @@ type cmdRegister struct {
 	location          bool
 	output            string
 	showNotes         bool
+	payee             string
 }
 
 func (*cmdRegister) newCommand(names ...string) command {
@@ -40,6 +42,7 @@ Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.recurse, "r", false, "include subaccount postings in parent accounts")
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
+	cmd.StringVar(&cmd.payee, "p", "", "use only postings matching the payee (regex)")
 	// aggregation options
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
@@ -185,7 +188,18 @@ func (cmd *cmdRegister) period() *reducer {
 }
 
 func (cmd *cmdRegister) trim(ps []*coin.Posting) postings {
-	return postings(trim(ps, cmd.begin, cmd.end))
+	ps = trim(ps, cmd.begin, cmd.end)
+	if len(cmd.payee) > 0 {
+		var pps []*coin.Posting
+		r := regexp.MustCompile(cmd.payee)
+		for _, p := range ps {
+			if r.MatchString(p.Transaction.Description) {
+				pps = append(pps, p)
+			}
+		}
+		ps = pps
+	}
+	return postings(ps)
 }
 
 func (cmd *cmdRegister) debugf(format string, args ...interface{}) {
