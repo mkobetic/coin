@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch coin",
+            "name": "Launch",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -15,10 +15,9 @@
             "name": "Launch coin test",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
+            "mode": "debug",
             "program": "${workspaceFolder}/cmd/coin",
             "args": ["test", "${file}"],
-            "trace": "verbose",
         }
     ]
 }

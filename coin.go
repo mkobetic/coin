@@ -262,9 +262,7 @@ func ResolveTransactions(checkPostings bool) {
 	}
 
 	for _, a := range AccountsByName {
-		sort.SliceStable(a.Postings, func(i, j int) bool {
-			return a.Postings[i].Transaction.Posted.Before(a.Postings[j].Transaction.Posted)
-		})
+		a.sortPostings()
 		if checkPostings {
 			a.CheckPostings()
 		}

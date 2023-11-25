@@ -35,6 +35,16 @@ func True(t *testing.T, v bool, args ...interface{}) bool {
 	return false
 }
 
+func False(t *testing.T, v bool, args ...interface{}) bool {
+	t.Helper()
+	if !v {
+		return true
+	}
+	msg := msgFromArgs(args, "is true")
+	t.Error(msg)
+	return false
+}
+
 func NoError(t *testing.T, err error, args ...interface{}) bool {
 	t.Helper()
 	if err == nil {

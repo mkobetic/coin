@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"time"
 	"unicode"
@@ -228,6 +229,62 @@ func (a *Account) adopt(c *Account) {
 	}
 	c.Parent = a
 	a.Children = append(a.Children, c)
+}
+
+func (a *Account) sortPostings() {
+	sort.SliceStable(a.Postings, func(i, j int) bool {
+		return a.Postings[i].Transaction.Posted.Before(a.Postings[j].Transaction.Posted)
+	})
+}
+
+func (a *Account) findPosting(p *Posting) (i int, found bool) {
+	i, found = sort.Find(len(a.Postings), func(i int) int {
+		return p.Transaction.Posted.Compare(a.Postings[i].Transaction.Posted)
+	})
+	if !found {
+		return i, false
+	}
+	for pi := a.Postings[i]; pi.Transaction.Posted.Equal(p.Transaction.Posted); {
+		if pi == p {
+			return i, true
+		}
+		i++
+		if i >= len(a.Postings) {
+			return i, false
+		}
+		pi = a.Postings[i]
+	}
+	// i points at the first posting with posted date after p
+	return i, false
+}
+
+func (a *Account) deletePosting(p *Posting) *Posting {
+	i, found := a.findPosting(p)
+	if !found {
+		return p
+	}
+	copy(a.Postings[i:], a.Postings[i+1:])
+	a.Postings = a.Postings[:len(a.Postings)-1]
+	return p
+}
+
+func (a *Account) addPosting(p *Posting) *Posting {
+	i, found := a.findPosting(p)
+	if found {
+		return p
+	}
+	var newPostings []*Posting
+	if cap(a.Postings) > len(a.Postings) {
+		a.Postings = a.Postings[:len(a.Postings)+1]
+		newPostings = a.Postings
+	} else {
+		newPostings = make([]*Posting, len(a.Postings)+1)
+		copy(newPostings, a.Postings[:i])
+	}
+	copy(newPostings[i+1:], a.Postings[i:])
+	newPostings[i] = p
+	a.Postings = newPostings
+	return p
 }
 
 func ShortenAccountName(n string, size int) string {

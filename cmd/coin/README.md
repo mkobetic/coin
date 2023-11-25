@@ -33,6 +33,11 @@ Use `-h` for detailed option descriptions.
 * reformat input file
 * output ledger compatible format
 
+## modify
+
+* move postings to different account
+* filtering by payee
+
 ## stats
 
 * print ledger stats
