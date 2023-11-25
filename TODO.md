@@ -1,6 +1,6 @@
 ### Features
 
-* move postings between accounts/rename account
+* add support for tags
 * include directive
 * thousand separator in amounts
 * check for account/cc numbers in transactions
@@ -32,8 +32,7 @@
 
 * backfill prices from transactions
 * filter out closed accounts where it makes sense (ditch the 0 balance filtering)
-* support for tags?
-* account/commodity renames?
+* commodity renames?
 * language server?
 * lots/costs
 * multiple commodities in single account?

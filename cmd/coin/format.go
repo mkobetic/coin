@@ -40,7 +40,7 @@ func (cmd *cmdFormat) init() {
 }
 
 func (cmd *cmdFormat) execute(f io.Writer) {
-	if len(cmd.Args()) == 0 {
+	if len(cmd.Args()) == 0 { // for testing
 		cmd.writeTransactions(f)
 		return
 	}
@@ -61,10 +61,7 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 			err = os.Rename(tf.Name(), fn)
 			check.NoError(err, "renaming temp file")
 		}
-		// Note that this doesn't properly get rid of transactions,
-		// postings are still referenced through the accounts,
-		// but we don't care in this case.
-		coin.Transactions = nil
+		coin.DropTransactions()
 	}
 }
 

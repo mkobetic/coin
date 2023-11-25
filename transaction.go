@@ -25,6 +25,13 @@ type Transaction struct {
 
 var Transactions TransactionsByTime
 
+func DropTransactions() {
+	for _, t := range Transactions {
+		t.drop()
+	}
+	Transactions = nil
+}
+
 type TransactionsByTime []*Transaction
 
 func (transactions TransactionsByTime) Len() int { return len(transactions) }
@@ -254,4 +261,11 @@ func (t *Transaction) MergeDuplicate(t2 *Transaction) {
 			p.BalanceAsserted = p2.BalanceAsserted
 		}
 	}
+}
+
+func (t *Transaction) drop() {
+	for _, p := range t.Postings {
+		p.drop()
+	}
+	t.Postings = nil
 }

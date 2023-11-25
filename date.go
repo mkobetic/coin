@@ -52,6 +52,11 @@ func mustParseDate(match map[string]string, idx int) time.Time {
 	return d
 }
 
+func MustParseDate(s string) time.Time {
+	match := DateREX.Match([]byte(s))
+	return mustParseDate(match, 0)
+}
+
 func parseDate(match map[string]string, idx int) (t time.Time, err error) {
 	if idx > 0 {
 		return t, fmt.Errorf("Multiple date fields not implemented!")

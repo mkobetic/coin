@@ -60,3 +60,16 @@ func (s *Posting) IsEqual(s2 *Posting) bool {
 	return s.Account == s2.Account &&
 		s.Quantity.IsEqual(s2.Quantity)
 }
+
+func (p *Posting) MoveTo(a *Account) {
+	if p.Account == a {
+		return
+	}
+	p.Account.deletePosting(p)
+	a.addPosting(p)
+	p.Account = a
+}
+
+func (p *Posting) drop() {
+	p.Account.deletePosting(p)
+}

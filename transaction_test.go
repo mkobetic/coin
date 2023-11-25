@@ -125,8 +125,7 @@ func Test_TransactionsByTimeDay(t *testing.T) {
 	Year, Month, Day = 2000, 5, 7
 	var transactions TransactionsByTime
 	for _, days := range []int{0, 0, 0, 1, 4, 4, 4, 7, 13, 13, 20} {
-		match := DateREX.Match([]byte(fmt.Sprintf("+%dd", days)))
-		posted := mustParseDate(match, 0)
+		posted := MustParseDate(fmt.Sprintf("+%dd", days))
 		transactions = append(transactions, &Transaction{Posted: posted})
 	}
 	check := func(t *testing.T, day time.Time, count int) {
