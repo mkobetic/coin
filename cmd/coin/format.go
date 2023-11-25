@@ -40,7 +40,7 @@ func (cmd *cmdFormat) init() {
 }
 
 func (cmd *cmdFormat) execute(f io.Writer) {
-	if len(cmd.Args()) == 0 {
+	if len(cmd.Args()) == 0 { // for testing
 		cmd.writeTransactions(f)
 		return
 	}

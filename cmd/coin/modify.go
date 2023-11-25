@@ -45,8 +45,7 @@ func (cmd *cmdModify) init() {
 	coin.ResolveAccounts()
 }
 
-func (cmd *cmdModify) execute(_ io.Writer) {
-	check.If(cmd.NArg() > 1, "both from and to account must be specified")
+func (cmd *cmdModify) execute(f io.Writer) {
 	if len(cmd.fAccount) > 0 {
 		cmd.from = coin.MustFindAccount(cmd.fAccount)
 	}
@@ -55,6 +54,14 @@ func (cmd *cmdModify) execute(_ io.Writer) {
 	}
 	if len(cmd.fPayee) > 0 {
 		cmd.payee = regexp.MustCompile(cmd.fPayee)
+	}
+	if cmd.NArg() == 0 { // for testing
+		for _, t := range coin.Transactions {
+			cmd.modify(t)
+			t.Write(f, false)
+			fmt.Fprintln(f)
+		}
+		return
 	}
 	for _, fn := range cmd.Args() {
 		coin.LoadFile(fn)
