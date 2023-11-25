@@ -1,17 +1,17 @@
 module github.com/mkobetic/coin
 
-go 1.13
+go 1.21
 
 require (
-	github.com/aclindsa/ofxgo v0.1.0
-	github.com/aclindsa/xml v0.0.0-20181012010330-207ec7fb7420 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
-	github.com/piquette/finance-go v1.0.0
+	github.com/aclindsa/ofxgo v0.1.3
+	github.com/piquette/finance-go v1.1.0
 	github.com/pmezard/go-difflib v1.0.0
-	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
+)
+
+require (
+	github.com/aclindsa/xml v0.0.0-20201125035057-bbd5c9ec99ac // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.2.4 // indirect
 )
