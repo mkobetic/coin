@@ -36,7 +36,7 @@ type Account struct {
 	OFXBankId string
 	OFXAcctId string
 
-	CSVAcctId string
+	CSVAcctId string // obsolete; left here for backward compatibility
 }
 
 /*

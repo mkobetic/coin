@@ -27,12 +27,12 @@ commodity BND
   format 1 BND
 commodity XBAL
   format 1 XBAL
-account Assets:Investments
-  csv_acctid XXX
-account Assets:Investments:VXF
+account Assets:Investments:XXX
+account Assets:Investments:XXX:VXF
   commodity VXF
+account Assets:Investments:XXX:USD
+  commodity USD
 account Assets:Investments:BBB
-  csv_acctid BBB
 account Assets:Investments:BBB:CAD
   commodity CAD
 account Assets:Investments:BBB:VAB
@@ -50,12 +50,6 @@ account Income:Interest
 `)
 	coin.Load(r, "")
 	coin.ResolveAccounts()
-
-	coin.AccountsDo(func(a *coin.Account) {
-		if a.CSVAcctId != "" {
-			accountsByCSVId[a.CSVAcctId] = a
-		}
-	})
 
 	rules = ReadRules(strings.NewReader(`src 1
   account 0
@@ -78,10 +72,10 @@ bbb 3
   symbol "${symbol_ref}" activity Buy|Sell
   quantity "${quantity_ref}" activity Buy|Sell
 ---
-XXX Assets:Investments
+XXX Assets:Investments:XXX
   Expenses:Fees Fee|HST
   Income:Dividends DRIP
-  Assets:Investments Sold|Bought
+  Assets:Investments:XXX Sold|Bought
 BBB Assets:Investments:BBB
   Income:Interest Interest
   Income:Dividends Dividend
@@ -103,16 +97,16 @@ func Test_Sample1(t *testing.T) {
 	for i, exp := range []string{
 		// symbol=VXF, quantity=123.999, amount=1630.59
 		`2019/09/10 DRIP ; blah blah VALUE =      1630.59
-  Assets:Investments:VXF   123.999 VXF
-  Income:Dividends        -1630.59 USD
+  Assets:Investments:XXX:VXF   123.999 VXF
+  Income:Dividends            -1630.59 USD
 `,
 		`2019/10/10 Sold ; whatever
-  Assets:Investments       67689.08 USD
-  Assets:Investments:VXF  -5148.219 VXF
+  Assets:Investments:XXX:USD   67689.08 USD
+  Assets:Investments:XXX:VXF  -5148.219 VXF
 `,
 		`2019/10/30 Fee ; MGMT FEE
-  Expenses:Fees        12.40 USD
-  Assets:Investments  -12.40 USD
+  Expenses:Fees                12.40 USD
+  Assets:Investments:XXX:USD  -12.40 USD
 `,
 	} {
 		got := txs[i].String()

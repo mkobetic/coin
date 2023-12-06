@@ -11,9 +11,9 @@ Converts CSV files to coin transactions.
 * quantity - (optional) quantity of the commodity that was traded
 * note - (optional) note associated with the transaction
 
-Conversion of individual CSV records (lines) to these values is driven by import rules. Import rules are usually described in `$COINDB/csv.rules` file. Alternatively, if the values can be directly lifted from the full contents of specific fields of the CSV records, this mapping can be provided directly on the commandline as a list of field indexs through the `-fields` option. The order of indexes follows the order of values in the list above, e.g. `-fields=3,0,2,6,1,7,8` for an import that won't have notes.
+Conversion of individual CSV records (lines) to these values is driven by import rules. Import rules are usually described in `$COINDB/csv.rules` file. Alternatively, if the values can be directly lifted from the full contents of specific fields of the CSV records, this mapping can be provided directly on the command line as a list of field indexes through the `-fields` option. The order of indexes follows the order of values in the list above, e.g. `-fields=3,0,2,6,1,7,8` for an import that won't have notes.
 
-The transaction is composed with `account` being the "from" account. The "to" account will be produced by the rules or it is the Unbalanced account. If `symbol` and `quantity` are present the transaction will be posted as a conversion between the symbol commodity and the currency commodity. If commodity doesn't match the account a sub-account with the matching commodity will be substituted.
+The transaction is composed with `account` being the "from" account. The "to" account will be produced by the rules or it is the Unbalanced account. If `symbol` and `quantity` are present the transaction will be posted as a conversion between the symbol commodity and the currency commodity. If commodity doesn't match the account a sub-account with the matching commodity will be substituted on a first found basis (child accounts have priority), otherwise the account is set as Unbalanced.
 
 
 ## csv.rules
@@ -22,16 +22,11 @@ The file consists of two sections separated with a single line of 3 dashes (`---
 
 The first section describes known CSV sources and the value mappings for each. Different institutions structure their CSV exports differently, so each is likely to require a different source mapping, possibly several (e.g. if the export doesn't include the account ID, a separate source for each account will be required). Each source is given a name and the source to use for given import is selected via the `-source` option.
 
-The second section provides rules for picking the target accounts based on the transaction descriptions. It works exactly the same as described in [`ofx.rules`](https://github.com/mkobetic/coin/blob/master/cmd/ofx2coin/README.md#ofx.rules). When importing transactions for given account the tool will apply the rule group associated with that account. The account is matched through the account ID associated with the transaction. The same ID must also be associated with an account through the `csv_acctid` directive.
-
-```
-account Assets:Investments
-  csv_acctid XXX
-```
+The second section provides rules for picking the target accounts based on the transaction descriptions. It works exactly the same as described in [`ofx.rules`](https://github.com/mkobetic/coin/blob/master/cmd/ofx2coin/README.md#ofx.rules). When importing transactions for given account the tool will apply the rule group associated with that account. The account is matched through the account ID associated with the transaction.
 
 ### source mapping
 
-Each source description starts with a line naming the source and specifying the number of lines to skip before to get to the actual transaction records. The rest of the description consists of lines starting with whitespace and each line describing a rule for extracting a value from a record field or a rule for deriving a value from the other values. Each line starts with a value name. There should be a line for each of the required (non optional) values listed above. 
+Each source description starts with a line naming the source and specifying the number of lines to skip to get to the actual transaction records. The rest of the description consists of lines starting with whitespace and each line describing a rule for extracting a value from a record field or a rule for deriving a value from the other values. Each line starts with a value name. There should be a line for each of the required (non optional) values listed above. 
 
 #### extraction rules
 
