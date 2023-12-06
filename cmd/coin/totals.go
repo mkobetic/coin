@@ -15,11 +15,14 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
+// total represents an amount total for a time period.
 type total struct {
 	time.Time
 	*coin.Amount
 }
 
+// totals aggregates time series amounts for accounts.
+// It must be initialized with a reducer before use.
 type totals struct {
 	// this must be set before using
 	*reducer

@@ -23,12 +23,9 @@ Converts CSV files to coin transactions based on a set of rules (see README).
 Flags:`
 
 var (
-	fields      = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
-	source      = flag.String("source", "", "which source rules to use to read the files")
-	dumpAcctIDs = flag.Bool("ids", false, "dump accounts with known csv ids")
-	dumpRules   = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
-
-	accountsByCSVId = map[string]*coin.Account{}
+	fields    = flag.String("fields", "", "ordered list of column indexes to use as transaction fields")
+	source    = flag.String("source", "", "which source rules to use to read the files")
+	dumpRules = flag.Bool("rules", false, "dump the loaded account rules (useful for formatting)")
 )
 
 func init() {
@@ -45,21 +42,6 @@ func main() {
 	coin.LoadFile(coin.CommoditiesFile)
 	coin.LoadFile(coin.AccountsFile)
 	coin.ResolveAccounts()
-
-	coin.AccountsDo(func(a *coin.Account) {
-		if a.CSVAcctId != "" {
-			accountsByCSVId[a.CSVAcctId] = a
-		}
-	})
-
-	if *dumpAcctIDs {
-		coin.AccountsDo(func(a *coin.Account) {
-			if a.CSVAcctId != "" {
-				fmt.Printf("%s %s\n", a.CSVAcctId, a.FullName)
-			}
-		})
-		return
-	}
 
 	var rules *Rules
 	fn := filepath.Join(coin.DB, "csv.rules")
@@ -127,18 +109,17 @@ func readTransactions(in io.Reader, src *Source, rules *Rules) (transactions []*
 }
 
 // transactionFrom builds a transaction from a csv row.
-// columns list field indexes in the following order:
-// account_id, description, posted, amount, symbol, quantity, note
-func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin.Transaction {
+func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *coin.Transaction {
 	valueFor := func(name string) string {
 		check.Includes(labels, name, "Invalid field name")
 		return fields[name].Value(row, fields)
 	}
 	acctId := valueFor("account")
 	description := valueFor("description")
-	account, found := accountsByCSVId[acctId]
-	check.OK(found, "Can't find account with id %s", acctId)
-	toAccount := rules.AccountRulesFor(acctId).AccountFor(description)
+	rules := allRules.AccountRulesFor(acctId)
+	check.If(rules != nil, "Can't find rules for account id %s", acctId)
+	account := rules.Account
+	toAccount := rules.AccountFor(description)
 	if toAccount == nil {
 		toAccount = coin.Unbalanced
 	}
@@ -156,8 +137,9 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 
 	var amount *coin.Amount
 	if amt := valueFor("amount"); amt != "" {
-		commodity := account.Commodity
+		commodity := toAccount.Commodity
 		if currency := valueFor("currency"); currency != "" {
+			var found bool
 			commodity, found = coin.Commodities[currency]
 			if !found {
 				commodity, found = coin.CommoditiesBySymbol[currency]
@@ -167,14 +149,16 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 		amount = coin.MustParseAmount(amt, commodity)
 	}
 	check.If(amount != nil, "amount not found!")
-	fromAccount := findAccountForCommodity(amount.Commodity, account)
+	// refine toAccount based on the amount commodity
+	toAccount = findAccountForCommodity(amount.Commodity, toAccount)
 
 	symbol := valueFor("symbol")
 	if symbol == "" {
-		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
+		fromAccount := findAccountForCommodity(amount.Commodity, account)
 		t.Post(fromAccount, toAccount, amount, nil)
 		return t
 	}
+
 	commodity, found := coin.Commodities[symbol]
 	if !found {
 		commodity, found = coin.CommoditiesBySymbol[symbol]
@@ -187,7 +171,7 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 	}
 
 	if quantity == nil {
-		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
+		fromAccount := findAccountForCommodity(amount.Commodity, account)
 		t.Post(fromAccount, toAccount, amount, nil)
 		return t
 	}
@@ -198,42 +182,20 @@ func transactionFrom(row []string, fields map[string]Fields, rules *Rules) *coin
 		quantity = quantity.Negated()
 	}
 
-	if isInTheTreeOf(toAccount, account) {
-		toAccount = findAccountForCommodity(quantity.Commodity, toAccount)
-	} else {
-		fromAccount = findAccountForCommodity(quantity.Commodity, account)
-		toAccount = findAccountForCommodity(amount.Commodity, toAccount)
-		quantity, amount = amount, quantity
-	}
-
-	t.PostConversion(fromAccount, amount, nil, toAccount, quantity, nil)
+	// refine fromAccount based on the quantity commodity
+	fromAccount := findAccountForCommodity(quantity.Commodity, account)
+	t.PostConversion(fromAccount, quantity, nil, toAccount, amount, nil)
 	return t
 }
 
 func findAccountForCommodity(c *coin.Commodity, root *coin.Account) *coin.Account {
-	if root.Commodity == c {
-		return root
-	}
 	account := coin.Unbalanced
-	root.WithChildrenDo(func(a *coin.Account) {
-		if a.Commodity == c {
+	root.FirstWithChildrenDo(func(a *coin.Account) {
+		if a.Commodity == c && account == coin.Unbalanced {
 			account = a
 		}
 	})
 	return account
-}
-
-func isInTheTreeOf(child, parent *coin.Account) bool {
-	if child == parent {
-		return true
-	}
-	found := false
-	parent.WithChildrenDo(func(a *coin.Account) {
-		if a == child {
-			found = true
-		}
-	})
-	return found
 }
 
 var labels = []string{

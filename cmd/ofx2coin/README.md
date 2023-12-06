@@ -12,7 +12,7 @@ Converts OFX/QFX files into coin transactions
 
 ## ofx.rules
 
-The file contains groupes of rules, one rule per line. The groups are associated either with a specific account or with a label that can be used to include that group in other groups to allow sharing of rules between accounts.
+The file contains groups of rules, one rule per line. The groups are associated either with a specific account or with a label that can be used to include that group in other groups to allow sharing of rules between accounts.
 
 When importing transactions for given account the tool will apply the rule group associated with that account. The account is matched through the account ID associated with the transactions. The same ID must also be associated with an account through the `ofx_acctid` directive.
 
@@ -20,7 +20,7 @@ Each rule group starts with a line containing either a label, or an account ID a
 
 A group reference is simply a group name prefixed with `@`. Referencing a group includes all the rules of the referenced group in the referencing group.
 
-A rule is a full account name followed by a list of regular expressions separated with `|`. The rules and regular expressions are matched against transaction descriptions in the order in which they are listed. The search stops on the first match and the corresponing account is used as the transaction counterpart of the imported account.
+A rule is a full account name followed by a list of regular expressions separated with `|`. The rules and regular expressions are matched against transaction descriptions in the order in which they are listed. The search stops on the first match and the corresponding account is used as the transaction counterpart of the imported account.
 
 ```
 common
@@ -34,7 +34,7 @@ common
   Income:Salary       ACME PAY 
 ```
 
-## Sugested Import Procedure
+## Suggested Import Procedure
 
 * assuming we're working in the directory where the coin files are located
     `cd $COINDB`
