@@ -42,6 +42,7 @@ func (cmd *cmdTest) execute(f io.Writer) {
 		return
 	}
 	lastTestFile := file(coin.Tests[0])
+	success := true
 	for _, t := range coin.Tests {
 		var args []string
 		scanner := bufio.NewScanner(strings.NewReader(t.Cmd))
@@ -78,6 +79,7 @@ func (cmd *cmdTest) execute(f io.Writer) {
 			lastTestFile = testFile
 			continue
 		}
+		success = false
 		fmt.Fprintf(f, "FAIL %s %s\n", t.Location(), t.Cmd)
 		difflib.WriteUnifiedDiff(f,
 			difflib.UnifiedDiff{
@@ -89,7 +91,11 @@ func (cmd *cmdTest) execute(f io.Writer) {
 			})
 	}
 	if !cmd.verbose {
-		fmt.Fprintf(f, "OK %s\n", lastTestFile)
+		result := "OK"
+		if !success {
+			result = "FAIL"
+		}
+		fmt.Fprintf(f, "%s %s\n", result, lastTestFile)
 	}
 }
 

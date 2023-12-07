@@ -8,6 +8,7 @@ import (
 
 type Posting struct {
 	Notes []string
+	Tags  Tags
 
 	Transaction     *Transaction
 	Account         *Account
