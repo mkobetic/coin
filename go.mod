@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/aclindsa/ofxgo v0.1.3
-	github.com/piquette/finance-go v1.1.0
+	github.com/piquette/finance-go v1.1.1-0.20230807033903-430a57233430
 	github.com/pmezard/go-difflib v1.0.0
 )
 
