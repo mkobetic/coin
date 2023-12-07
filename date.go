@@ -28,7 +28,7 @@ func (d *Date) String() string {
 func (d *Date) Set(s string) (err error) {
 	match := DateREX.Match([]byte(s))
 	if match == nil {
-		return fmt.Errorf("Invalid date: %s", s)
+		return fmt.Errorf("invalid date: %s", s)
 	}
 	d.Time, err = parseDate(match, 0)
 	return err
@@ -59,7 +59,7 @@ func MustParseDate(s string) time.Time {
 
 func parseDate(match map[string]string, idx int) (t time.Time, err error) {
 	if idx > 0 {
-		return t, fmt.Errorf("Multiple date fields not implemented!")
+		return t, fmt.Errorf("multiple date fields not implemented!")
 	}
 	// Set date to today
 	y, m, d := Year, Month, Day

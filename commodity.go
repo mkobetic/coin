@@ -102,11 +102,11 @@ func (c *Commodity) Location() string {
 
 /*
 commodity USD
-   note American Dollars
-   format 1000.00 USD
-   nomarket
-   default
 
+	note American Dollars
+	format 1000.00 USD
+	nomarket
+	default
 */
 func (c *Commodity) Write(w io.Writer, ledger bool) error {
 	format := "1"
@@ -151,7 +151,7 @@ func (p *Parser) parseCommodity(fn string) (*Commodity, error) {
 		}
 		match = commodityBodyREX.Match(line)
 		if match == nil {
-			return c, fmt.Errorf("Unrecognized commodity line: %s", p.Text())
+			return c, fmt.Errorf("unrecognized commodity line: %s", p.Text())
 		}
 		if n := match["note"]; n != "" {
 			c.Name = n
@@ -216,7 +216,7 @@ func (c *Commodity) convert(amount *Amount, c2 *Commodity, previous []*Commodity
 		}
 	}
 	// Didn't find any path that leads to c
-	return nil, fmt.Errorf("Cannot convert %s => %s", c2.Id, c.Id)
+	return nil, fmt.Errorf("cannot convert %s => %s", c2.Id, c.Id)
 }
 
 func (c *Commodity) NewAmountFloat(f float64) *Amount {

@@ -40,7 +40,10 @@ type Split struct {
 
 func resolveSplits(splits []*Split, t *coin.Transaction) {
 	for _, gs := range splits {
-		s := &coin.Posting{Note: gs.Memo, Transaction: t}
+		s := &coin.Posting{Transaction: t}
+		if n := gs.Memo; len(n) > 0 {
+			s.Notes = []string{n}
+		}
 		t.Postings = append(t.Postings, s)
 		s.Account = mustFindAccount(gs.AccountGuid)
 		s.Account.Postings = append(s.Account.Postings, s)

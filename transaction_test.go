@@ -54,15 +54,16 @@ func Test_ParseTransactionNotes(t *testing.T) {
 2018/10/01 payee1 ; hello
   AA 10.00 CAD
     ; single-line split note
-  BB -10.00 CAD
+  BB -10.00 CAD; short note
 
 ; multi-line note
-2018/10/02 payee2
+2018/10/02 payee2 ; hello
   ; hello world
   ;   and again
   ;and again
   AA 50.00 CAD
-  BB 50.00 CAD
+  BB 50.00 CAD; hi
+    ; ho
   CC -100.00 CAD
 	; multi-line
   ; split
@@ -74,18 +75,20 @@ func Test_ParseTransactionNotes(t *testing.T) {
 	tr, ok := i.(*Transaction)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "payee1")
-	assert.Equal(t, tr.Note, "hello")
+	assert.EqualStrings(t, tr.Notes, "hello")
 	assert.Equal(t, len(tr.Postings), 2)
-	assert.Equal(t, tr.Postings[0].Note, "single-line split note")
+	assert.EqualStrings(t, tr.Postings[0].Notes, "single-line split note")
+	assert.EqualStrings(t, tr.Postings[1].Notes, "short note")
 
 	i, err = p.Next("")
 	assert.NoError(t, err)
 	tr, ok = i.(*Transaction)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "payee2")
-	assert.Equal(t, tr.Note, "hello world\n  and again\nand again")
+	assert.EqualStrings(t, tr.Notes, "hello", "hello world", "  and again", "and again")
 	assert.Equal(t, len(tr.Postings), 3)
-	assert.Equal(t, tr.Postings[2].Note, "multi-line\nsplit\nnote")
+	assert.EqualStrings(t, tr.Postings[1].Notes, "hi", "ho")
+	assert.EqualStrings(t, tr.Postings[2].Notes, "multi-line", "split", "note")
 }
 
 func Test_ParseTransactionCode(t *testing.T) {
@@ -101,7 +104,7 @@ func Test_ParseTransactionCode(t *testing.T) {
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "payee1")
 	assert.Equal(t, tr.Code, "code")
-	assert.Equal(t, tr.Note, "hello")
+	assert.EqualStrings(t, tr.Notes, "hello")
 	assert.Equal(t, len(tr.Postings), 2)
 }
 

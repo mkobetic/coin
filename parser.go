@@ -52,6 +52,6 @@ func (p *Parser) Next(fn string) (Item, error) {
 	case '0' <= line[0] && line[0] <= '9':
 		return p.parseTransaction(fn)
 	default:
-		return nil, fmt.Errorf("Unrecognized item: %s", line)
+		return nil, fmt.Errorf("unrecognized item: %s", line)
 	}
 }

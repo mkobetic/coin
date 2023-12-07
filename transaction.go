@@ -10,10 +10,14 @@ import (
 	"github.com/mkobetic/coin/rex"
 )
 
+// maximum length of the first transaction line with a short note
+// if over this length, the note will be moved to the next line
+const TRANSACTION_LINE_MAX = 80
+
 type Transaction struct {
 	Code        string
 	Description string
-	Note        string
+	Notes       []string
 	Postings    []*Posting
 
 	Posted time.Time
@@ -73,25 +77,22 @@ func (transactions TransactionsByTime) Day(day time.Time) TransactionsByTime {
 }
 
 func (t *Transaction) Write(w io.Writer, ledger bool) error {
-	var notes []string
-	if t.Note != "" {
-		notes = strings.Split(t.Note, "\n")
-	}
+	notes := t.Notes
 	line := t.Posted.Format(DateFormat) + " "
 	if t.Code != "" {
 		line += "(" + t.Code + ") "
 	}
 	line += t.Description
-	if len(notes) == 1 && len(notes[0])+len(line) < 80 {
+	if len(notes) > 0 && len(notes[0])+len(line) < TRANSACTION_LINE_MAX-3 {
 		line += " ; " + notes[0]
-		notes = nil
+		notes = notes[1:]
 	}
-	_, err := io.WriteString(w, line+"\n")
+	err := writeStrings(w, nil, line, "\n")
 	if err != nil {
 		return err
 	}
 	for _, n := range notes {
-		_, err := io.WriteString(w, "  ; "+n+"\n")
+		err := writeStrings(w, nil, "  ; ", n, "\n")
 		if err != nil {
 			return err
 		}
@@ -114,24 +115,26 @@ func (t *Transaction) Write(w io.Writer, ledger bool) error {
 	return nil
 }
 
-var transactionREX = rex.MustCompile(`%s(\s+\((?P<code>\w+)\))?(\s+(?P<description>\S[^;]*))?(; ?(?P<note>.*))?`, DateREX)
+var transactionREX = rex.MustCompile(`%s(\s+\((?P<code>\w+)\))?(\s+(?P<description>\S[^;]*))?(; ?(?P<shortNote>.*))?`, DateREX)
 var postingREX = rex.MustCompile(``+
-	`\s+%s(\s+%s(\s+=\s+%s)?)?|`+
+	`\s+%s(\s+%s(\s+=\s+%s)?)?(\s*; ?(?P<shortNote>.*))?|`+
 	`\s+; ?(?P<note>.*)`,
 	AccountREX, AmountREX, AmountREX)
 
 func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 	match := transactionREX.Match(p.Bytes())
 	if match == nil {
-		return nil, fmt.Errorf("Invalid transaction line: %s", p.Text())
+		return nil, fmt.Errorf("invalid transaction line: %s", p.Text())
 	}
 	t := &Transaction{
 		Posted:      mustParseDate(match, 0),
 		Code:        match["code"],
 		Description: strings.TrimRight(match["description"], " \t"),
-		Note:        strings.TrimLeft(match["note"], " \t"),
 		line:        p.lineNr,
 		file:        fn,
+	}
+	if n := strings.TrimLeft(match["shortNote"], " \t"); len(n) > 0 {
+		t.Notes = []string{n}
 	}
 	var notes []string
 	var s *Posting
@@ -155,9 +158,9 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 		}
 		if len(notes) > 0 {
 			if s == nil {
-				t.Note = strings.Join(notes, "\n")
+				t.Notes = append(t.Notes, notes...)
 			} else {
-				s.Note = strings.Join(notes, "\n")
+				s.Notes = append(s.Notes, notes...)
 			}
 			notes = nil
 		}
@@ -165,6 +168,9 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 			Transaction: t,
 			accountName: match["account"],
 			Quantity:    quantity,
+		}
+		if n := strings.TrimLeft(match["shortNote"], " \t"); len(n) > 0 {
+			s.Notes = []string{n}
 		}
 		if balance := match["amount2"]; len(balance) > 0 {
 			c := MustFindCommodity(match["commodity2"], t.Location())
@@ -177,7 +183,7 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 		t.Postings = append(t.Postings, s)
 	}
 	if len(notes) > 0 {
-		s.Note = strings.Join(notes, "\n")
+		s.Notes = append(s.Notes, notes...)
 	}
 	return t, p.Err()
 }
@@ -268,4 +274,17 @@ func (t *Transaction) drop() {
 		p.drop()
 	}
 	t.Postings = nil
+}
+
+func writeStrings(w io.Writer, err error, ss ...string) error {
+	if err != nil {
+		return err
+	}
+	for _, s := range ss {
+		_, err = io.WriteString(w, s)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

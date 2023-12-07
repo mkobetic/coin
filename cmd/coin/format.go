@@ -68,8 +68,8 @@ func (cmd *cmdFormat) execute(f io.Writer) {
 func (cmd *cmdFormat) writeTransactions(f io.Writer) {
 	for _, t := range coin.Transactions {
 		if cmd.trimWS {
-			t.Description = trimWS(t.Description)
-			t.Note = trimWS(t.Note)
+			t.Description = trimWS(t.Description)[0]
+			t.Notes = trimWS(t.Notes...)
 		}
 		t.Write(f, cmd.ledger)
 		fmt.Fprintln(f)

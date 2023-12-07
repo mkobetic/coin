@@ -195,7 +195,7 @@ func ScanRules(line []byte, s *bufio.Scanner) (*RuleIndex, error) {
 				} else {
 					r := ri.SetsByName[string(match[4])]
 					if r == nil {
-						panic(fmt.Errorf("Invalid rule set ref: %s", string(match[4])))
+						panic(fmt.Errorf("invalid rule set ref: %s", string(match[4])))
 					}
 					rules = append(rules, r)
 				}

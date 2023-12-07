@@ -68,8 +68,8 @@ func resolveTransactions(transactions []*Transaction) {
 			Code:        gt.Num,
 			Description: ds[0],
 		}
-		if len(ds) == 2 {
-			t.Note = ds[1]
+		if len(ds) == 2 && len(ds[1]) > 0 {
+			t.Notes = []string{ds[1]}
 		}
 		t.Posted = mustParseTimeStamp(gt.PostedStamp)
 		resolveSplits(gt.Splits, t)

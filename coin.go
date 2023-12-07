@@ -55,7 +55,7 @@ func MustFindCommodity(id string, location string) *Commodity {
 	if c := Commodities[id]; c != nil {
 		return c
 	}
-	panic(fmt.Errorf("Can't find commodity %s\n\t%s\n", id, location))
+	panic(fmt.Errorf("cannot find commodity %s\n\t%s\n", id, location))
 }
 
 func LoadPrices() {
@@ -280,7 +280,7 @@ func MustFindAccount(pattern string) *Account {
 	}
 	as := FindAccounts(pattern)
 	if len(as) == 0 {
-		panic(fmt.Errorf("Can't find account %s", pattern))
+		panic(fmt.Errorf("cannot find account %s", pattern))
 	}
 	if len(as) == 1 {
 		return as[0]

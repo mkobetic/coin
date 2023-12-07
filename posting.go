@@ -7,7 +7,7 @@ import (
 )
 
 type Posting struct {
-	Note string
+	Notes []string
 
 	Transaction     *Transaction
 	Account         *Account
@@ -19,35 +19,31 @@ type Posting struct {
 }
 
 func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger bool) error {
+	notes := s.Notes
 	commodity := s.Quantity.Commodity
-	_, err := fmt.Fprintf(w, "%*s%-*s  %*.*f %s",
+	line := fmt.Sprintf("%*s%-*s  %*.*f %s",
 		accountOffset, "",
 		accountWidth, s.Account.FullName,
 		amountWidth, commodity.Decimals, s.Quantity, commodity.SafeId(ledger))
+	if s.BalanceAsserted {
+		commodity = s.Balance.Commodity
+		line += fmt.Sprintf(" = %.*f %s", commodity.Decimals, s.Balance, commodity.SafeId(ledger))
+	}
+	if len(notes) > 0 && len(notes[0])+len(line) < TRANSACTION_LINE_MAX-3 {
+		line += " ; " + notes[0]
+		notes = notes[1:]
+	}
+	err := writeStrings(w, nil, line, "\n")
 	if err != nil {
 		return err
 	}
-	if s.BalanceAsserted {
-		if _, err = io.WriteString(w, " = "); err != nil {
+	for _, n := range notes {
+		err := writeStrings(w, nil, "    ; ", n, "\n")
+		if err != nil {
 			return err
 		}
-		if err = s.Balance.Write(w, ledger); err != nil {
-			return err
-		}
 	}
-	if _, err = io.WriteString(w, "\n"); err != nil {
-		return err
-	}
-	if s.Note != "" {
-		for _, n := range strings.Split(s.Note, "\n") {
-			_, err := io.WriteString(w, "    ; "+n+"\n")
-			if err != nil {
-				return err
-			}
-		}
-
-	}
-	return err
+	return nil
 }
 
 func (s *Posting) String() string {

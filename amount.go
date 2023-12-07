@@ -85,7 +85,7 @@ func parseAmount(s string, c *Commodity) (*Amount, error) {
 		return NewAmount(bi, c), nil
 	}
 	if len(ss) != 2 {
-		return nil, fmt.Errorf("Malformed value %s", s)
+		return nil, fmt.Errorf("malformed value %s", s)
 	}
 	s = strings.Join(ss, "")
 	i, err := strconv.ParseInt(s, 10, 64)
