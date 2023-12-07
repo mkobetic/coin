@@ -81,7 +81,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
-		if opts.showNotes && (len(s.Note) > 0 || len(s.Transaction.Note) > 0) {
+		if opts.showNotes && (len(s.Notes) > 0 || len(s.Transaction.Notes) > 0) {
 			printNotes(f, strings.Repeat(" ", len(args[0].(string)))+" ;", s)
 		}
 	}
@@ -124,24 +124,16 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 			args = append(args, trimLocation(s.Transaction.Location()))
 		}
 		fmt.Fprintf(f, fmtString, args...)
-		if opts.showNotes && (len(s.Note) > 0 || len(s.Transaction.Note) > 0) {
+		if opts.showNotes && (len(s.Notes) > 0 || len(s.Transaction.Notes) > 0) {
 			printNotes(f, strings.Repeat(" ", len(args[0].(string)))+" ;", s)
 		}
 	}
 }
 
 func printNotes(w io.Writer, prefix string, p *coin.Posting) {
-	var notes string
-	if len(p.Note) > 0 {
-		notes = p.Note
+	for _, line := range append(p.Notes, p.Transaction.Notes...) {
+		fmt.Fprintln(w, prefix, line)
 	}
-	if len(p.Transaction.Note) > 0 {
-		if len(notes) > 0 {
-			notes += "\n"
-		}
-		notes += p.Transaction.Note
-	}
-	printLines(w, prefix, notes)
 }
 
 type options struct {

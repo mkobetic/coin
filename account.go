@@ -121,7 +121,7 @@ func (p *Parser) parseAccount(fn string) (*Account, error) {
 		}
 		match = accountBodyREX.Match(line)
 		if match == nil {
-			return a, fmt.Errorf("Unrecognized account line: %s", p.Text())
+			return a, fmt.Errorf("unrecognized account line: %s", p.Text())
 		}
 		if n := match["note"]; n != "" {
 			a.Description = n

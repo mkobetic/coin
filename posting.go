@@ -7,7 +7,7 @@ import (
 )
 
 type Posting struct {
-	Note string
+	Notes []string
 
 	Transaction     *Transaction
 	Account         *Account
@@ -19,10 +19,7 @@ type Posting struct {
 }
 
 func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger bool) error {
-	var notes []string
-	if s.Note != "" {
-		notes = strings.Split(s.Note, "\n")
-	}
+	notes := s.Notes
 	commodity := s.Quantity.Commodity
 	line := fmt.Sprintf("%*s%-*s  %*.*f %s",
 		accountOffset, "",

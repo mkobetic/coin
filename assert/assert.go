@@ -15,6 +15,21 @@ func Equal(t *testing.T, actual, expected interface{}, args ...interface{}) bool
 	return false
 }
 
+func EqualStrings(t *testing.T, actual []string, expected ...string) bool {
+	t.Helper()
+	if len(actual) != len(expected) {
+		t.Errorf("length difference, expected: %d actual: %d\n", len(expected), len(actual))
+		return false
+	}
+	for i, v := range actual {
+		if v != expected[i] {
+			t.Errorf("element %d difference, expected: %s actual: %s\n", i, expected[i], v)
+			return false
+		}
+	}
+	return true
+}
+
 func NotNil(t *testing.T, v interface{}, args ...interface{}) bool {
 	t.Helper()
 	if v != nil {

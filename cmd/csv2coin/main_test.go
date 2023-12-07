@@ -96,7 +96,7 @@ func Test_Sample1(t *testing.T) {
 	txs := readTransactions(r, rules.sources["src"], rules)
 	for i, exp := range []string{
 		// symbol=VXF, quantity=123.999, amount=1630.59
-		`2019/09/10 DRIP ; blah blah VALUE =      1630.59
+		`2019/09/10 DRIP ; blah blah VALUE = 1630.59
   Assets:Investments:XXX:VXF   123.999 VXF
   Income:Dividends            -1630.59 USD
 `,

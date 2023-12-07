@@ -42,7 +42,7 @@ var priceREX = rex.MustCompile(`P %s\s+%s\s+%s`, DateREX, CommodityREX, AmountRE
 func (p *Parser) parsePrice(fn string) (*Price, error) {
 	match := priceREX.Match(p.Bytes())
 	if match == nil {
-		return nil, fmt.Errorf("Invalid price line")
+		return nil, fmt.Errorf("invalid price line")
 	}
 	date := mustParseDate(match, 0)
 	currencyId := string(match["commodity2"])

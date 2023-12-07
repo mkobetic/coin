@@ -115,7 +115,7 @@ func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *c
 		return fields[name].Value(row, fields)
 	}
 	acctId := valueFor("account")
-	description := valueFor("description")
+	description := trim(valueFor("description"))
 	rules := allRules.AccountRulesFor(acctId)
 	check.If(rules != nil, "Can't find rules for account id %s", acctId)
 	account := rules.Account
@@ -133,7 +133,9 @@ func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *c
 		Posted:      posted,
 	}
 
-	t.Note = valueFor("note")
+	if n := trim(valueFor("note")); len(n) > 0 {
+		t.Notes = []string{n}
+	}
 
 	var amount *coin.Amount
 	if amt := valueFor("amount"); amt != "" {

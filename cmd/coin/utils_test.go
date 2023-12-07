@@ -8,11 +8,11 @@ import (
 
 func Test_TrimWS(t *testing.T) {
 	for _, tc := range []struct {
-		in, out string
+		in, out []string
 	}{
-		{"   a  bb \n	ddd \n  ", "a bb\nddd\n"},
-		{"xx[ 7   ]\n      !yyy", "xx[ 7 ]\n!yyy"},
+		{[]string{"   a  bb ", "	ddd ", "  "}, []string{"a bb", "ddd", ""}},
+		{[]string{"xx[ 7   ]", "      !yyy"}, []string{"xx[ 7 ]", "!yyy"}},
 	} {
-		assert.Equal(t, trimWS(tc.in), tc.out)
+		assert.EqualStrings(t, trimWS(tc.in...), tc.out...)
 	}
 }

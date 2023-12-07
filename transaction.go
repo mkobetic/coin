@@ -17,7 +17,7 @@ const TRANSACTION_LINE_MAX = 80
 type Transaction struct {
 	Code        string
 	Description string
-	Note        string
+	Notes       []string
 	Postings    []*Posting
 
 	Posted time.Time
@@ -77,10 +77,7 @@ func (transactions TransactionsByTime) Day(day time.Time) TransactionsByTime {
 }
 
 func (t *Transaction) Write(w io.Writer, ledger bool) error {
-	var notes []string
-	if t.Note != "" {
-		notes = strings.Split(t.Note, "\n")
-	}
+	notes := t.Notes
 	line := t.Posted.Format(DateFormat) + " "
 	if t.Code != "" {
 		line += "(" + t.Code + ") "
@@ -127,15 +124,17 @@ var postingREX = rex.MustCompile(``+
 func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 	match := transactionREX.Match(p.Bytes())
 	if match == nil {
-		return nil, fmt.Errorf("Invalid transaction line: %s", p.Text())
+		return nil, fmt.Errorf("invalid transaction line: %s", p.Text())
 	}
 	t := &Transaction{
 		Posted:      mustParseDate(match, 0),
 		Code:        match["code"],
 		Description: strings.TrimRight(match["description"], " \t"),
-		Note:        strings.TrimLeft(match["shortNote"], " \t"),
 		line:        p.lineNr,
 		file:        fn,
+	}
+	if n := strings.TrimLeft(match["shortNote"], " \t"); len(n) > 0 {
+		t.Notes = []string{n}
 	}
 	var notes []string
 	var s *Posting
@@ -159,9 +158,9 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 		}
 		if len(notes) > 0 {
 			if s == nil {
-				t.Note = collectNotes(t.Note, notes)
+				t.Notes = append(t.Notes, notes...)
 			} else {
-				s.Note = collectNotes(s.Note, notes)
+				s.Notes = append(s.Notes, notes...)
 			}
 			notes = nil
 		}
@@ -169,7 +168,9 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 			Transaction: t,
 			accountName: match["account"],
 			Quantity:    quantity,
-			Note:        strings.TrimLeft(match["shortNote"], " \t"),
+		}
+		if n := strings.TrimLeft(match["shortNote"], " \t"); len(n) > 0 {
+			s.Notes = []string{n}
 		}
 		if balance := match["amount2"]; len(balance) > 0 {
 			c := MustFindCommodity(match["commodity2"], t.Location())
@@ -182,7 +183,7 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 		t.Postings = append(t.Postings, s)
 	}
 	if len(notes) > 0 {
-		s.Note = collectNotes(s.Note, notes)
+		s.Notes = append(s.Notes, notes...)
 	}
 	return t, p.Err()
 }
@@ -273,13 +274,6 @@ func (t *Transaction) drop() {
 		p.drop()
 	}
 	t.Postings = nil
-}
-
-func collectNotes(note string, lines []string) string {
-	if len(note) > 0 && note[len(note)-1] != '\n' {
-		note += "\n"
-	}
-	return note + strings.Join(lines, "\n")
 }
 
 func writeStrings(w io.Writer, err error, ss ...string) error {
