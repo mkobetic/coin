@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 
 	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/check"
@@ -20,11 +21,16 @@ type cmdModify struct {
 	// flags
 	fPayee      string
 	fAccount    string
+	fTTag       string
+	fPTag       string
 	fSetAccount string
+	fSetTTag    string
+	fSetPTag    string
 
 	// internal
-	from, to *coin.Account
-	payee    *regexp.Regexp
+	from, to          *coin.Account
+	payee, ttag, ptag *regexp.Regexp
+	setTTag, setPTag  string
 }
 
 func (*cmdModify) newCommand(names ...string) command {
@@ -34,8 +40,12 @@ func (*cmdModify) newCommand(names ...string) command {
 
 Modify transactions or postings in specified files. Rewrites the files in place.`)
 	cmd.StringVar(&cmd.fPayee, "p", "", "modify transactions with matching payee (regex)")
+	cmd.StringVar(&cmd.fTTag, "tt", "", "modify transactions with matching tag (regex)")
+	cmd.StringVar(&cmd.fPTag, "pt", "", "modify posting with matching tag (regex)")
 	cmd.StringVar(&cmd.fAccount, "a", "", "modify transaction or posting associated with given account")
 	cmd.StringVar(&cmd.fSetAccount, "a:", "", "move posting matching -a to given account")
+	cmd.StringVar(&cmd.fSetPTag, "pt:", "", "add tag to posting matching -a")
+	cmd.StringVar(&cmd.fSetTTag, "tt:", "", "add tag to transaction")
 	return &cmd
 }
 
@@ -54,6 +64,18 @@ func (cmd *cmdModify) execute(f io.Writer) {
 	}
 	if len(cmd.fPayee) > 0 {
 		cmd.payee = regexp.MustCompile(cmd.fPayee)
+	}
+	if len(cmd.fTTag) > 0 {
+		cmd.ttag = regexp.MustCompile(cmd.fTTag)
+	}
+	if len(cmd.fPTag) > 0 {
+		cmd.ptag = regexp.MustCompile(cmd.fPTag)
+	}
+	if len(cmd.fSetPTag) > 0 {
+		cmd.setPTag = mustParseTags(cmd.fSetPTag)
+	}
+	if len(cmd.fSetTTag) > 0 {
+		cmd.setTTag = mustParseTags(cmd.fSetTTag)
 	}
 	if cmd.NArg() == 0 { // for testing
 		for _, t := range coin.Transactions {
@@ -87,20 +109,64 @@ func (cmd *cmdModify) execute(f io.Writer) {
 
 func (cmd *cmdModify) modify(t *coin.Transaction) (modified bool) {
 	if cmd.payee != nil && !cmd.payee.Match([]byte(t.Description)) {
-		return modified
+		return false
+	}
+	if cmd.ttag != nil && !t.Tags.Has(cmd.ttag) {
+		return false
 	}
 	var hasPostingsMatchingAccount bool
 	for _, p := range t.Postings {
 		if p.Account == cmd.from {
 			hasPostingsMatchingAccount = true
-			if cmd.to != nil {
-				p.MoveTo(cmd.to)
-				modified = true
-			}
+			modified = modified || cmd.modifyPosting(p)
+		}
+		if cmd.ptag != nil && p.Tags.Has(cmd.ptag) {
+			modified = modified || cmd.modifyPosting(p)
 		}
 	}
+
 	if cmd.from != nil && !hasPostingsMatchingAccount {
 		return modified
 	}
+	if len(cmd.setTTag) > 0 {
+		t.Notes = addTagLine(t.Notes, cmd.setTTag)
+	}
 	return modified
+}
+
+func (cmd *cmdModify) modifyPosting(p *coin.Posting) (modified bool) {
+	if cmd.to != nil {
+		p.MoveTo(cmd.to)
+		modified = true
+	}
+	if len(cmd.setPTag) > 0 {
+		p.Notes = addTagLine(p.Notes, cmd.setPTag)
+		modified = true
+	}
+	return modified
+}
+
+func mustParseTags(val string) string {
+	tags := coin.ParseTags(val)
+	check.If(len(tags) > 0, "cannot parse tag value %s", val)
+	var parts []string
+	for _, k := range tags.Keys() {
+		v := tags[k]
+		if len(v) > 0 {
+			v = ":" + v
+		}
+		parts = append(parts, fmt.Sprintf("#%s%s", k, v))
+	}
+	return strings.Join(parts, ", ")
+}
+
+func addTagLine(notes []string, tagLine string) []string {
+	if len(notes) == 0 {
+		return append(notes, tagLine)
+	}
+	if len(notes[0])+len(tagLine) < coin.TRANSACTION_LINE_MAX {
+		notes[0] += " " + tagLine
+		return notes
+	}
+	return append(notes, tagLine)
 }

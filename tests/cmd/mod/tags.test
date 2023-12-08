@@ -1,0 +1,24 @@
+commodity CAD
+  format 1.00 CAD
+account AAA
+account BBB
+account CCC
+
+2020 bob ; #two
+  AAA 1 CAD
+  BBB
+
+2020 joe
+  AAA 2 CAD; hi
+  BBB ; #one: and only
+
+test mod -tt two -a BBB -pt: #bar:baz
+2020/01/01 bob ; #two
+  AAA   1.00 CAD
+  BBB  -1.00 CAD ; #bar:baz
+
+2020/01/01 joe
+  AAA   2.00 CAD ; hi
+  BBB  -2.00 CAD ; #one: and only
+
+end test

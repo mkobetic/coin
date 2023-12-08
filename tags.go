@@ -1,6 +1,9 @@
 package coin
 
-import "regexp"
+import (
+	"regexp"
+	"sort"
+)
 
 var tagREX = regexp.MustCompile(`#(?P<key>\w+)(:\s*(?P<value>[^,]+\S)\s*(,|$))?`)
 var tagREXKey = tagREX.SubexpIndex("key")
@@ -8,7 +11,7 @@ var tagREXValue = tagREX.SubexpIndex("value")
 
 type Tags map[string]string
 
-func parseTags(lines []string) Tags {
+func ParseTags(lines ...string) Tags {
 	tags := make(Tags)
 	for _, line := range lines {
 		for _, match := range tagREX.FindAllStringSubmatch(line, -1) {
@@ -20,6 +23,18 @@ func parseTags(lines []string) Tags {
 		return nil
 	}
 	return tags
+}
+
+func (t Tags) Has(rex *regexp.Regexp) bool {
+	if t == nil {
+		return false
+	}
+	for k := range t {
+		if rex.MatchString(k) {
+			return true
+		}
+	}
+	return false
 }
 
 func (t Tags) Includes(key string) bool {
@@ -35,4 +50,12 @@ func (t Tags) Value(key string) string {
 		return ""
 	}
 	return t[key]
+}
+
+func (t Tags) Keys() (keys []string) {
+	for k := range t {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

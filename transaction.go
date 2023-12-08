@@ -186,9 +186,9 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 	if len(notes) > 0 {
 		s.Notes = append(s.Notes, notes...)
 	}
-	t.Tags = parseTags(t.Notes)
+	t.Tags = ParseTags(t.Notes...)
 	for _, p := range t.Postings {
-		p.Tags = parseTags(p.Notes)
+		p.Tags = ParseTags(p.Notes...)
 	}
 	return t, p.Err()
 }

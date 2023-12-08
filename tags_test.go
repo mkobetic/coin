@@ -30,7 +30,7 @@ func Test_ParseTags(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%d %s", i, test.line), func(t *testing.T) {
-			tags := parseTags([]string{test.line})
+			tags := ParseTags(test.line)
 			out := fmt.Sprintf("%v", tags)
 			assert.Equal(t, test.tags, out)
 		})
