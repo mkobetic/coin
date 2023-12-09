@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"regexp"
 
 	"github.com/mkobetic/coin"
 	"github.com/mkobetic/coin/check"
@@ -15,6 +16,8 @@ func init() {
 type cmdBalance struct {
 	flagsWithUsage
 	begin, end  coin.Date
+	payee       string
+	tag         string
 	zeroBalance bool
 	level       int
 }
@@ -27,6 +30,8 @@ func (*cmdBalance) newCommand(names ...string) command {
 Lists balances for account and its subaccounts (default: Root).`)
 	cmd.Var(&cmd.begin, "b", "begin balance from this date")
 	cmd.Var(&cmd.end, "e", "end balance on this date")
+	cmd.StringVar(&cmd.payee, "p", "", "use only postings matching the payee (regex)")
+	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] (regex)")
 	cmd.BoolVar(&cmd.zeroBalance, "z", false, "list accounts with zero total balance")
 	cmd.IntVar(&cmd.level, "l", 0, "print accounts up to this level, 0 means all")
 	return &cmd
@@ -45,7 +50,7 @@ func (cmd *cmdBalance) execute(f io.Writer) {
 	cumulative := make(balances)
 	account.WithChildrenDo(func(a *coin.Account) {
 		total := coin.NewZeroAmount(a.Commodity)
-		for _, p := range trim(a.Postings, cmd.begin, cmd.end) {
+		for _, p := range cmd.trim(a.Postings) {
 			err := total.AddIn(p.Quantity)
 			check.NoError(err, "adding posting for %s: %s\n", a.FullName, p.Transaction.Location())
 		}
@@ -75,6 +80,31 @@ func (cmd *cmdBalance) print(f io.Writer, acc *coin.Account, totals, cumulative 
 				width, tot, cumWidth, cum, curWidth, a.CommodityId, a.FullName)
 		}
 	})
+}
+
+func (cmd *cmdBalance) trim(ps []*coin.Posting) postings {
+	ps = trim(ps, cmd.begin, cmd.end)
+	if len(cmd.payee) > 0 {
+		var pps []*coin.Posting
+		r := regexp.MustCompile(cmd.payee)
+		for _, p := range ps {
+			if r.MatchString(p.Transaction.Description) {
+				pps = append(pps, p)
+			}
+		}
+		ps = pps
+	}
+	if len(cmd.tag) > 0 {
+		var pps []*coin.Posting
+		r := coin.NewTagMatcher(cmd.tag)
+		for _, p := range ps {
+			if r.Match(p.Tags) || r.Match(p.Transaction.Tags) {
+				pps = append(pps, p)
+			}
+		}
+		ps = pps
+	}
+	return postings(ps)
 }
 
 type balances map[*coin.Account]*coin.Amount

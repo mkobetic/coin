@@ -1,4 +1,4 @@
-**NB:** This is still a work in progress, a lot of information is missing and is filled in gradually.
+**NB:** This is still a work in progress, a lot of information is missing and is filled in gradually. There isn't much in terms of user documentation, but most features follow the same pattern as ledger-cli. You can learn most things from ledger-cli's excellent documentation.
 
 Coin is a heavily simplified offshoot of [ledger-cli.org](https://www.ledger-cli.org/). The idea of [plain text accounting](https://plaintextaccounting.org/) is brilliant, and ledger implements it beautifully. However ledger makes certain fundamental tradeoffs that have implications that some may find undesirable. For example its extreme flexibility in how amounts and commodities can be written (prefix/postfix/symbolic etc) forces commodities that include numbers to be quoted. That gets annoying when your ledger includes a lot of mutual fund names. Coin sacrifices this flexibility to avoid quoting.
 
@@ -105,10 +105,14 @@ For example the following expressions could match account `Assets:Investments:Br
 
 * only date, code, description/payee, and note/comment is recognized in transaction header
 * only account, quantity and optional balance is recognized in any transaction posting
-* posting note/comment is supported as well 
-
+* posting note/comment is supported as well
+* any combination of 'short notes' (appended at the end of the transaction or posting line)
+  and 'long notes' on separate lines following the transaction or posting line is possible
+* tags are parsed out of notes, simple tag #key or value tags #key: some value, are supported
 
 ## Implementation Notes
 
 * Amount is implemented as big.Int plus number of decimal places. Computations are truncated to the specified number of decimal places at every step.
 * Amount always includes Commodity
+* Everything is loaded into memory on start, so there is a theoretical limit on the total size of data.
+* Trying to keep dependencies to a minimum
