@@ -28,18 +28,6 @@ func ParseTags(lines ...string) Tags {
 	return tags
 }
 
-func (t Tags) Has(rex *regexp.Regexp) bool {
-	if t == nil {
-		return false
-	}
-	for k := range t {
-		if rex.MatchString(k) {
-			return true
-		}
-	}
-	return false
-}
-
 func (t Tags) Includes(key string) bool {
 	if t == nil {
 		return false

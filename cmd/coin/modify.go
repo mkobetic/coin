@@ -28,9 +28,10 @@ type cmdModify struct {
 	fSetPTag    string
 
 	// internal
-	from, to          *coin.Account
-	payee, ttag, ptag *regexp.Regexp
-	setTTag, setPTag  string
+	from, to         *coin.Account
+	payee            *regexp.Regexp
+	ttag, ptag       *coin.TagMatcher
+	setTTag, setPTag string
 }
 
 func (*cmdModify) newCommand(names ...string) command {
@@ -66,10 +67,10 @@ func (cmd *cmdModify) execute(f io.Writer) {
 		cmd.payee = regexp.MustCompile(cmd.fPayee)
 	}
 	if len(cmd.fTTag) > 0 {
-		cmd.ttag = regexp.MustCompile(cmd.fTTag)
+		cmd.ttag = coin.NewTagMatcher(cmd.fTTag)
 	}
 	if len(cmd.fPTag) > 0 {
-		cmd.ptag = regexp.MustCompile(cmd.fPTag)
+		cmd.ptag = coin.NewTagMatcher(cmd.fPTag)
 	}
 	if len(cmd.fSetPTag) > 0 {
 		cmd.setPTag = mustParseTags(cmd.fSetPTag)
@@ -111,7 +112,7 @@ func (cmd *cmdModify) modify(t *coin.Transaction) (modified bool) {
 	if cmd.payee != nil && !cmd.payee.Match([]byte(t.Description)) {
 		return false
 	}
-	if cmd.ttag != nil && !t.Tags.Has(cmd.ttag) {
+	if cmd.ttag != nil && !cmd.ttag.Match(t.Tags) {
 		return false
 	}
 	var hasPostingsMatchingAccount bool
@@ -120,7 +121,7 @@ func (cmd *cmdModify) modify(t *coin.Transaction) (modified bool) {
 			hasPostingsMatchingAccount = true
 			modified = modified || cmd.modifyPosting(p)
 		}
-		if cmd.ptag != nil && p.Tags.Has(cmd.ptag) {
+		if cmd.ptag != nil && cmd.ptag.Match(p.Tags) {
 			modified = modified || cmd.modifyPosting(p)
 		}
 	}
