@@ -4,6 +4,7 @@ Coin is a heavily simplified offshoot of [ledger-cli.org](https://www.ledger-cli
 
 Coin is written with the intent of maintaining a ledger split across number of files. This makes it easier to navigate a larger ledger with common editors and is more friendly with version control systems (e.g. git) which are also designed to manage multiple files.
 
+![coin example in vscode](https://github.com/mkobetic/coin/assets/871693/a9998caf-7bd5-4d04-9990-0f319e06ff87)
 
 ## COINDB
 
