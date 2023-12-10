@@ -30,6 +30,7 @@ type cmdRegister struct {
 	output            string
 	showNotes         bool
 	payee             string
+	tag               string
 }
 
 func (*cmdRegister) newCommand(names ...string) command {
@@ -40,15 +41,17 @@ func (*cmdRegister) newCommand(names ...string) command {
 Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.verbose, "v", false, "log debug info to stderr")
 	cmd.BoolVar(&cmd.recurse, "r", false, "include subaccount postings in parent accounts")
+	// filtering options
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
 	cmd.StringVar(&cmd.payee, "p", "", "use only postings matching the payee (regex)")
+	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] (regex)")
 	// aggregation options
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
 	cmd.BoolVar(&cmd.quarterly, "q", false, "aggregate postings by quarter")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
-	cmd.IntVar(&cmd.top, "t", 5, "include this many largest subaccounts in aggregate results")
+	cmd.IntVar(&cmd.top, "g", 5, "include this many largest subaccounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
 	// output options
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
@@ -194,6 +197,16 @@ func (cmd *cmdRegister) trim(ps []*coin.Posting) postings {
 		r := regexp.MustCompile(cmd.payee)
 		for _, p := range ps {
 			if r.MatchString(p.Transaction.Description) {
+				pps = append(pps, p)
+			}
+		}
+		ps = pps
+	}
+	if len(cmd.tag) > 0 {
+		var pps []*coin.Posting
+		r := coin.NewTagMatcher(cmd.tag)
+		for _, p := range ps {
+			if r.Match(p.Tags) || r.Match(p.Transaction.Tags) {
 				pps = append(pps, p)
 			}
 		}

@@ -1,0 +1,25 @@
+commodity CAD
+  format 1.00 CAD
+account AAA
+account BBB
+account CCC
+
+2020 bob #none ; one #two
+  AAA 1 CAD
+  BBB ; #two
+
+2020 joe ; #three:     a ok
+  AAA 2 CAD; hi
+    ; ho #three: nope, whatever
+  BBB ; #one: and only
+
+test tags
+one:
+three:
+two
+end test
+
+test tags -v t
+three: "a ok", "nope"
+two
+end test

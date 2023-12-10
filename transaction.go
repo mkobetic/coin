@@ -19,6 +19,7 @@ type Transaction struct {
 	Description string
 	Notes       []string
 	Postings    []*Posting
+	Tags        Tags
 
 	Posted time.Time
 
@@ -184,6 +185,10 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 	}
 	if len(notes) > 0 {
 		s.Notes = append(s.Notes, notes...)
+	}
+	t.Tags = ParseTags(t.Notes...)
+	for _, p := range t.Postings {
+		p.Tags = ParseTags(p.Notes...)
 	}
 	return t, p.Err()
 }

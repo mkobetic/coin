@@ -38,7 +38,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/coin",
-            "args": ["test", "${file}"],
+            "args": ["test", "-v", "${file}"],
         }
     ]
 }

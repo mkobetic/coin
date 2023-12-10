@@ -1,0 +1,34 @@
+commodity CAD
+  format 1.00 CAD
+account AAA
+account BBB
+account CCC
+
+2020 bob ; #two
+  AAA 1 CAD
+  BBB
+
+2020 joe
+  AAA 2 CAD; hi
+  BBB ; #one: and only
+
+2020 fred
+  BBB 3 CAD; #one: nope
+  CCC
+
+2020 bud ; #one: only this time
+  BBB 4 CAD
+  AAA
+
+test reg -t one:only BBB
+BBB CAD
+2020/01/01 | joe | AAA | -2.00 | -2.00 CAD 
+2020/01/01 | bud | AAA |  4.00 | 2.00 CAD 
+end test
+
+test reg -t one BBB
+BBB CAD
+2020/01/01 |  joe | AAA | -2.00 | -2.00 CAD 
+2020/01/01 | fred | CCC |  3.00 | 1.00 CAD 
+2020/01/01 |  bud | AAA |  4.00 | 5.00 CAD 
+end test
