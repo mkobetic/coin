@@ -108,7 +108,7 @@ For example the following expressions could match account `Assets:Investments:Br
 * posting note/comment is supported as well
 * any combination of 'short notes' (appended at the end of the transaction or posting line)
   and 'long notes' on separate lines following the transaction or posting line is possible
-* tags are parsed out of notes, simple tag #key or value tags #key: some value, are supported
+* tags are parsed out of notes, simple tag #key or value tags #key: some value, (value terminated by a comma or EOL) are supported
 
 ## Implementation Notes
 

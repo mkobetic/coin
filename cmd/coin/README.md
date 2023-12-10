@@ -5,6 +5,7 @@ Use `-h` for detailed option descriptions.
 
 * print account balances
 * select time range to total (begin/end)
+* selecting postings by payee or tag name or name:value (regex)
 * zero balance and closed account suppression (optional)
 * filtering to top N levels of accounts for display
 
@@ -15,6 +16,7 @@ Use `-h` for detailed option descriptions.
 * recursive and cumulative aggregation
 * top n sub-account aggregations (the rest as Other)
 * selecting postings in a time range (begin/end)
+* selecting postings by payee or tag name or name:value (regex)
 * text, json, csv and chart output formats
 
 ## accounts
@@ -37,6 +39,10 @@ Use `-h` for detailed option descriptions.
 
 * move postings to different account
 * filtering by payee
+
+## tags
+
+* list all tags and optionally tag values
 
 ## stats
 
