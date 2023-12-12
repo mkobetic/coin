@@ -1,0 +1,12 @@
+; this assumes `coin test` is executed from the root of the repo
+
+include /examples/yearly/commodities.coin
+include /examples/yearly/accounts.coin
+include /examples/yearly/20??.coin
+
+test stats
+Commodities: 1
+Prices: 0
+Accounts: 17
+Transactions: 2558
+end test

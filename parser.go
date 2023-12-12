@@ -41,6 +41,8 @@ func (p *Parser) Next(fn string) (Item, error) {
 	case bytes.ContainsAny(line[:1], ";#%|*"):
 		p.Scan()
 		return p.Next(fn)
+	case bytes.HasPrefix(line, []byte("include")):
+		return p.parseInclude(fn)
 	case bytes.HasPrefix(line, []byte("account")):
 		return p.parseAccount(fn)
 	case bytes.HasPrefix(line, []byte("commodity ")):
