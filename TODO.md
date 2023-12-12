@@ -1,7 +1,5 @@
 ### Features
 
-* add support for tags
-* include directive
 * thousand separator in amounts
 * check for account/cc numbers in transactions
 * balance: last reconciled posting date

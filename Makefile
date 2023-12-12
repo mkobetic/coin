@@ -40,6 +40,7 @@ test: test-go test-fixtures
 test-go:
 	$(TEST) ./...
 
+test-fixtures: export COIN_TESTS=./tests
 test-fixtures:
 	find tests -name '*.test' -exec coin test '{}' \;
 

@@ -1,0 +1,91 @@
+commodity CAD
+  format 1.00 CAD
+
+account Assets:Bank
+account Income:Salary
+account Expenses:Food
+account Expenses:Rent
+
+2010/01/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/01/20 Freshco
+  Food 150 CAD
+  Bank
+
+2010/01/28 Freshco
+  Food 100 CAD
+  Bank
+
+2010/01/30 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/02/02 Freshco
+  Food 100 CAD
+  Bank
+
+2010/02/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/02/28 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/03/08 Freshco
+  Food 200 CAD
+  Bank
+
+2010/03/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/03/30 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/04/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/04/30 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/05/05 Freshco
+  Food 300 CAD
+  Bank
+
+2010/05/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/05/30 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/06/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/06/22 Freshco
+  Food 250 CAD
+  Bank
+
+2010/06/30 Housing Corp
+  Rent 500 CAD
+  Bank
+
+2010/07/03 Freshco
+  Food 300 CAD
+  Bank
+
+2010/07/15 ACME Inc
+  Bank 1000 CAD
+  Salary
+
+2010/07/30 Housing Corp
+  Rent 500 CAD
+  Bank

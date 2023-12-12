@@ -111,6 +111,10 @@ For example the following expressions could match account `Assets:Investments:Br
   and 'long notes' on separate lines following the transaction or posting line is possible
 * tags are parsed out of notes, simple tag #key or value tags #key: some value, (value terminated by a comma or EOL) are supported
 
+### Other types of ledger entries
+
+* Include entry is supported and can be used to inject content of other files in place of the include entry
+
 ## Implementation Notes
 
 * Amount is implemented as big.Int plus number of decimal places. Computations are truncated to the specified number of decimal places at every step.

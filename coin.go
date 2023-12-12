@@ -118,6 +118,14 @@ func Load(r io.Reader, fn string) {
 			Transactions = append(Transactions, i)
 		case *Test:
 			Tests = append(Tests, i)
+		case *Include:
+			files, err := i.Files()
+			check.NoError(err, "Failed to resolve include %s", i.Path)
+			for _, f := range files {
+				// This won't catch nested loops, but should catch the easier to make errors.
+				check.If(f != fn, "Include loop detected %s", f)
+				LoadFile(f)
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown entity %T", i)
 			os.Exit(1)

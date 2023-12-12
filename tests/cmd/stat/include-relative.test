@@ -1,0 +1,8 @@
+include ../reg/basic.coin
+
+test stats
+Commodities: 1
+Prices: 0
+Accounts: 9
+Transactions: 21
+end test
