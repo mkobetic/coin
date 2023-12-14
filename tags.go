@@ -64,9 +64,9 @@ func NewTagMatcher(exp string) *TagMatcher {
 	}
 	parts := strings.SplitN(exp, ":", 2)
 	var key, value *regexp.Regexp
-	key = regexp.MustCompile(parts[0])
+	key = regexp.MustCompile("(?i)" + parts[0])
 	if len(parts) > 1 {
-		value = regexp.MustCompile(parts[1])
+		value = regexp.MustCompile("(?i)" + parts[1])
 	}
 	return &TagMatcher{Key: key, Value: value}
 }

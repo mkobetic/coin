@@ -9,7 +9,7 @@ import (
 
 // Include takes a path pattern that will be expanded into a list of files to include
 // at the point when the include is encountered, i.e. the include files are loaded
-// BEFORE the loading of the current files continues.
+// BEFORE loading of the current file continues.
 // The pattern is a glob pattern, e.g. "foo/*.coin" interpreted relative to the directory
 // of the file containing the include statement.
 // Absolute paths are interpreted relative to the directory from which the coin command was executed.

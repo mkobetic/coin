@@ -86,7 +86,7 @@ func (cmd *cmdBalance) trim(ps []*coin.Posting) postings {
 	ps = trim(ps, cmd.begin, cmd.end)
 	if len(cmd.payee) > 0 {
 		var pps []*coin.Posting
-		r := regexp.MustCompile(cmd.payee)
+		r := regexp.MustCompile("(?i)" + cmd.payee)
 		for _, p := range ps {
 			if r.MatchString(p.Transaction.Description) {
 				pps = append(pps, p)

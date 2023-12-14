@@ -36,7 +36,7 @@ func (cmd *cmdTags) init() {
 func (cmd *cmdTags) execute(f io.Writer) {
 	var nrex *regexp.Regexp
 	if cmd.NArg() > 0 {
-		nrex = regexp.MustCompile(cmd.Arg(0))
+		nrex = regexp.MustCompile("(?i)" + cmd.Arg(0))
 	}
 	results := make(map[string][]string)
 	for _, t := range coin.Transactions {

@@ -16,6 +16,7 @@
 
 #### ofx2coin
 
+* allow tagging imported transactions
 * duplicate elimination too aggressive with identical transactions (e.g. 2x ROGERS top up for cell phones)
   ? duplicate transactions from the same source/file should be kept?
 * sanitize sensitive information, account/cc numbers

@@ -64,7 +64,7 @@ func (cmd *cmdModify) execute(f io.Writer) {
 		cmd.to = coin.MustFindAccount(cmd.fSetAccount)
 	}
 	if len(cmd.fPayee) > 0 {
-		cmd.payee = regexp.MustCompile(cmd.fPayee)
+		cmd.payee = regexp.MustCompile("(?i)" + cmd.fPayee)
 	}
 	if len(cmd.fTTag) > 0 {
 		cmd.ttag = coin.NewTagMatcher(cmd.fTTag)
