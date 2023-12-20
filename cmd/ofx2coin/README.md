@@ -22,6 +22,8 @@ A group reference is simply a group name prefixed with `@`. Referencing a group 
 
 A rule is a full account name followed by a list of regular expressions separated with `|`. The rules and regular expressions are matched against transaction descriptions in the order in which they are listed. The search stops on the first match and the corresponding account is used as the transaction counterpart of the imported account.
 
+A rule can also be followed by one or more note lines (space offset and prefixed with semicolon), which will be also automatically applied to all matching transactions. This can be used for tagging.
+
 ```
 common
   Expenses:Groceries       FRESHCO|COSTCO WHOLESALE|FARM BOY|LOBLAWS

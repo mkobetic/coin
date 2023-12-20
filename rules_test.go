@@ -40,6 +40,7 @@ common
 	Income:Salary       ACME PAY 
 479347938749398 Liabilities:Credit:MC
   Expenses:Auto            HUYNDAI|TOYOTA
+  ; service/maintenance
   @common
   Expenses:Miscellaneous   
 `
@@ -52,6 +53,10 @@ func Test_ReadRules(t *testing.T) {
 	mc := rules.Accounts["479347938749398"]
 	assert.NotNil(t, mc)
 	assert.Equal(t, len(mc.Rules), 3)
+	r1, ok := mc.Rules[0].(*Rule)
+	assert.True(t, ok)
+	assert.Equal(t, len(r1.Notes), 1)
+	assert.Equal(t, r1.Notes[0], "service/maintenance")
 }
 
 func Test_Classification(t *testing.T) {
@@ -66,7 +71,9 @@ func Test_Classification(t *testing.T) {
 		{"479347938749398", "[TR] COSTCO WHOLESALE #9239", "Expenses:Groceries"},
 		{"479347938749398", "JOE'S DINER", "Expenses:Miscellaneous"},
 	} {
-		account := rules.AccountRulesFor(fix.from).AccountFor(fix.payee)
+		rule := rules.AccountRulesFor(fix.from).RuleFor(fix.payee)
+		assert.NotNil(t, rule)
+		account := rule.Account
 		if account.FullName != fix.to {
 			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account.FullName)
 		}

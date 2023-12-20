@@ -11,8 +11,10 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
+// Rules are used to import transactions from external sources (e.g. CSV or OFX files)
+
 type Rules interface {
-	AccountFor(payee string) *Account
+	RuleFor(payee string) *Rule
 	Name() string
 	Write(w io.Writer, max int) error
 }
@@ -88,11 +90,10 @@ type AccountRules struct {
 	Rules   []Rules
 }
 
-func (ars *AccountRules) AccountFor(payee string) *Account {
+func (ars *AccountRules) RuleFor(payee string) *Rule {
 	for _, r := range ars.Rules {
-		acc := r.AccountFor(payee)
-		if acc != nil {
-			return acc
+		if pr := r.RuleFor(payee); pr != nil {
+			return pr
 		}
 	}
 	return nil
@@ -112,11 +113,10 @@ func (rs *RuleSet) Write(w io.Writer, max int) error {
 	return err
 }
 
-func (rs *RuleSet) AccountFor(payee string) *Account {
+func (rs *RuleSet) RuleFor(payee string) *Rule {
 	for _, r := range rs.Rules {
-		acc := r.AccountFor(payee)
-		if acc != nil {
-			return acc
+		if pr := r.RuleFor(payee); pr != nil {
+			return pr
 		}
 	}
 	return nil
@@ -127,6 +127,7 @@ func (rs *RuleSet) AccountFor(payee string) *Account {
 type Rule struct {
 	Account *Account
 	*regexp.Regexp
+	Notes []string
 }
 
 func (r *Rule) Name() string {
@@ -138,16 +139,18 @@ func (r *Rule) Write(w io.Writer, max int) error {
 	return err
 }
 
-func (r *Rule) AccountFor(payee string) *Account {
+func (r *Rule) RuleFor(payee string) *Rule {
 	if r.MatchString(payee) {
-		return r.Account
+		return r
 	}
 	return nil
 }
 
 var patternRE = `([\w:$^\\-]+)`
 var headerRE = regexp.MustCompile(`^(\w+)\s+` + patternRE + `|^(\w+)`)
-var bodyRE = regexp.MustCompile(`^\s+` + patternRE + `(\s+(\S.*\S))?|^\s+@(\w+)`)
+var bodyRE = regexp.MustCompile(`^\s+` + patternRE + `(\s+(\S.*\S))?|` +
+	`^\s+@(\w+)|` +
+	`^\s+;\s+(.*)`)
 
 func ReadRules(r io.Reader) (*RuleIndex, error) {
 	s := bufio.NewScanner(r)
@@ -177,6 +180,7 @@ func ScanRules(line []byte, s *bufio.Scanner) (*RuleIndex, error) {
 				setRules = func(rules []Rules) { rs.Rules = rules }
 			}
 			var rules []Rules
+			var lastRule *Rule
 			for {
 				if !s.Scan() {
 					setRules(rules)
@@ -188,16 +192,19 @@ func ScanRules(line []byte, s *bufio.Scanner) (*RuleIndex, error) {
 					break
 				}
 				if len(match[1]) > 0 {
-					r := &Rule{
+					lastRule = &Rule{
 						Account: MustFindAccount(string(match[1])),
 						Regexp:  regexp.MustCompile(string(match[3]))}
-					rules = append(rules, r)
-				} else {
+					rules = append(rules, lastRule)
+				} else if len(match[4]) > 0 {
 					r := ri.SetsByName[string(match[4])]
 					if r == nil {
 						panic(fmt.Errorf("invalid rule set ref: %s", string(match[4])))
 					}
 					rules = append(rules, r)
+					lastRule = nil
+				} else if lastRule != nil {
+					lastRule.Notes = append(lastRule.Notes, string(match[5]))
 				}
 			}
 			setRules(rules)

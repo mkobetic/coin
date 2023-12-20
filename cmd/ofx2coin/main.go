@@ -168,9 +168,12 @@ func readTransactions(r io.Reader, rules *coin.RuleIndex) (transactions []*coin.
 
 func newTransaction(ars *coin.AccountRules, date time.Time, payee string, amount big.Rat, balance *big.Rat) *coin.Transaction {
 	from := ars.Account
-	to := ars.AccountFor(payee)
-	if to == nil {
-		to = coin.Unbalanced
+	to := coin.Unbalanced
+	var notes []string
+	rule := ars.RuleFor(payee)
+	if rule != nil {
+		to = rule.Account
+		notes = rule.Notes
 	}
 	amt := coin.NewAmountFrac(amount.Num(), amount.Denom(), ars.Account.Commodity)
 	var bal *coin.Amount
@@ -179,7 +182,9 @@ func newTransaction(ars *coin.AccountRules, date time.Time, payee string, amount
 	}
 	t := &coin.Transaction{
 		Posted:      date,
-		Description: payee}
+		Description: payee,
+		Notes:       notes,
+	}
 	t.Post(from, to, amt, bal)
 	return t
 }
