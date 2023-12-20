@@ -119,9 +119,11 @@ func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *c
 	rules := allRules.AccountRulesFor(acctId)
 	check.If(rules != nil, "Can't find rules for account id %s", acctId)
 	account := rules.Account
-	toAccount := rules.AccountFor(description)
-	if toAccount == nil {
-		toAccount = coin.Unbalanced
+	toAccount := coin.Unbalanced
+	var notes []string
+	if rule := rules.RuleFor(description); rule != nil {
+		toAccount = rule.Account
+		notes = rule.Notes
 	}
 
 	date := valueFor("date")
@@ -131,6 +133,7 @@ func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *c
 	t := &coin.Transaction{
 		Description: description,
 		Posted:      posted,
+		Notes:       notes,
 	}
 
 	if n := trim(valueFor("note")); len(n) > 0 {
