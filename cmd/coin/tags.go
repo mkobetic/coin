@@ -16,7 +16,11 @@ func init() {
 
 type cmdTags struct {
 	flagsWithUsage
-	values bool
+	fValues   bool
+	fAccounts bool
+
+	results  map[string][]string
+	accounts map[string][]string
 }
 
 func (*cmdTags) newCommand(names ...string) command {
@@ -25,7 +29,8 @@ func (*cmdTags) newCommand(names ...string) command {
 	setUsage(cmd.FlagSet, `tags [flags] [NAMEREX]
 
 List tags matching the NAMEREX.`)
-	cmd.BoolVar(&cmd.values, "v", false, "print tag values if applicable")
+	cmd.BoolVar(&cmd.fValues, "v", false, "print tag values if applicable")
+	cmd.BoolVar(&cmd.fAccounts, "a", false, "print account names where tag is used")
 	return &cmd
 }
 
@@ -38,23 +43,48 @@ func (cmd *cmdTags) execute(f io.Writer) {
 	if cmd.NArg() > 0 {
 		nrex = regexp.MustCompile("(?i)" + cmd.Arg(0))
 	}
-	results := make(map[string][]string)
+	cmd.results = make(map[string][]string)
+	cmd.accounts = make(map[string][]string)
 	for _, t := range coin.Transactions {
-		collectKeys(nrex, t.Tags, results)
+		accounts := [](*coin.Account){}
 		for _, p := range t.Postings {
-			collectKeys(nrex, p.Tags, results)
+			cmd.collectKeys(nrex, p.Tags, p.Account)
+			if cmd.fAccounts {
+				accounts = append(accounts, p.Account)
+			}
 		}
+		cmd.collectKeys(nrex, t.Tags, accounts...)
 	}
-	for _, k := range sortAndClean(results) {
-		vs := strings.Join(results[k], `", "`)
+	for _, k := range sortAndClean(cmd.results) {
+		vs := strings.Join(cmd.results[k], `", "`)
 		colon := ""
 		if len(vs) > 0 {
 			colon = ":"
 		}
-		if cmd.values && len(vs) > 0 {
+		if cmd.fValues && len(vs) > 0 {
 			fmt.Fprintf(f, `%s%s "%s"`+"\n", k, colon, vs)
 		} else {
 			fmt.Fprintf(f, "%s%s\n", k, colon)
+		}
+		if cmd.fAccounts {
+			for _, a := range cmd.accounts[k] {
+				fmt.Fprintf(f, "\t%s\n", a)
+			}
+		}
+	}
+}
+
+func (cmd *cmdTags) collectKeys(nrex *regexp.Regexp, tags coin.Tags, accounts ...*coin.Account) {
+	for k, v := range tags {
+		if nrex == nil || nrex.MatchString(k) {
+			cmd.results[k] = add(cmd.results[k], v)
+			if cmd.fAccounts {
+				list := cmd.accounts[k]
+				for _, a := range accounts {
+					list = add(list, a.FullName)
+				}
+				cmd.accounts[k] = list
+			}
 		}
 	}
 }
@@ -74,14 +104,6 @@ func clean(list []string) []string {
 		return list[1:]
 	}
 	return list
-}
-
-func collectKeys(nrex *regexp.Regexp, tags coin.Tags, results map[string][]string) {
-	for k, v := range tags {
-		if nrex == nil || nrex.MatchString(k) {
-			results[k] = add(results[k], v)
-		}
-	}
 }
 
 func add(list []string, key string) []string {
