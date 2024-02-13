@@ -44,8 +44,8 @@ Lists or aggregate postings from the specified account.`)
 	// filtering options
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
-	cmd.StringVar(&cmd.payee, "p", "", "use only postings matching the payee (regex)")
-	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] (regex)")
+	cmd.StringVar(&cmd.payee, "p", "", "use only postings matching the payee ([!]regex)")
+	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] ([!]regex)")
 	// aggregation options
 	cmd.BoolVar(&cmd.weekly, "w", false, "aggregate postings by week")
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
@@ -193,10 +193,15 @@ func (cmd *cmdRegister) period() *reducer {
 func (cmd *cmdRegister) trim(ps []*coin.Posting) postings {
 	ps = trim(ps, cmd.begin, cmd.end)
 	if len(cmd.payee) > 0 {
+		inverted := false
+		if cmd.payee[0] == '!' {
+			inverted = true
+			cmd.payee = cmd.payee[1:]
+		}
 		var pps []*coin.Posting
 		r := regexp.MustCompile("(?i)" + cmd.payee)
 		for _, p := range ps {
-			if r.MatchString(p.Transaction.Description) {
+			if match := r.MatchString(p.Transaction.Description); match && !inverted || !match && inverted {
 				pps = append(pps, p)
 			}
 		}

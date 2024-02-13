@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var tagREX = regexp.MustCompile(`#(?P<key>\w+)(:\s*(?P<value>[^,]+\S)\s*(,|$))?`)
+var tagREX = regexp.MustCompile(`#(?P<key>[\w-/]+)(:\s*(?P<value>[^,]+\S)\s*(,|$))?`)
 var tagREXKey = tagREX.SubexpIndex("key")
 var tagREXValue = tagREX.SubexpIndex("value")
 
@@ -56,11 +56,17 @@ func (t Tags) Keys() (keys []string) {
 // matched against a tag key and optionally a tag value.
 type TagMatcher struct {
 	Key, Value *regexp.Regexp
+	inverted   bool // match if key/value not matching
 }
 
 func NewTagMatcher(exp string) *TagMatcher {
 	if len(exp) == 0 {
 		return nil
+	}
+	inverted := false
+	if exp[0] == '!' {
+		inverted = true
+		exp = exp[1:]
 	}
 	parts := strings.SplitN(exp, ":", 2)
 	var key, value *regexp.Regexp
@@ -68,7 +74,7 @@ func NewTagMatcher(exp string) *TagMatcher {
 	if len(parts) > 1 {
 		value = regexp.MustCompile("(?i)" + parts[1])
 	}
-	return &TagMatcher{Key: key, Value: value}
+	return &TagMatcher{Key: key, Value: value, inverted: inverted}
 }
 
 func (m *TagMatcher) Match(tags Tags) bool {
@@ -76,7 +82,7 @@ func (m *TagMatcher) Match(tags Tags) bool {
 		return false
 	}
 	for k, v := range tags {
-		if m.Key.MatchString(k) && (m.Value == nil || m.Value.MatchString(v)) {
+		if match := m.Key.MatchString(k) && (m.Value == nil || m.Value.MatchString(v)); match && !m.inverted || !match && m.inverted {
 			return true
 		}
 	}
