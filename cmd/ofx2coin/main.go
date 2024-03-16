@@ -153,13 +153,14 @@ func readTransactions(r io.Reader, rules *coin.RuleIndex) (transactions []*coin.
 		resp := resp.(*ofxgo.CCStatementResponse)
 		rules := rules.AccountRulesFor(resp.CCAcctFrom.AcctID.String())
 		for _, t := range resp.BankTranList.Transactions {
-			transactions = append(transactions,
-				newTransaction(rules,
-					t.DtPosted.Time,
-					t.Name.String(),
-					t.TrnAmt.Rat,
-					nil,
-				))
+			if nt := newTransaction(rules,
+				t.DtPosted.Time,
+				t.Name.String(),
+				t.TrnAmt.Rat,
+				nil,
+			); nt != nil {
+				transactions = append(transactions, nt)
+			}
 		}
 	}
 
@@ -172,6 +173,10 @@ func newTransaction(ars *coin.AccountRules, date time.Time, payee string, amount
 	var notes []string
 	rule := ars.RuleFor(payee)
 	if rule != nil {
+		if rule.Account == nil {
+			// drop the transaction
+			return nil
+		}
 		to = rule.Account
 		notes = rule.Notes
 	}
