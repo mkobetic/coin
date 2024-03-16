@@ -69,9 +69,9 @@ func Test_ReadTransactions(t *testing.T) {
 	if drop.Account != nil {
 		t.Error("should be nil")
 	}
-	assert.True(t, drop.Match([]byte("TO BE IGNORED WHEN WHATEVER")))
+	assert.True(t, drop.Match([]byte("TO BE IGNORED WHEN WATSWR")))
 	assert.Equal(t, len(drop.Notes), 1)
-	assert.Equal(t, drop.Notes[0], "payee with WHATEVER in it will be ignored")
+	assert.Equal(t, drop.Notes[0], "payee with WATSWR in it will be ignored")
 
 	r = strings.NewReader(txsSample)
 	r = newBMOReader(r)
@@ -79,7 +79,7 @@ func Test_ReadTransactions(t *testing.T) {
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
-	assert.Equal(t, len(txs), 10)
+	assert.Equal(t, len(txs), 9)
 	for i, tx := range []string{
 		`2019/01/04 [CK]NO.272
   Unbalanced             704.00 CAD
@@ -100,10 +100,6 @@ func Test_ReadTransactions(t *testing.T) {
 		`2019/01/14 [CW]HYDRO
   Unbalanced             66.40 CAD
   Assets:Bank:Checking  -66.40 CAD
-`,
-		`2019/01/14 [CW]WATSWR
-  Unbalanced             106.30 CAD
-  Assets:Bank:Checking  -106.30 CAD
 `,
 		`2019/01/15 [DN]ACME PAY
   Assets:Bank:Checking   1211.04 CAD
@@ -130,8 +126,8 @@ var sample = `
 common
   Expenses:Groceries       FRESHCO|COSTCO WHOLESALE|FARM BOY|LOBLAWS
   Expenses:Auto:Gas        COSTCO GAS|PETROCAN|SHELL
-  -- WHATEVER
-  ; payee with WHATEVER in it will be ignored
+  -- WATSWR
+  ; payee with WATSWR in it will be ignored
 389249328477983 Assets:Bank:Savings
   Income:Interest     Interest
 392843029797099 Assets:Bank:Checking

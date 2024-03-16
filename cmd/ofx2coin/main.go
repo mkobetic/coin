@@ -139,13 +139,14 @@ func readTransactions(r io.Reader, rules *coin.RuleIndex) (transactions []*coin.
 			if i == last {
 				balance = &(resp.BalAmt.Rat)
 			}
-			transactions = append(transactions,
-				newTransaction(rules,
-					t.DtPosted.Time,
-					trim(t.Name.String()+t.Memo.String()),
-					t.TrnAmt.Rat,
-					balance,
-				))
+			if nt := newTransaction(rules,
+				t.DtPosted.Time,
+				trim(t.Name.String()+t.Memo.String()),
+				t.TrnAmt.Rat,
+				balance,
+			); nt != nil {
+				transactions = append(transactions, nt)
+			}
 		}
 	}
 	// read credit card transactions

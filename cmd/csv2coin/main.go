@@ -103,7 +103,9 @@ func readTransactions(in io.Reader, src *Source, rules *Rules) (transactions []*
 			break
 		}
 		check.NoError(err, "reading transaction")
-		transactions = append(transactions, transactionFrom(rec, src.fields, rules))
+		if nt := transactionFrom(rec, src.fields, rules); nt != nil {
+			transactions = append(transactions, nt)
+		}
 	}
 	return transactions
 }
@@ -122,6 +124,10 @@ func transactionFrom(row []string, fields map[string]Fields, allRules *Rules) *c
 	toAccount := coin.Unbalanced
 	var notes []string
 	if rule := rules.RuleFor(description); rule != nil {
+		if rule.Account == nil {
+			// drop transaction
+			return nil
+		}
 		toAccount = rule.Account
 		notes = rule.Notes
 	}
