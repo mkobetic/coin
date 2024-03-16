@@ -192,8 +192,12 @@ func ScanRules(line []byte, s *bufio.Scanner) (*RuleIndex, error) {
 					break
 				}
 				if len(match[1]) > 0 {
+					var account *Account
+					if string(match[1]) != "--" {
+						account = MustFindAccount(string(match[1]))
+					}
 					lastRule = &Rule{
-						Account: MustFindAccount(string(match[1])),
+						Account: account,
 						Regexp:  regexp.MustCompile(string(match[3]))}
 					rules = append(rules, lastRule)
 				} else if len(match[4]) > 0 {

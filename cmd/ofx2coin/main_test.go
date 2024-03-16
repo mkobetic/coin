@@ -51,6 +51,10 @@ func Test_Classification(t *testing.T) {
 			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account)
 		}
 	}
+	whatever := newTransaction(rules.Accounts["479347938749398"], date, "TO BE IGNORED WHEN WHATEVER", *big.NewRat(-10000, 100), nil)
+	if whatever != nil {
+		t.Error("should be nil")
+	}
 }
 
 func Test_ReadTransactions(t *testing.T) {
@@ -58,6 +62,16 @@ func Test_ReadTransactions(t *testing.T) {
 	r = strings.NewReader(sample)
 	rules, err := coin.ReadRules(r)
 	assert.NoError(t, err)
+	mc := rules.SetsByName["common"]
+	assert.NotNil(t, mc)
+	assert.Equal(t, len(mc.Rules), 3)
+	drop := mc.Rules[2].(*coin.Rule)
+	if drop.Account != nil {
+		t.Error("should be nil")
+	}
+	assert.True(t, drop.Match([]byte("TO BE IGNORED WHEN WHATEVER")))
+	assert.Equal(t, len(drop.Notes), 1)
+	assert.Equal(t, drop.Notes[0], "payee with WHATEVER in it will be ignored")
 
 	r = strings.NewReader(txsSample)
 	r = newBMOReader(r)
@@ -116,6 +130,8 @@ var sample = `
 common
   Expenses:Groceries       FRESHCO|COSTCO WHOLESALE|FARM BOY|LOBLAWS
   Expenses:Auto:Gas        COSTCO GAS|PETROCAN|SHELL
+  -- WHATEVER
+  ; payee with WHATEVER in it will be ignored
 389249328477983 Assets:Bank:Savings
   Income:Interest     Interest
 392843029797099 Assets:Bank:Checking
