@@ -51,7 +51,7 @@ func Test_Classification(t *testing.T) {
 			t.Errorf("mismatched\nexp: %s\ngot: %s\n", fix.to, account)
 		}
 	}
-	whatever := newTransaction(rules.Accounts["479347938749398"], date, "TO BE IGNORED WHEN WHATEVER", *big.NewRat(-10000, 100), nil)
+	whatever := newTransaction(rules.Accounts["479347938749398"], date, "TO BE IGNORED WHEN WATSWR", *big.NewRat(-10000, 100), nil)
 	if whatever != nil {
 		t.Error("should be nil")
 	}
