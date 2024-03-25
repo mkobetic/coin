@@ -464,12 +464,18 @@ const Views = {
   },
   Income: {
     Register: (containerSelector: string, account: Account) =>
-      viewRegister(containerSelector, account, { negated: true }),
+      viewRegister(containerSelector, account, {
+        negated: true,
+        aggregatedTotal: true,
+      }),
     Chart: (containerSelector: string, account: Account) =>
       viewChart(containerSelector, account, { negated: true }),
   },
   Expenses: {
-    Register: viewRegister,
+    Register: (containerSelector: string, account: Account) =>
+      viewRegister(containerSelector, account, {
+        aggregatedTotal: true,
+      }),
     Chart: viewChart,
   },
   Equity: {
@@ -591,9 +597,10 @@ function viewRegister(
   account: Account,
   options?: {
     negated?: boolean;
+    aggregatedTotal?: boolean;
   }
 ) {
-  const opts = { negated: false };
+  const opts = { negated: false, aggregatedTotal: false };
   Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
@@ -625,13 +632,12 @@ function viewRegisterAggregated(
   account: Account,
   options: {
     negated: boolean;
+    aggregatedTotal: boolean;
   }
 ) {
-  const table = addTableWithHeader(containerSelector, [
-    "Date",
-    "Amount",
-    "Total",
-  ]);
+  const labels = ["Date", "Amount"];
+  if (options.aggregatedTotal) labels.push("Cum.Total");
+  const table = addTableWithHeader(containerSelector, labels);
   const data = groupBy(
     account.postings,
     groupKey,
@@ -644,11 +650,14 @@ function viewRegisterAggregated(
     .data(data)
     .join("tr")
     .selectAll("td")
-    .data((row) => [
-      [dateToString(row.date), "date"],
-      [row.sum, "amount"],
-      [row.total, "amount"],
-    ])
+    .data((g) => {
+      const row = [
+        [dateToString(g.date), "date"],
+        [g.sum, "amount"],
+      ];
+      if (options.aggregatedTotal) row.push([g.total, "amount"]);
+      return row;
+    })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
     .text(([v, c]) => v.toString());
@@ -660,6 +669,7 @@ function viewRegisterAggregatedWithSubAccounts(
   account: Account,
   options: {
     negated: boolean;
+    aggregatedTotal: boolean;
   }
 ) {
   const dates = groupKey.range(State.StartDate, State.EndDate);
@@ -686,14 +696,15 @@ function viewRegisterAggregatedWithSubAccounts(
     row.push({ date: d, postings, sum, total: Amount.clone(total) });
     return row;
   });
-
-  const table = addTableWithHeader(containerSelector, [
+  const labels = [
     "Date",
     ...groups.map((g) =>
       g.account ? account.shortenedName(g.account) : "Other"
     ),
     "Total",
-  ]);
+  ];
+  if (options.aggregatedTotal) labels.push("Cum.Total");
+  const table = addTableWithHeader(containerSelector, labels);
   table
     .append("tbody")
     .selectAll("tr")
@@ -703,11 +714,10 @@ function viewRegisterAggregatedWithSubAccounts(
     .data((row) => {
       const total = row[row.length - 1];
       const columns = row.map((g) => [g.sum, "amount"]);
-      columns.pop(); // don't want sum from total
       // prepend date
       columns.unshift([dateToString(row[0].date), "date"]);
       // append total correctly
-      columns.push([total.total, "amount"]);
+      if (options.aggregatedTotal) columns.push([total.total, "amount"]);
       return columns;
     })
     .join("td")
@@ -728,7 +738,7 @@ function viewRegisterFull(
     "Account",
     "Amount",
     "Balance",
-    "Total",
+    "Cum.Total",
   ]);
   const total = new Amount(0, account.commodity);
   const data = trimToDateRange(
@@ -771,7 +781,7 @@ function viewRegisterFullWithSubAccounts(
     "SubAccount",
     "Account",
     "Amount",
-    "Total",
+    "Cum.Total",
   ]);
   const total = new Amount(0, account.commodity);
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
