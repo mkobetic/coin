@@ -46588,15 +46588,15 @@ const Views = {
         Register: viewRegister,
     },
     Liabilities: {
-        Register: viewRegister,
+        Register: (containerSelector, account) => viewRegister(containerSelector, account, { negated: true }),
     },
     Income: {
-        Register: viewRegister,
+        Register: (containerSelector, account) => viewRegister(containerSelector, account, { negated: true }),
         Chart: (containerSelector, account) => viewChart(containerSelector, account, { negated: true }),
     },
     Expenses: {
         Register: viewRegister,
-        Chart: (containerSelector, account) => viewChart(containerSelector, account, { negated: false }),
+        Chart: viewChart,
     },
     Equity: {
         Register: viewRegister,
@@ -46693,7 +46693,9 @@ function addTableWithHeader(containerSelector, labels) {
         .text((d) => d);
     return table;
 }
-function viewRegister(containerSelector, account) {
+function viewRegister(containerSelector, account, options) {
+    const opts = { negated: false };
+    Object.assign(opts, options);
     // clear out the container
     emptyElement(containerSelector);
     addIncludeSubAccountsInput(containerSelector, account);
@@ -46703,18 +46705,18 @@ function viewRegister(containerSelector, account) {
     const groupKey = Aggregation[State.Register.Aggregate];
     if (groupKey) {
         if (State.Register.ShowSubAccounts)
-            viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, account);
+            viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, account, opts);
         else
-            viewRegisterAggregated(containerSelector, groupKey, account);
+            viewRegisterAggregated(containerSelector, groupKey, account, opts);
     }
     else {
         if (State.Register.ShowSubAccounts)
-            viewRegisterFullWithSubAccounts(containerSelector, account);
+            viewRegisterFullWithSubAccounts(containerSelector, account, opts);
         else
-            viewRegisterFull(containerSelector, account);
+            viewRegisterFull(containerSelector, account, opts);
     }
 }
-function viewRegisterAggregated(containerSelector, groupKey, account) {
+function viewRegisterAggregated(containerSelector, groupKey, account, options) {
     const table = addTableWithHeader(containerSelector, [
         "Date",
         "Amount",
@@ -46736,9 +46738,9 @@ function viewRegisterAggregated(containerSelector, groupKey, account) {
         .classed("amount", ([v, c]) => c == "amount")
         .text(([v, c]) => v.toString());
 }
-function viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, account) {
+function viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, account, options) {
     const dates = groupKey.range(State.StartDate, State.EndDate);
-    const groups = groupWithSubAccounts(account, groupKey, State.Register.AggregatedSubAccountMax, { negated: false });
+    const groups = groupWithSubAccounts(account, groupKey, State.Register.AggregatedSubAccountMax, options);
     // transpose the groups into row data
     const total = new Amount(0, account.commodity);
     const data = dates.map((d, i) => {
@@ -46781,7 +46783,7 @@ function viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, acco
         .classed("amount", ([v, c]) => c == "amount")
         .text(([v, c]) => v.toString());
 }
-function viewRegisterFull(containerSelector, account) {
+function viewRegisterFull(containerSelector, account, options) {
     const table = addTableWithHeader(containerSelector, [
         "Date",
         "Description",
@@ -46813,7 +46815,7 @@ function viewRegisterFull(containerSelector, account) {
         .classed("amount", ([v, c]) => c == "amount")
         .text(([v, c]) => v.toString());
 }
-function viewRegisterFullWithSubAccounts(containerSelector, account) {
+function viewRegisterFullWithSubAccounts(containerSelector, account, options) {
     const table = addTableWithHeader(containerSelector, [
         "Date",
         "Description",

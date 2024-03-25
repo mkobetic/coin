@@ -459,17 +459,18 @@ const Views = {
     Register: viewRegister,
   },
   Liabilities: {
-    Register: viewRegister,
+    Register: (containerSelector: string, account: Account) =>
+      viewRegister(containerSelector, account, { negated: true }),
   },
   Income: {
-    Register: viewRegister,
+    Register: (containerSelector: string, account: Account) =>
+      viewRegister(containerSelector, account, { negated: true }),
     Chart: (containerSelector: string, account: Account) =>
       viewChart(containerSelector, account, { negated: true }),
   },
   Expenses: {
     Register: viewRegister,
-    Chart: (containerSelector: string, account: Account) =>
-      viewChart(containerSelector, account, { negated: false }),
+    Chart: viewChart,
   },
   Equity: {
     Register: viewRegister,
@@ -585,7 +586,15 @@ function addTableWithHeader(containerSelector: string, labels: string[]) {
   return table;
 }
 
-function viewRegister(containerSelector: string, account: Account) {
+function viewRegister(
+  containerSelector: string,
+  account: Account,
+  options?: {
+    negated?: boolean;
+  }
+) {
+  const opts = { negated: false };
+  Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
   addIncludeSubAccountsInput(containerSelector, account);
@@ -599,20 +608,24 @@ function viewRegister(containerSelector: string, account: Account) {
       viewRegisterAggregatedWithSubAccounts(
         containerSelector,
         groupKey,
-        account
+        account,
+        opts
       );
-    else viewRegisterAggregated(containerSelector, groupKey, account);
+    else viewRegisterAggregated(containerSelector, groupKey, account, opts);
   } else {
     if (State.Register.ShowSubAccounts)
-      viewRegisterFullWithSubAccounts(containerSelector, account);
-    else viewRegisterFull(containerSelector, account);
+      viewRegisterFullWithSubAccounts(containerSelector, account, opts);
+    else viewRegisterFull(containerSelector, account, opts);
   }
 }
 
 function viewRegisterAggregated(
   containerSelector: string,
   groupKey: d3.TimeInterval,
-  account: Account
+  account: Account,
+  options: {
+    negated: boolean;
+  }
 ) {
   const table = addTableWithHeader(containerSelector, [
     "Date",
@@ -644,14 +657,17 @@ function viewRegisterAggregated(
 function viewRegisterAggregatedWithSubAccounts(
   containerSelector: string,
   groupKey: d3.TimeInterval,
-  account: Account
+  account: Account,
+  options: {
+    negated: boolean;
+  }
 ) {
   const dates = groupKey.range(State.StartDate, State.EndDate);
   const groups = groupWithSubAccounts(
     account,
     groupKey,
     State.Register.AggregatedSubAccountMax,
-    { negated: false }
+    options
   );
   // transpose the groups into row data
   const total = new Amount(0, account.commodity);
@@ -699,7 +715,13 @@ function viewRegisterAggregatedWithSubAccounts(
     .text(([v, c]) => v.toString());
 }
 
-function viewRegisterFull(containerSelector: string, account: Account) {
+function viewRegisterFull(
+  containerSelector: string,
+  account: Account,
+  options: {
+    negated: boolean;
+  }
+) {
   const table = addTableWithHeader(containerSelector, [
     "Date",
     "Description",
@@ -738,7 +760,10 @@ function viewRegisterFull(containerSelector: string, account: Account) {
 
 function viewRegisterFullWithSubAccounts(
   containerSelector: string,
-  account: Account
+  account: Account,
+  options: {
+    negated: boolean;
+  }
 ) {
   const table = addTableWithHeader(containerSelector, [
     "Date",
