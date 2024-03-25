@@ -457,10 +457,13 @@ const Aggregation = {
 const Views = {
   Assets: {
     Register: viewRegister,
+    Chart: viewChart,
   },
   Liabilities: {
     Register: (containerSelector: string, account: Account) =>
       viewRegister(containerSelector, account, { negated: true }),
+    Chart: (containerSelector: string, account: Account) =>
+      viewChart(containerSelector, account, { negated: true }),
   },
   Income: {
     Register: (containerSelector: string, account: Account) =>

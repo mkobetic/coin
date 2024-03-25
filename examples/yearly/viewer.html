@@ -46586,9 +46586,11 @@ const Aggregation = {
 const Views = {
     Assets: {
         Register: viewRegister,
+        Chart: viewChart,
     },
     Liabilities: {
         Register: (containerSelector, account) => viewRegister(containerSelector, account, { negated: true }),
+        Chart: (containerSelector, account) => viewChart(containerSelector, account, { negated: true }),
     },
     Income: {
         Register: (containerSelector, account) => viewRegister(containerSelector, account, {

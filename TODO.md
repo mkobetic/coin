@@ -25,11 +25,12 @@
 ### coin2html
 
 - adding different currencies (d3.scales?)
-- aggregates of income/expense should include sum and accumulating total
-- aggregates of ass/lia should not have accumulating total (just sum)
 - show details of selected posting
 - add location info
 - show details of selected posting group
+- tooltips for columns, inputs and wherever useful
+- filter subaccounts, payee, tag...
+- preserve view selection across root changes
 - preserve UI state in history (make back/forward buttons work)
 - trim to time range on export (need to recalc posting balances!)
 
