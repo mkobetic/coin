@@ -2,6 +2,7 @@ package coin
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
@@ -229,4 +230,16 @@ func (c *Commodity) NewAmountFloat(f float64) *Amount {
 
 func (c *Commodity) SetFraction(frac int64) {
 	c.Decimals = log10(frac)
+}
+
+func (c *Commodity) MarshalJSON() ([]byte, error) {
+	value := map[string]interface{}{
+		"id":       c.Id,
+		"name":     c.Name,
+		"decimals": c.Decimals,
+	}
+	if c.Code != "" {
+		value["code"] = c.Code
+	}
+	return json.MarshalIndent(value, "", "\t")
 }

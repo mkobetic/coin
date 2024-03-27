@@ -1,6 +1,7 @@
 package coin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"math/big"
@@ -192,4 +193,8 @@ func (a *Amount) Width(decimals int) int {
 		w++ // minus sign
 	}
 	return w
+}
+
+func (a *Amount) MarshalJSON() ([]byte, error) {
+	return json.Marshal(fmt.Sprintf("%.*f %s", a.Commodity.Decimals, a, a.Commodity.Id))
 }
