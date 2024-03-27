@@ -23,21 +23,23 @@ type cmdCommodities struct {
 	flagsWithUsage
 	getQuotes bool
 	prices    bool
+	location bool
 }
 
 func (*cmdCommodities) newCommand(names ...string) command {
 	var cmd cmdCommodities
 	cmd.FlagSet = newCommand(&cmd, names...)
-	setUsage(cmd.FlagSet, `(commodities|com|c) [flags]
+	setUsage(cmd.FlagSet, `(commodities|com|c) [flags] [commodity]
 
 Lists commodities and prices.`)
 	cmd.BoolVar(&cmd.getQuotes, "q", false, "get current quotes for all commodities")
 	cmd.BoolVar(&cmd.prices, "p", false, "print commodity price stats")
+	cmd.BoolVar(&cmd.location, "f", false, "include file location on price list")
 	return &cmd
 }
 
 func (cmd *cmdCommodities) init() {
-	if cmd.prices {
+	if cmd.prices || cmd.NArg() > 0 {
 		coin.LoadPrices()
 		coin.ResolvePrices()
 	} else {
@@ -46,6 +48,23 @@ func (cmd *cmdCommodities) init() {
 }
 
 func (cmd *cmdCommodities) execute(f io.Writer) {
+	if cmd.NArg() > 0 {
+		commodity := coin.Commodities[cmd.Arg(0)]
+		if (commodity == nil) {
+			fmt.Fprintf(os.Stderr, "%s: unknown commodity\n", cmd.Arg(0))
+			return
+		}
+		for _, ps := range commodity.Prices {
+			for _, p := range ps {
+				if cmd.location {
+					fmt.Fprintf(f, "%s %s %s %s\n", p.Time.Format(coin.DateFormat), p.Value.String(), p.Value.SafeId(false), p.Location())
+				} else {
+					fmt.Fprintf(f, "%s %s %s\n", p.Time.Format(coin.DateFormat), p.Value.String(), p.Value.SafeId(false))
+				}
+			}
+		}
+		return
+	}
 	if cmd.getQuotes {
 		coin.CommoditiesDo(func(c *coin.Commodity) {
 			if !(c.NoMarket || c.Id == coin.DefaultCommodityId) {
