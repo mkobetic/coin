@@ -46272,9 +46272,8 @@ td.amount {
 
 </script>
 <script type="text/javascript" id="code">
-// MODELS
-
 class Commodity {
+
     constructor(id, name, decimals) {
         this.id = id;
         this.name = name;
@@ -46283,6 +46282,46 @@ class Commodity {
     }
     toString() {
         return this.id;
+    }
+    get conversions() {
+        if (this._conversions)
+            return this._conversions;
+        const prices = new Map();
+        this.prices.forEach((p) => {
+            const cps = prices.get(p.value.commodity);
+            if (cps)
+                cps.push(p);
+            else
+                prices.set(p.value.commodity, [p]);
+        });
+        this._conversions = new Map();
+        for (const [commodity, cps] of prices) {
+            const from = cps[0].date;
+            const to = cps[cps.length - 1].date;
+            const dates = d3.timeWeek.range(from, to);
+            const scale = d3.scaleTime([from, to], [0, dates.length - 1]).clamp(true);
+            let cpi = 0;
+            const prices = dates.map((d) => {
+                while (cps[cpi].date < d)
+                    cpi++;
+                return cps[cpi].value;
+            });
+            console.log(this.id, prices.length, commodity.id, dateToString(from), dateToString(to));
+            const conversion = (d) => prices[Math.round(scale(d))];
+            conversion.scale = scale;
+            conversion.prices = prices;
+            conversion.dates = dates;
+            conversion.commodity = this;
+            this._conversions.set(commodity, conversion);
+        }
+        return this._conversions;
+    }
+    convert(amount, date) {
+        const conversion = amount.commodity.conversions.get(this);
+        if (!conversion)
+            throw new Error(`Cannot convert ${amount.toString()} to ${this.toString()}`);
+        const price = conversion(date);
+        return amount.convert(price);
     }
 }
 class Amount {
@@ -46325,11 +46364,16 @@ class Amount {
     toNumber() {
         return this.value / 10 ** this.commodity.decimals;
     }
-    addIn(amount) {
-        if (amount.commodity != this.commodity)
-            throw new Error(`Cannot add ${amount.commodity} into ${this.commodity}`);
-        this.value += amount.value;
-        return this;
+    addIn(amount, date) {
+        if (amount.commodity == this.commodity) {
+            this.value += amount.value;
+            return this;
+        }
+        return this.addIn(this.commodity.convert(amount, date), date);
+    }
+    convert(price) {
+        const float = (this.value * price.value) / 10 ** this.commodity.decimals;
+        return new Amount(Math.round(float), price.commodity);
     }
     cmp(amount) {
         const decimalDiff = this.commodity.decimals - amount.commodity.decimals;
@@ -46390,7 +46434,7 @@ class Account {
         accounts = accounts.filter((a) => a.postings.length > 0);
         return accounts.map((acc) => ({
             account: acc,
-            groups: groupBy(trimToDateRange(acc.postings, from, to), groupKey, (p) => p.transaction.posted, this.commodity),
+            groups: groupBy(trimToDateRange(acc.postings, from, to), groupKey, (p) => p.transaction.posted, acc.commodity),
         }));
     }
     getRootAccount() {
@@ -46526,8 +46570,8 @@ function groupBy(postings, groupBy, date, commodity) {
             postings = [];
         }
         else {
-            postings.forEach((p) => sum.addIn(p.quantity));
-            total.addIn(sum);
+            postings.forEach((p) => sum.addIn(p.quantity, date));
+            total.addIn(sum, date);
         }
         return { date, postings, sum, total: Amount.clone(total) };
     });
@@ -46542,8 +46586,8 @@ function addIntoFirst(groups) {
             if (g.date.getTime() != g2.date.getTime())
                 throw new Error("date mismatch totaling groups");
             g.postings.push(...g2.postings);
-            g.sum.addIn(g2.sum);
-            g.total.addIn(g2.total);
+            g.sum.addIn(g2.sum, g.date);
+            g.total.addIn(g2.total, g.date);
         });
     });
     total.account = undefined;
@@ -46753,19 +46797,19 @@ function viewRegisterAggregatedWithSubAccounts(containerSelector, groupKey, acco
     const groups = groupWithSubAccounts(account, groupKey, State.Register.AggregatedSubAccountMax, options);
     // transpose the groups into row data
     const total = new Amount(0, account.commodity);
-    const data = dates.map((d, i) => {
+    const data = dates.map((date, i) => {
         const sum = new Amount(0, account.commodity);
         const postings = [];
         const row = groups.map((gs) => {
             const g = gs.groups[i];
-            if (g.date.getTime() != d.getTime())
+            if (g.date.getTime() != date.getTime())
                 throw new Error("date mismatch transposing groups");
             postings.push(...g.postings);
-            sum.addIn(g.sum);
+            sum.addIn(g.sum, g.date);
             return g;
         });
-        total.addIn(sum);
-        row.push({ date: d, postings, sum, total: Amount.clone(total) });
+        total.addIn(sum, date);
+        row.push({ date: date, postings, sum, total: Amount.clone(total) });
         return row;
     });
     const labels = [
@@ -46814,7 +46858,7 @@ function viewRegisterFull(containerSelector, account, options) {
         .join("tr")
         .selectAll("td")
         .data((p) => {
-        total.addIn(p.quantity);
+        total.addIn(p.quantity, p.transaction.posted);
         return [
             [dateToString(p.transaction.posted), "date"],
             [p.transaction.description, "text"],
@@ -46846,7 +46890,7 @@ function viewRegisterFullWithSubAccounts(containerSelector, account, options) {
         .join("tr")
         .selectAll("td")
         .data((p) => {
-        total.addIn(p.quantity);
+        total.addIn(p.quantity, p.transaction.posted);
         return [
             [dateToString(p.transaction.posted), "date"],
             [p.transaction.description, "text"],

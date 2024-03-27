@@ -2,8 +2,11 @@ import * as d3 from "d3";
 
 // MODELS
 
+type Conversion = (d: Date) => Amount;
+
 class Commodity {
   prices: Price[] = [];
+  _conversions?: Map<Commodity, Conversion>;
   constructor(
     readonly id: string,
     readonly name: string,
@@ -11,6 +14,46 @@ class Commodity {
   ) {}
   toString(): string {
     return this.id;
+  }
+  get conversions() {
+    if (this._conversions) return this._conversions;
+    const prices = new Map<Commodity, Price[]>();
+    this.prices.forEach((p) => {
+      const cps = prices.get(p.value.commodity);
+      if (cps) cps.push(p);
+      else prices.set(p.value.commodity, [p]);
+    });
+    this._conversions = new Map();
+    for (const [commodity, cps] of prices) {
+      const from = cps[0].date;
+      const to = cps[cps.length - 1].date;
+      const dates = d3.timeWeek.range(from, to);
+      // scale from dates to the number of weeks/price points
+      const scale = d3.scaleTime([from, to], [0, dates.length - 1]).clamp(true);
+      // generate array of prices per week
+      let cpi = 0;
+      const prices = dates.map((d) => {
+        while (cps[cpi].date < d) cpi++;
+        return cps[cpi].value;
+      });
+      // conversion function, add closed over elements as properties for debugging
+      const conversion = (d: Date) => prices[Math.round(scale(d))];
+      conversion.scale = scale;
+      conversion.prices = prices;
+      conversion.dates = dates;
+      conversion.commodity = this;
+      this._conversions.set(commodity, conversion);
+    }
+    return this._conversions;
+  }
+  convert(amount: Amount, date: Date): Amount {
+    const conversion = amount.commodity.conversions.get(this);
+    if (!conversion)
+      throw new Error(
+        `Cannot convert ${amount.toString()} to ${this.toString()}`
+      );
+    const price = conversion(date);
+    return amount.convert(price);
   }
 }
 
@@ -51,11 +94,16 @@ class Amount {
   toNumber() {
     return this.value / 10 ** this.commodity.decimals;
   }
-  addIn(amount: Amount): Amount {
-    if (amount.commodity != this.commodity)
-      throw new Error(`Cannot add ${amount.commodity} into ${this.commodity}`);
-    this.value += amount.value;
-    return this;
+  addIn(amount: Amount, date: Date): Amount {
+    if (amount.commodity == this.commodity) {
+      this.value += amount.value;
+      return this;
+    }
+    return this.addIn(this.commodity.convert(amount, date), date);
+  }
+  convert(price: Amount): Amount {
+    const float = (this.value * price.value) / 10 ** this.commodity.decimals;
+    return new Amount(Math.round(float), price.commodity);
   }
   cmp(amount: Amount) {
     const decimalDiff = this.commodity.decimals - amount.commodity.decimals;
@@ -136,7 +184,7 @@ class Account {
         trimToDateRange(acc.postings, from, to),
         groupKey,
         (p) => p.transaction.posted,
-        this.commodity
+        acc.commodity
       ),
     }));
   }
@@ -376,8 +424,8 @@ function groupBy(
     if (!postings) {
       postings = [];
     } else {
-      postings.forEach((p) => sum.addIn(p.quantity));
-      total.addIn(sum);
+      postings.forEach((p) => sum.addIn(p.quantity, date));
+      total.addIn(sum, date);
     }
     return { date, postings, sum, total: Amount.clone(total) };
   });
@@ -393,8 +441,8 @@ function addIntoFirst(groups: AccountPostingGroups[]): AccountPostingGroups {
       if (g.date.getTime() != g2.date.getTime())
         throw new Error("date mismatch totaling groups");
       g.postings.push(...g2.postings);
-      g.sum.addIn(g2.sum);
-      g.total.addIn(g2.total);
+      g.sum.addIn(g2.sum, g.date);
+      g.total.addIn(g2.total, g.date);
     });
   });
   total.account = undefined;
@@ -684,19 +732,19 @@ function viewRegisterAggregatedWithSubAccounts(
   );
   // transpose the groups into row data
   const total = new Amount(0, account.commodity);
-  const data = dates.map((d, i) => {
+  const data = dates.map((date, i) => {
     const sum = new Amount(0, account.commodity);
     const postings: Posting[] = [];
     const row = groups.map((gs) => {
       const g = gs.groups[i];
-      if (g.date.getTime() != d.getTime())
+      if (g.date.getTime() != date.getTime())
         throw new Error("date mismatch transposing groups");
       postings.push(...g.postings);
-      sum.addIn(g.sum);
+      sum.addIn(g.sum, g.date);
       return g;
     });
-    total.addIn(sum);
-    row.push({ date: d, postings, sum, total: Amount.clone(total) });
+    total.addIn(sum, date);
+    row.push({ date: date, postings, sum, total: Amount.clone(total) });
     return row;
   });
   const labels = [
@@ -756,7 +804,7 @@ function viewRegisterFull(
     .join("tr")
     .selectAll("td")
     .data((p) => {
-      total.addIn(p.quantity);
+      total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
         [p.transaction.description, "text"],
@@ -795,7 +843,7 @@ function viewRegisterFullWithSubAccounts(
     .join("tr")
     .selectAll("td")
     .data((p) => {
-      total.addIn(p.quantity);
+      total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
         [p.transaction.description, "text"],
