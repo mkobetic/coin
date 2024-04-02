@@ -12,12 +12,9 @@ LDFLAGS += -X "github.com/mkobetic/coin.GoVersion=$(GO_VERSION)"
 BUILD := CGO_ENABLED=0 go install
 TEST := CGO_ENABLED=0 go test
 
-build: coin gc2coin ofx2coin csv2coin gen2coin
+build: coin gc2coin ofx2coin csv2coin gen2coin coin2html
 
-cmd/coin/charts.go: cmd/coin/charts/*.js cmd/coin/charts/*.css
-	go generate ./cmd/coin
-
-coin: *.go cmd/coin/*.go cmd/coin/charts.go
+coin: *.go cmd/coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin
 
 gc2coin: *.go cmd/gc2coin/*.go
@@ -31,6 +28,14 @@ csv2coin: *.go cmd/csv2coin/*.go
 
 gen2coin: *.go cmd/gen2coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/gen2coin
+
+coin2html: *.go cmd/coin2html/*.go cmd/coin2html/js/src/*.ts cmd/coin2html/js/*.html
+	go generate ./cmd/coin2html
+	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin2html
+
+examples/yearly/viewer.html: export COINDB=./examples/yearly
+examples/yearly/viewer.html: coin2html
+	coin2html >$(COINDB)/viewer.html
 
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/

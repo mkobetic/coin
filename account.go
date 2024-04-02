@@ -2,6 +2,7 @@ package coin
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"sort"
@@ -17,8 +18,6 @@ import (
 type Account struct {
 	Name        string
 	FullName    string // name with all the ancestors
-	Type        string
-	Code        string
 	Description string
 	CommodityId string
 	Closed      time.Time // the date the account was closed
@@ -33,10 +32,12 @@ type Account struct {
 	line uint
 	file string
 
-	OFXBankId string
-	OFXAcctId string
-
+	OFXBankId string // obsolete; left here for backward compatibility
+	OFXAcctId string // obsolete; left here for backward compatibility
 	CSVAcctId string // obsolete; left here for backward compatibility
+	Type      string // (obsolete) used for gnucash conversion only
+	Code      string // (obsolete) used for gnucash conversion only
+
 }
 
 /*
@@ -56,6 +57,9 @@ func (a *Account) Write(w io.Writer, ledger bool) error {
 		lines = append(lines, "  note ", a.Description, "\n")
 	}
 	lines = append(lines, `  commodity `, a.Commodity.SafeId(ledger), "\n")
+	if !a.Closed.IsZero() {
+		lines = append(lines, `  closed `, a.Closed.Format(DateFormat), "\n")
+	}
 	if a.OFXBankId != "" && !ledger {
 		lines = append(lines, `  ofx_bankid `, a.OFXBankId, "\n")
 	}
@@ -310,4 +314,23 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func (a *Account) MarshalJSON() ([]byte, error) {
+	value := map[string]interface{}{
+		"name":      a.Name,
+		"fullName":  a.FullName,
+		"commodity": a.Commodity.Id,
+	}
+	if !a.Closed.IsZero() {
+		value["closed"] = a.Closed.Format(DateFormat)
+	}
+	if a.Code != "" {
+		value["code"] = a.Code
+	}
+	if a.Parent != nil {
+		value["parent"] = a.Parent.FullName
+
+	}
+	return json.MarshalIndent(value, "", "\t")
 }

@@ -52,6 +52,9 @@ csv import, see [`cmd/csv2coin/README.md`](https://github.com/mkobetic/coin/blob
 
 generates ledger samples for testing or demos, see [`cmd/gen2coin/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/gen2coin/README.md)
 
+### coin2html
+
+converts the ledger into a single-page html viewer, see [`cmd/coin2html/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin2html/README.md)
 
 ## Assorted Ledger Differences
 (besides vastly reduced set of commands/options and capabilities)

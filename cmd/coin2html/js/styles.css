@@ -1,0 +1,73 @@
+#container {
+  display: flex;
+  flex-direction: row;
+}
+
+select,
+input,
+label {
+  margin: 3px;
+}
+
+/* SIDEBAR */
+#sidebar {
+  display: flex; /* override display: block to make flex-direction work */
+  flex-direction: column;
+  flex-basis: 20%; /* horizontal screen proportion */
+}
+
+#sidebar ul#accounts {
+  list-style-type: none;
+  padding: 3px;
+  margin: 3px;
+}
+#sidebar ul#accounts li:hover {
+  background-color: gray;
+}
+
+/* MAIN SECTION */
+#main {
+  flex-basis: 80%; /* horizontal screen proportion */
+}
+#main h1 {
+  margin: 0.3em; /* reduce margin */
+}
+
+/* VIEW REGISTER */
+table#register {
+  width: 100%;
+}
+table#register thead {
+  background-color: darkcyan;
+  color: white;
+}
+/* make table row background alternate white/gray*/
+table#register tr:nth-child(even) {
+  background-color: lightgray;
+}
+/* darker gray background on hover */
+table#register tbody tr:hover {
+  background-color: gray;
+}
+/* amounts are right-aligned */
+td.amount {
+  text-align: right;
+}
+
+/* CHART */
+.layer text {
+  fill: white;
+  text-anchor: end;
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.legend text {
+  fill: white;
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.layer rect:hover {
+  fill: gray;
+}
