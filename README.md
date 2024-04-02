@@ -1,4 +1,4 @@
-![tests](https://github.com/mkobetic/coin/.github/workflows/test.yml/badge.svg)
+![tests](https://github.com/mkobetic/coin/actions/workflows/test.yml/badge.svg)
 
 **NB:** This is still a work in progress, a lot of information is missing and is filled in gradually. There isn't much in terms of user documentation, but most features follow the same pattern as ledger-cli. You can learn most things from ledger-cli's excellent documentation.
 
