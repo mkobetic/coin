@@ -33,9 +33,9 @@ coin2html: *.go cmd/coin2html/*.go cmd/coin2html/js/src/*.ts cmd/coin2html/js/*.
 	go generate ./cmd/coin2html
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin2html
 
-examples/yearly/viewer.html: export COINDB=./examples/yearly
-examples/yearly/viewer.html: coin2html
-	coin2html >$(COINDB)/viewer.html
+examples/yearly/viewer/index.html: export COINDB=./examples/yearly
+examples/yearly/viewer/index.html: coin2html
+	coin2html >$(COINDB)/viewer/index.html
 
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/
