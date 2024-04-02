@@ -17,13 +17,15 @@ Shows the transaction details in tabular form
 When un-checked only transactions for the selected account are shown.
 When checked transaction of the account and any subaccounts are shown.
 
-![Register Aggregated Monthly](https://github.com/mkobetic/coin/assets/871693/ca4897e1-54f3-4d94-93c7-c054b925f566)
+![Register Full With SubAccounts](https://github.com/mkobetic/coin/assets/871693/011f46e4-2f1d-4566-ac6a-58f7b4b8d66f)
 
 ## Aggregate
 
 When None, the individual transactions are shown.
 When not None, the transactions are aggregated by the selected aggregation period (Weekly, Monthly, Quarterly, Yearly).
 When aggregated with subaccounts, the SubAccount Max option controls how many "top" subaccounts should be shown; the rest of the subaccounts are combined into an "Other" column. Top means the subaccounts with the highest average transaction value across the time range.
+
+![Register Aggregated Monthly](https://github.com/mkobetic/coin/assets/871693/ca4897e1-54f3-4d94-93c7-c054b925f566)
 
 # Chart View
 
