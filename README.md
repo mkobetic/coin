@@ -56,8 +56,7 @@ generates ledger samples for testing or demos, see [`cmd/gen2coin/README.md`](ht
 
 ### coin2html
 
-converts the ledger into a single-page html viewer, see [`cmd/coin2html/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin2html/README.md).
-[try](https://mkobetic.github.io/coin/) the examples/yearly.
+converts the ledger into a single-page html viewer, see [`cmd/coin2html/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin2html/README.md) or try the [examples/yearly](https://mkobetic.github.io/coin/)
 
 ![Register Full](https://github.com/mkobetic/coin/assets/871693/8bc5704e-cd03-42c0-b4ca-828c51f8fec8)
 
