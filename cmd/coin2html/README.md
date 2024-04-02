@@ -1,5 +1,5 @@
 Converts the coin database into an HTML doc with a single page, interactive JS app for viewing.
-Check out the [example/yearly](example/yearly/viewer.html)
+Check out the [example/yearly](../../example/yearly/viewer.html)
 
 Account hierarchy nav on the left, segregated by account type (Assets, Income, Expenses, Liabilities, Equity).
 Selecting a specific account restricts the detail view to that account's hierarchy.
