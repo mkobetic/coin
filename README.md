@@ -1,3 +1,5 @@
+![tests](https://github.com/mkobetic/coin/actions/workflows/test.yaml/badge.svg)
+
 **NB:** This is still a work in progress, a lot of information is missing and is filled in gradually. There isn't much in terms of user documentation, but most features follow the same pattern as ledger-cli. You can learn most things from ledger-cli's excellent documentation.
 
 Coin is a heavily simplified offshoot of [ledger-cli.org](https://www.ledger-cli.org/). The idea of [plain text accounting](https://plaintextaccounting.org/) is brilliant, and ledger implements it beautifully. However ledger makes certain fundamental tradeoffs that have implications that some may find undesirable. For example its extreme flexibility in how amounts and commodities can be written (prefix/postfix/symbolic etc) forces commodities that include numbers to be quoted. That gets annoying when your ledger includes a lot of mutual fund names. Coin sacrifices this flexibility to avoid quoting.
@@ -55,6 +57,10 @@ generates ledger samples for testing or demos, see [`cmd/gen2coin/README.md`](ht
 ### coin2html
 
 converts the ledger into a single-page html viewer, see [`cmd/coin2html/README.md`](https://github.com/mkobetic/coin/blob/master/cmd/coin2html/README.md)
+
+![Register Full](https://github.com/mkobetic/coin/assets/871693/8bc5704e-cd03-42c0-b4ca-828c51f8fec8)
+
+![Chart Monthly](https://github.com/mkobetic/coin/assets/871693/d640b4a4-1cd2-4faf-8fbd-0c10f3cc90b3)
 
 ## Assorted Ledger Differences
 (besides vastly reduced set of commands/options and capabilities)
