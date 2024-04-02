@@ -10,10 +10,14 @@ Displayed transactions are restricted to selected time range.
 
 Shows the transaction details in tabular form
 
+![Register Full](https://github.com/mkobetic/coin/assets/871693/d25a6cd8-9775-4261-a601-3d2173ec8a6c)
+
 ## SubAccounts
 
 When un-checked only transactions for the selected account are shown.
 When checked transaction of the account and any subaccounts are shown.
+
+![Register Aggregated Monthly](https://github.com/mkobetic/coin/assets/871693/ca4897e1-54f3-4d94-93c7-c054b925f566)
 
 ## Aggregate
 
@@ -24,3 +28,5 @@ When aggregated with subaccounts, the SubAccount Max option controls how many "t
 # Chart View
 
 Chart shows aggregated transactions (including subaccounts) by the selected aggregation period as a bar chart. The meaning of the available options is the same as for the Register aggregations.
+
+![Chart Monthly](https://github.com/mkobetic/coin/assets/871693/7e265e93-131b-4a9e-b1db-3b201a53092b)
