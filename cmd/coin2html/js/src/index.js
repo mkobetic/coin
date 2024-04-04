@@ -291,6 +291,8 @@ function loadAccounts() {
             const posting = new Posting(transaction, account, quantity, balance, impPosting.balance_asserted, impPosting.notes, impPosting.tags);
         }
     }
+    MinDate = new Date(MinDate.getFullYear(), 0, 1);
+    MaxDate = new Date(MaxDate.getFullYear(), 11, 31);
 }
 function loadEverything() {
     loadCommodities();

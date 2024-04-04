@@ -397,6 +397,8 @@ function loadAccounts() {
       );
     }
   }
+  MinDate = new Date(MinDate.getFullYear(), 0, 1);
+  MaxDate = new Date(MaxDate.getFullYear(), 11, 31);
 }
 
 function loadEverything() {
