@@ -33,6 +33,16 @@ label {
   margin: 0.3em; /* reduce margin */
 }
 
+#main #header {
+  display: flex;
+  flex-basis: 100%;
+  justify-content: space-between; /* to make the Help link align right */
+}
+
+#main #header #help {
+  margin: 0.3em;
+}
+
 /* VIEW REGISTER */
 table#register {
   width: 100%;

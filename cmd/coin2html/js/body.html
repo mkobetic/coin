@@ -1,23 +1,27 @@
-
 <div id="container">
-<nav id="sidebar">
+  <nav id="sidebar">
     <select id="root"></select>
     <ul id="accounts"></ul>
-</nav>
+  </nav>
 
-<section id="main">
-    <section id="controls">
+  <section id="main">
+    <section id="header">
+      <section id="controls">
         <select id="view"></select>
         <label for="start">From</label>
-        <input type="date" id="start"/>
+        <input type="date" id="start" />
         <label for="end">To</label>
-        <input type="date" id="end" label="To"/>
+        <input type="date" id="end" label="To" />
+      </section>
+      <a
+        id="help"
+        href="https://github.com/mkobetic/coin/tree/master/cmd/coin2html/README.md"
+        >Help</a
+      >
     </section>
     <h1>
-    <output id="account"></output>
+      <output id="account"></output>
     </h1>
-    <section id="view">
-    </section>
-</section>
+    <section id="view"></section>
+  </section>
 </div>
-
