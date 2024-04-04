@@ -219,6 +219,7 @@ interface Tags {
 }
 
 class Posting {
+  index?: number; // used to cache index in the register view for sorting
   constructor(
     readonly transaction: Transaction,
     readonly account: Account,
@@ -538,23 +539,20 @@ const Views = {
     Chart: viewChart,
   },
   Liabilities: {
-    Register: (containerSelector: string, account: Account) =>
-      viewRegister(containerSelector, account, { negated: true }),
-    Chart: (containerSelector: string, account: Account) =>
-      viewChart(containerSelector, account, { negated: true }),
+    Register: () => viewRegister({ negated: true }),
+    Chart: () => viewChart({ negated: true }),
   },
   Income: {
-    Register: (containerSelector: string, account: Account) =>
-      viewRegister(containerSelector, account, {
+    Register: () =>
+      viewRegister({
         negated: true,
         aggregatedTotal: true,
       }),
-    Chart: (containerSelector: string, account: Account) =>
-      viewChart(containerSelector, account, { negated: true }),
+    Chart: () => viewChart({ negated: true }),
   },
   Expenses: {
-    Register: (containerSelector: string, account: Account) =>
-      viewRegister(containerSelector, account, {
+    Register: () =>
+      viewRegister({
         aggregatedTotal: true,
       }),
     Chart: viewChart,
@@ -570,12 +568,13 @@ const Views = {
 // UI State
 let State = {
   SelectedAccount: Accounts.Assets,
-  SelectedView: Views.Assets.Register,
+  SelectedView: Object.keys(Views.Assets)[0],
   StartDate: MinDate,
   EndDate: MaxDate,
   View: {
     // Should we recurse into subaccounts
     ShowSubAccounts: false,
+    ShowNotes: false, // Show notes in register view
     Aggregate: "None" as keyof typeof Aggregation,
     // How many largest subaccounts to show when aggregating.
     AggregatedSubAccountMax: 5,
@@ -584,10 +583,7 @@ let State = {
 
 // VIEWS
 
-function addIncludeSubAccountsInput(
-  containerSelector: string,
-  account: Account
-) {
+function addIncludeSubAccountsInput(containerSelector: string) {
   const container = d3.select(containerSelector);
   container
     .append("label")
@@ -598,14 +594,29 @@ function addIncludeSubAccountsInput(
     .on("change", (e, d) => {
       const input = e.currentTarget as HTMLInputElement;
       State.View.ShowSubAccounts = input.checked;
-      State.SelectedView(containerSelector, account);
+      updateView();
     })
     .attr("id", "includeSubAccounts")
     .attr("type", "checkbox")
     .property("checked", State.View.ShowSubAccounts);
 }
 
-function addSubAccountMaxInput(containerSelector: string, account: Account) {
+function addIncludeNotesInput(containerSelector: string) {
+  const container = d3.select(containerSelector);
+  container.append("label").property("for", "includeNotes").text("Show Notes");
+  container
+    .append("input")
+    .on("change", (e, d) => {
+      const input = e.currentTarget as HTMLInputElement;
+      State.View.ShowNotes = input.checked;
+      updateView();
+    })
+    .attr("id", "includeNotes")
+    .attr("type", "checkbox")
+    .property("checked", State.View.ShowNotes);
+}
+
+function addSubAccountMaxInput(containerSelector: string) {
   const container = d3.select(containerSelector);
   container
     .append("label")
@@ -616,7 +627,7 @@ function addSubAccountMaxInput(containerSelector: string, account: Account) {
     .on("change", (e, d) => {
       const input = e.currentTarget as HTMLInputElement;
       State.View.AggregatedSubAccountMax = parseInt(input.value);
-      State.SelectedView(containerSelector, account);
+      updateView();
     })
     .attr("id", "subAccountMax")
     .attr("type", "number")
@@ -625,7 +636,6 @@ function addSubAccountMaxInput(containerSelector: string, account: Account) {
 
 function addAggregateInput(
   containerSelector: string,
-  account: Account,
   options?: {
     includeNone?: boolean;
   }
@@ -639,7 +649,7 @@ function addAggregateInput(
     const select = e.currentTarget as HTMLSelectElement;
     const selected = select.options[select.selectedIndex].value;
     State.View.Aggregate = selected as keyof typeof Aggregation;
-    State.SelectedView(containerSelector, account);
+    updateView();
   });
   let data = Object.keys(Aggregation).filter(
     (k) => opts.includeNone || k != "None"
@@ -674,23 +684,23 @@ function addTableWithHeader(containerSelector: string, labels: string[]) {
   return table;
 }
 
-function viewRegister(
-  containerSelector: string,
-  account: Account,
-  options?: {
-    negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
-    aggregatedTotal?: boolean; // include cumulative total in aggregated register
-  }
-) {
+function viewRegister(options?: {
+  negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
+  aggregatedTotal?: boolean; // include cumulative total in aggregated register
+}) {
+  const containerSelector = MainView;
+  const account = State.SelectedAccount;
   const opts = { negated: false, aggregatedTotal: false };
   Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
-  addIncludeSubAccountsInput(containerSelector, account);
-  addAggregateInput(containerSelector, account);
+  addIncludeSubAccountsInput(containerSelector);
+  addAggregateInput(containerSelector);
   if (State.View.ShowSubAccounts && State.View.Aggregate != "None")
-    addSubAccountMaxInput(containerSelector, account);
-
+    addSubAccountMaxInput(containerSelector);
+  if (State.View.Aggregate == "None") {
+    addIncludeNotesInput(containerSelector);
+  }
   const groupKey = Aggregation[State.View.Aggregate];
   if (groupKey) {
     if (State.View.ShowSubAccounts)
@@ -731,6 +741,7 @@ function viewRegisterAggregated(
     .selectAll("tr")
     .data(data)
     .join("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((g) => {
       const row = [
@@ -792,6 +803,7 @@ function viewRegisterAggregatedWithSubAccounts(
     .selectAll("tr")
     .data(data)
     .join("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((row) => {
       const total = row[row.length - 1];
@@ -828,13 +840,13 @@ function viewRegisterFull(
     State.StartDate,
     State.EndDate
   );
-  table
-    .append("tbody")
-    .selectAll("tr")
-    .data(data)
-    .join("tr")
+  const rows = table.append("tbody").selectAll("tr").data(data).enter();
+  rows
+    .append("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
-    .data((p) => {
+    .data((p, i) => {
+      p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
@@ -847,7 +859,24 @@ function viewRegisterFull(
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
+    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
     .text(([v, c]) => v.toString());
+  if (State.View.ShowNotes) {
+    rows
+      .append("tr")
+      .classed("even", (_, i) => i % 2 == 0)
+      .selectAll("td")
+      .data((p, i) => [p.transaction.notes])
+      .join("td")
+      .attr("colspan", 5)
+      .text((notes) => (notes ? notes.join("; ") : ""));
+    // need to resort the rows so that the note rows are next to the data rows
+    // the index is set on the Postings with the data rows above
+    table
+      .select("tbody")
+      .selectAll("tr")
+      .sort((a: any, b: any) => a.index - b.index);
+  }
 }
 
 function viewRegisterFullWithSubAccounts(
@@ -867,13 +896,13 @@ function viewRegisterFullWithSubAccounts(
   ]);
   const total = new Amount(0, account.commodity);
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
-  table
-    .append("tbody")
-    .selectAll("tr")
-    .data(data)
-    .join("tr")
+  const rows = table.append("tbody").selectAll("tr").data(data).enter();
+  rows
+    .append("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
-    .data((p) => {
+    .data((p, i) => {
+      p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
@@ -886,26 +915,41 @@ function viewRegisterFullWithSubAccounts(
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
+    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
     .text(([v, c]) => v.toString());
+  if (State.View.ShowNotes) {
+    rows
+      .append("tr")
+      .classed("even", (_, i) => i % 2 == 0)
+      .selectAll("td")
+      .data((p, i) => [p.transaction.notes])
+      .join("td")
+      .attr("colspan", 5)
+      .text((notes) => (notes ? notes.join("; ") : ""));
+    // need to resort the rows so that the note rows are next to the data rows
+    // the index is set on the Postings with the data rows above
+    table
+      .select("tbody")
+      .selectAll("tr")
+      .sort((a: any, b: any) => a.index - b.index);
+  }
 }
 
 // CHART
 
-function viewChart(
-  containerSelector: string,
-  account: Account, // root account
-  options?: {
-    negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
-  }
-) {
+function viewChart(options?: {
+  negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
+}) {
+  const containerSelector = MainView;
+  const account = State.SelectedAccount.getRootAccount();
   const opts = { negated: false }; // defaults
   Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
-  addAggregateInput(containerSelector, account, {
+  addAggregateInput(containerSelector, {
     includeNone: false,
   });
-  addSubAccountMaxInput(containerSelector, account);
+  addSubAccountMaxInput(containerSelector);
 
   const groupKey = Aggregation[State.View.Aggregate] as d3.TimeInterval;
   const dates = groupKey.range(State.StartDate, State.EndDate);
@@ -1040,47 +1084,56 @@ function emptyElement(selector: string) {
 
 // UI Events
 
-function updateAccount(account: Account) {
-  State.SelectedAccount = account;
-  d3.select(AccountOutput).text(account.fullName);
-  State.SelectedView(MainView, account);
+function updateView() {
+  const account = State.SelectedAccount.getRootAccount();
+  const selectedViews = Views[account.name as keyof typeof Views];
+  const view = selectedViews[State.SelectedView as keyof typeof selectedViews];
+  view();
 }
 
-function addViewSelect(account: Account) {
+function updateAccount() {
+  const account = State.SelectedAccount;
+  d3.select(AccountOutput).text(account.fullName);
+  updateView();
+}
+
+function addViewSelect() {
   emptyElement(ViewSelect);
-  const selectedViews = Views[account.name as keyof typeof Views];
-  State.SelectedView = selectedViews.Register;
+  const account = State.SelectedAccount.getRootAccount();
+  const selectedViews = Object.keys(Views[account.name as keyof typeof Views]);
+  if (!selectedViews.includes(State.SelectedView))
+    State.SelectedView = selectedViews[0];
   d3.select(ViewSelect)
     .on("change", (e) => {
       const select = e.currentTarget as HTMLSelectElement;
-      const selectedView = select.options[select.selectedIndex].value;
-      State.SelectedView =
-        selectedViews[selectedView as keyof typeof selectedViews];
-      State.SelectedView(MainView, account);
+      State.SelectedView = select.options[select.selectedIndex].value;
+      updateView();
     })
     .selectAll("option")
-    .data(Object.entries(selectedViews))
+    .data(selectedViews)
     .join("option")
-    .property("selected", ([l, f]) => f == State.SelectedView)
-    .text(([label, f]) => label);
+    .property("selected", (l) => l == State.SelectedView)
+    .text((l) => l);
 }
 
 type liWithAccount = HTMLLIElement & { __data__: Account };
-function addAccountList(account: Account) {
+function addAccountList() {
+  const account = State.SelectedAccount;
   d3.select(AccountList)
     .selectAll("li")
     .data(account.allChildren())
     .join("li")
     .text((d) => d.fullName)
-    .on("click", (e: Event) =>
-      updateAccount((e.currentTarget as liWithAccount).__data__)
-    );
+    .on("click", (e: Event) => {
+      State.SelectedAccount = (e.currentTarget as liWithAccount).__data__;
+      updateAccount();
+    });
 }
 
-function updateAccounts(account: Account) {
-  addViewSelect(account);
-  addAccountList(account);
-  updateAccount(account);
+function updateAccounts() {
+  addViewSelect();
+  addAccountList();
+  updateAccount();
 }
 
 function initializeUI() {
@@ -1093,7 +1146,7 @@ function initializeUI() {
     .on("change", (e) => {
       const input = e.currentTarget as HTMLInputElement;
       State.EndDate = new Date(input.value);
-      updateAccount(State.SelectedAccount);
+      updateView();
     });
   d3.select(StartDateInput)
     .property("valueAsDate", State.StartDate)
@@ -1102,7 +1155,7 @@ function initializeUI() {
     .on("change", (e) => {
       const input = e.currentTarget as HTMLInputElement;
       State.StartDate = new Date(input.value);
-      updateAccount(State.SelectedAccount);
+      updateView();
     });
   type optionWithAccount = HTMLOptionElement & { __data__: Account };
   d3.select(RootAccountSelect)
@@ -1111,7 +1164,8 @@ function initializeUI() {
       const account = (
         select.options[select.selectedIndex] as optionWithAccount
       ).__data__;
-      updateAccounts(account);
+      State.SelectedAccount = account;
+      updateAccounts();
     })
     .selectAll("option")
     .data(Roots)
@@ -1120,7 +1174,7 @@ function initializeUI() {
     .text((d) => d.fullName);
 
   // trigger account selection
-  updateAccounts(State.SelectedAccount);
+  updateAccounts();
 }
 
 initializeUI();

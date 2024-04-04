@@ -24,6 +24,8 @@
 
 ### coin2html
 
+- replace dateToString with d3.format
+- thousands separator
 - tooltips for columns, inputs and wherever useful
 - show details of selected posting
 - add location info
