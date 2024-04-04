@@ -28,6 +28,10 @@ When aggregated with subaccounts, the SubAccount Max option controls how many "t
 
 ![Register Aggregated Monthly](https://github.com/mkobetic/coin/assets/871693/ca4897e1-54f3-4d94-93c7-c054b925f566)
 
+## Show Notes
+
+When Aggregate is set to None, and Show Notes is checked, each transaction is displayed with an additional row containing the transaction notes.
+
 # Chart View
 
 Chart shows aggregated transactions (including subaccounts) by the selected aggregation period as a bar chart. The meaning of the available options is the same as for the Register aggregations.

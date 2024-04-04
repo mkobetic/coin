@@ -42,7 +42,7 @@ table#register thead {
   color: white;
 }
 /* make table row background alternate white/gray*/
-table#register tr:nth-child(even) {
+table#register tr.even {
   background-color: lightgray;
 }
 /* darker gray background on hover */

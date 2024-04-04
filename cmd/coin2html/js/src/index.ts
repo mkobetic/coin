@@ -219,6 +219,7 @@ interface Tags {
 }
 
 class Posting {
+  index?: number; // used to cache index in the register view for sorting
   constructor(
     readonly transaction: Transaction,
     readonly account: Account,
@@ -573,6 +574,7 @@ let State = {
   View: {
     // Should we recurse into subaccounts
     ShowSubAccounts: false,
+    ShowNotes: false, // Show notes in register view
     Aggregate: "None" as keyof typeof Aggregation,
     // How many largest subaccounts to show when aggregating.
     AggregatedSubAccountMax: 5,
@@ -597,6 +599,21 @@ function addIncludeSubAccountsInput(containerSelector: string) {
     .attr("id", "includeSubAccounts")
     .attr("type", "checkbox")
     .property("checked", State.View.ShowSubAccounts);
+}
+
+function addIncludeNotesInput(containerSelector: string) {
+  const container = d3.select(containerSelector);
+  container.append("label").property("for", "includeNotes").text("Show Notes");
+  container
+    .append("input")
+    .on("change", (e, d) => {
+      const input = e.currentTarget as HTMLInputElement;
+      State.View.ShowNotes = input.checked;
+      updateView();
+    })
+    .attr("id", "includeNotes")
+    .attr("type", "checkbox")
+    .property("checked", State.View.ShowNotes);
 }
 
 function addSubAccountMaxInput(containerSelector: string) {
@@ -681,7 +698,9 @@ function viewRegister(options?: {
   addAggregateInput(containerSelector);
   if (State.View.ShowSubAccounts && State.View.Aggregate != "None")
     addSubAccountMaxInput(containerSelector);
-
+  if (State.View.Aggregate == "None") {
+    addIncludeNotesInput(containerSelector);
+  }
   const groupKey = Aggregation[State.View.Aggregate];
   if (groupKey) {
     if (State.View.ShowSubAccounts)
@@ -722,6 +741,7 @@ function viewRegisterAggregated(
     .selectAll("tr")
     .data(data)
     .join("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((g) => {
       const row = [
@@ -783,6 +803,7 @@ function viewRegisterAggregatedWithSubAccounts(
     .selectAll("tr")
     .data(data)
     .join("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((row) => {
       const total = row[row.length - 1];
@@ -819,13 +840,13 @@ function viewRegisterFull(
     State.StartDate,
     State.EndDate
   );
-  table
-    .append("tbody")
-    .selectAll("tr")
-    .data(data)
-    .join("tr")
+  const rows = table.append("tbody").selectAll("tr").data(data).enter();
+  rows
+    .append("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
-    .data((p) => {
+    .data((p, i) => {
+      p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
@@ -838,7 +859,24 @@ function viewRegisterFull(
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
+    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
     .text(([v, c]) => v.toString());
+  if (State.View.ShowNotes) {
+    rows
+      .append("tr")
+      .classed("even", (_, i) => i % 2 == 0)
+      .selectAll("td")
+      .data((p, i) => [p.transaction.notes])
+      .join("td")
+      .attr("colspan", 5)
+      .text((notes) => (notes ? notes.join("; ") : ""));
+    // need to resort the rows so that the note rows are next to the data rows
+    // the index is set on the Postings with the data rows above
+    table
+      .select("tbody")
+      .selectAll("tr")
+      .sort((a: any, b: any) => a.index - b.index);
+  }
 }
 
 function viewRegisterFullWithSubAccounts(
@@ -858,13 +896,13 @@ function viewRegisterFullWithSubAccounts(
   ]);
   const total = new Amount(0, account.commodity);
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
-  table
-    .append("tbody")
-    .selectAll("tr")
-    .data(data)
-    .join("tr")
+  const rows = table.append("tbody").selectAll("tr").data(data).enter();
+  rows
+    .append("tr")
+    .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
-    .data((p) => {
+    .data((p, i) => {
+      p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
       return [
         [dateToString(p.transaction.posted), "date"],
@@ -877,7 +915,24 @@ function viewRegisterFullWithSubAccounts(
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
+    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
     .text(([v, c]) => v.toString());
+  if (State.View.ShowNotes) {
+    rows
+      .append("tr")
+      .classed("even", (_, i) => i % 2 == 0)
+      .selectAll("td")
+      .data((p, i) => [p.transaction.notes])
+      .join("td")
+      .attr("colspan", 5)
+      .text((notes) => (notes ? notes.join("; ") : ""));
+    // need to resort the rows so that the note rows are next to the data rows
+    // the index is set on the Postings with the data rows above
+    table
+      .select("tbody")
+      .selectAll("tr")
+      .sort((a: any, b: any) => a.index - b.index);
+  }
 }
 
 // CHART
