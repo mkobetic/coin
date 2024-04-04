@@ -835,9 +835,9 @@ function viewChart(options) {
 // UI Node Selectors
 const RootAccountSelect = "#sidebar select#root";
 const AccountList = "#sidebar ul#accounts";
-const ViewSelect = "#main>#controls select#view";
-const StartDateInput = "#main>#controls input#start";
-const EndDateInput = "#main>#controls input#end";
+const ViewSelect = "#main #controls select#view";
+const StartDateInput = "#main #controls input#start";
+const EndDateInput = "#main #controls input#end";
 const AccountOutput = "#main output#account";
 const MainView = "#main section#view";
 function emptyElement(selector) {
