@@ -29,7 +29,7 @@ csv2coin: *.go cmd/csv2coin/*.go
 gen2coin: *.go cmd/gen2coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/gen2coin
 
-coin2html: *.go cmd/coin2html/*.go cmd/coin2html/js/src/*.ts cmd/coin2html/js/*.html
+coin2html: *.go cmd/coin2html/*.go cmd/coin2html/js/src/*.ts cmd/coin2html/js/*.html cmd/coin2html/js/*.css
 	go generate ./cmd/coin2html
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin2html
 
@@ -40,14 +40,20 @@ examples/yearly/viewer/index.html: coin2html
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/
 
-test: test-go test-fixtures
+test: test-go test-fixtures test-ts
 
-test-go:
+cmd/coin2html/js/dist/body.html:
+	go generate ./cmd/coin2html
+
+test-go: cmd/coin2html/js/dist/body.html
 	$(TEST) ./...
 
 test-fixtures: export COIN_TESTS=./tests
 test-fixtures:
-	find tests -name '*.test' -exec coin test '{}' \;
+	find tests -name '*.test' -print0 | xargs -0 -n1 $(shell go env GOPATH)/bin/coin test
+
+test-ts:
+	npm --prefix cmd/coin2html/js test
 
 fmt:
 	gofmt -s -l -w .
@@ -62,7 +68,10 @@ browse-coverage:
 	$(TEST) -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
-setup:
+setup-ts:
+	npm --prefix cmd/coin2html/js install
+
+setup: setup-ts
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 .PHONY: test test-fixtures test-go fmt lint cover browse-coverage
