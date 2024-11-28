@@ -4,13 +4,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Run tests
-      run: make test-go
-    - name: Test fixtures
-      run: |
-        make coin
-        make test-fixtures
+      - name: Install Go
+        uses: actions/setup-go@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup TS
+        run: make setup-ts
+      - name: Run tests
+        run: make test-go
+      - name: Test fixtures
+        run: |
+          make coin
+          make test-fixtures
+      - name: Test typescript
+        run: make test-ts
