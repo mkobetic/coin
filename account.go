@@ -321,6 +321,7 @@ func (a *Account) MarshalJSON() ([]byte, error) {
 		"name":      a.Name,
 		"fullName":  a.FullName,
 		"commodity": a.Commodity.Id,
+		"location":  a.Location(),
 	}
 	if !a.Closed.IsZero() {
 		value["closed"] = a.Closed.Format(DateFormat)

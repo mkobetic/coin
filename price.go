@@ -82,6 +82,7 @@ func (p *Price) MarshalJSON() ([]byte, error) {
 		"commodity": p.Commodity.Id,
 		"currency":  p.Currency.Id,
 		"value":     p.Value,
+		"location":  p.Location(),
 	}
 	return json.MarshalIndent(value, "", "\t")
 }

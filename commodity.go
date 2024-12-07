@@ -237,6 +237,7 @@ func (c *Commodity) MarshalJSON() ([]byte, error) {
 		"id":       c.Id,
 		"name":     c.Name,
 		"decimals": c.Decimals,
+		"location": c.Location(),
 	}
 	if c.Code != "" {
 		value["code"] = c.Code

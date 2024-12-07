@@ -34,7 +34,8 @@ export class Commodity {
   constructor(
     readonly id: string,
     readonly name: string,
-    readonly decimals: number
+    readonly decimals: number,
+    readonly location: string
   ) {}
   toString(): string {
     return this.id;
@@ -140,7 +141,8 @@ export class Price {
   constructor(
     readonly commodity: Commodity,
     readonly date: Date,
-    readonly value: Amount
+    readonly value: Amount,
+    readonly location: string
   ) {
     commodity.prices.push(this);
   }
@@ -163,6 +165,7 @@ export class Account {
     readonly fullName: string,
     readonly commodity: Commodity,
     readonly parent: Account,
+    readonly location: string,
     readonly closed?: Date
   ) {
     if (parent) {
@@ -170,8 +173,10 @@ export class Account {
     }
   }
   allChildren(): Account[] {
-    return this.children.concat(
-      this.children.map((c) => c.allChildren()).flat()
+    return this.children.reduce(
+      (total: Account[], acc: Account) =>
+        total.concat([acc, ...acc.allChildren()]),
+      []
     );
   }
   toString(): string {
@@ -247,6 +252,7 @@ export class Transaction {
   constructor(
     readonly posted: Date,
     readonly description: string,
+    readonly location: string,
     readonly notes?: string[],
     readonly code?: string
   ) {}
@@ -270,13 +276,14 @@ export class Transaction {
 
 type importedCommodities = Record<
   string,
-  { id: string; name: string; decimals: number }
+  { id: string; name: string; decimals: number; location: string }
 >;
 type importedPrices = {
   commodity: string;
   currency: string;
   time: string;
   value: string;
+  location: string;
 }[];
 
 const Commodities: Record<string, Commodity> = {};
@@ -288,7 +295,8 @@ function loadCommodities() {
     const commodity = new Commodity(
       impCommodity.id,
       impCommodity.name,
-      impCommodity.decimals
+      impCommodity.decimals,
+      impCommodity.location
     );
     Commodities[commodity.id] = commodity;
   }
@@ -308,7 +316,12 @@ function loadCommodities() {
           `Parsed amount "${amount}" doesn't match imported "${imported.value}"`
         );
       }
-      const price = new Price(commodity, new Date(imported.time), amount);
+      const price = new Price(
+        commodity,
+        new Date(imported.time),
+        amount,
+        imported.location
+      );
       commodity.prices.push(price);
     }
   }
@@ -322,11 +335,13 @@ type importedAccounts = Record<
     commodity: string;
     parent: string;
     closed?: string;
+    location: string;
   }
 >;
 type importedTransactions = {
   posted: string;
   description: string;
+  location: string;
   postings: {
     account: string;
     balance: string;
@@ -358,6 +373,7 @@ function loadAccounts() {
       impAccount.fullName,
       Commodities[impAccount.commodity],
       parent,
+      impAccount.location,
       impAccount.closed ? new Date(impAccount.closed) : undefined
     );
     Accounts[account.fullName] = account;
@@ -376,6 +392,7 @@ function loadAccounts() {
     const transaction = new Transaction(
       posted,
       impTransaction.description,
+      impTransaction.location,
       impTransaction.notes,
       impTransaction.code
     );

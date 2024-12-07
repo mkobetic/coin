@@ -300,6 +300,7 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		"description": t.Description,
 		"postings":    t.Postings,
 		"posted":      t.Posted.Format(DateFormat),
+		"location":  t.Location(),
 	}
 	if len(t.Notes) > 0 {
 		value["notes"] = t.Notes

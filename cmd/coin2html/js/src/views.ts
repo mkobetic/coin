@@ -412,7 +412,7 @@ function viewChart(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
 }) {
   const containerSelector = MainView;
-  const account = State.SelectedAccount.getRootAccount();
+  const account = State.SelectedAccount;
   const opts = { negated: false }; // defaults
   Object.assign(opts, options);
   // clear out the container

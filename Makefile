@@ -37,6 +37,8 @@ examples/yearly/viewer/index.html: export COINDB=./examples/yearly
 examples/yearly/viewer/index.html: coin2html
 	coin2html >$(COINDB)/viewer/index.html
 
+examples: examples/yearly/viewer/index.html
+
 dfa: dfa.bash
 	cp ./dfa.bash $(GOPATH1)/bin/
 
