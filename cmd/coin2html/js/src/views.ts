@@ -565,7 +565,20 @@ function updateView() {
 
 function updateAccount() {
   const account = State.SelectedAccount;
-  d3.select(AccountOutput).text(account.fullName);
+  // d3.select(AccountOutput).text(account.fullName);
+  const spans = d3
+    .select(AccountOutput)
+    .selectAll("span")
+    .data(account.withAllParents())
+    .join("span")
+    .text((d) => (d.parent ? ":" : ""));
+  spans
+    .append("a")
+    .text((acc: Account) => acc.name)
+    .on("click", (e: Event, acc: Account) => {
+      State.SelectedAccount = acc;
+      updateAccount();
+    });
   updateView();
 }
 

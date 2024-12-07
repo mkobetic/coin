@@ -216,6 +216,9 @@ export class Account {
       ),
     }));
   }
+  withAllParents(): Account[] {
+    return this.parent ? this.parent.withAllParents().concat(this) : [this];
+  }
   getRootAccount(): Account {
     return this.parent ? this.parent.getRootAccount() : this;
   }

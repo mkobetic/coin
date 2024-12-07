@@ -3,7 +3,7 @@ Check out the [examples/yearly](https://mkobetic.github.io/coin/).
 
 Account hierarchy nav on the left, segregated by account type (`Assets`, `Income`, `Expenses`, `Liabilities`, `Equity`).
 Clicking a specific account restricts the detail view on the right to that account's hierarchy.
-Currently selected account is shown as a heading above the details view.
+Currently selected account is shown as a heading above the details view. The individual names in the heading can be clicked to select the account represented by the name (this allows climbing up the account parent chain conveniently).
 
 Details of the selected account are shown on the right with different presentation options (`Register`, `Chart`, ...).
 The details show account transactions restricted to selected time range, controlled by the `From/To` inputs.
