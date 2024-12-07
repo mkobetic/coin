@@ -175,7 +175,9 @@ export class Account {
   allChildren(): Account[] {
     return this.children.reduce(
       (total: Account[], acc: Account) =>
-        total.concat([acc, ...acc.allChildren()]),
+        State.ShowClosedAccounts || !acc.closed
+          ? total.concat([acc, ...acc.allChildren()])
+          : total,
       []
     );
   }
@@ -557,6 +559,7 @@ export const State = {
   SelectedView: "Register",
   StartDate: MinDate,
   EndDate: MaxDate,
+  ShowClosedAccounts: false,
   View: {
     // Should we recurse into subaccounts
     ShowSubAccounts: false,

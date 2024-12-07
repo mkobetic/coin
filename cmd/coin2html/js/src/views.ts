@@ -546,6 +546,7 @@ const AccountList = "#sidebar ul#accounts";
 const ViewSelect = "#main #controls select#view";
 const StartDateInput = "#main #controls input#start";
 const EndDateInput = "#main #controls input#end";
+const ShowClosedAccounts = "#main #controls input#closedAccounts";
 const AccountOutput = "#main output#account";
 const MainView = "#main section#view";
 
@@ -614,6 +615,7 @@ function initializeUI() {
   State.SelectedView = Object.keys(Views.Assets)[0];
   State.StartDate = MinDate;
   State.EndDate = MaxDate;
+  State.ShowClosedAccounts = false;
 
   const minDate = dateToString(new Date(MinDate.getFullYear(), 1, 1));
   const maxDate = dateToString(new Date(MaxDate.getFullYear() + 1, 1, 1));
@@ -650,6 +652,13 @@ function initializeUI() {
     .join("option")
     .property("selected", (d) => d == State.SelectedAccount)
     .text((d) => d.fullName);
+  d3.select(ShowClosedAccounts)
+    .on("change", (e: Event) => {
+      const input = e.currentTarget as HTMLInputElement;
+      State.ShowClosedAccounts = input.checked;
+      updateAccounts();
+    })
+    .property("checked", State.ShowClosedAccounts);
 
   // trigger account selection
   updateAccounts();

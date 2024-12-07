@@ -1,12 +1,13 @@
 Converts the coin database into an HTML doc with a single page, interactive JS app for viewing.
 Check out the [examples/yearly](https://mkobetic.github.io/coin/).
 
-Account hierarchy nav on the left, segregated by account type (Assets, Income, Expenses, Liabilities, Equity).
+Account hierarchy nav on the left, segregated by account type (`Assets`, `Income`, `Expenses`, `Liabilities`, `Equity`).
 Clicking a specific account restricts the detail view on the right to that account's hierarchy.
 Currently selected account is shown as a heading above the details view.
 
-Details of the selected account are shown on the right with different presentation options (Register, Chart, ...).
-The details show account transactions restricted to selected time range, controlled by the From/To inputs.
+Details of the selected account are shown on the right with different presentation options (`Register`, `Chart`, ...).
+The details show account transactions restricted to selected time range, controlled by the `From/To` inputs.
+The `Closed Accounts` checkbox controls whether closed accounts are excluded from the account list.
 
 # Register View
 
