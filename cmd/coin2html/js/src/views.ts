@@ -238,7 +238,7 @@ export function addAccountList() {
     .selectAll("li")
     .data(account.allChildren())
     .join("li")
-    .text((d) => d.fullName)
+    .text((d) => State.SelectedAccount.relativeName(d))
     .on("click", (e: Event) => {
       State.SelectedAccount = (e.currentTarget as liWithAccount).__data__;
       updateAccount();

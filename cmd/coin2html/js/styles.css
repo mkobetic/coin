@@ -10,10 +10,11 @@ label {
 }
 
 /* SIDEBAR */
+
 #sidebar {
   display: flex; /* override display: block to make flex-direction work */
   flex-direction: column;
-  flex-basis: 20%; /* horizontal screen proportion */
+  flex-basis: 15%; /* horizontal screen proportion */
 }
 
 #sidebar ul#accounts {
@@ -26,8 +27,9 @@ label {
 }
 
 /* MAIN SECTION */
+
 #main {
-  flex-basis: 80%; /* horizontal screen proportion */
+  flex-basis: 85%; /* horizontal screen proportion */
 }
 #main h1 {
   margin: 0.3em; /* reduce margin */
