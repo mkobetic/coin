@@ -1,5 +1,5 @@
 import { Amount, Commodities, Commodity } from "./commodity";
-import { State } from "./ui";
+import { State } from "./views";
 import {
   AccountPostingGroups,
   dateToString,

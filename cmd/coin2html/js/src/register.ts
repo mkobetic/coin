@@ -8,7 +8,7 @@ import {
   addSubAccountMaxInput,
   emptyElement,
   MainView,
-} from "./ui";
+} from "./views";
 import { Account, Posting } from "./account";
 import {
   dateToString,

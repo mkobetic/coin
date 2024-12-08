@@ -1,6 +1,6 @@
 import { Account, Posting } from "./account";
 import { Amount, Commodity } from "./commodity";
-import { State } from "./ui";
+import { State } from "./views";
 
 export function dateToString(date: Date): string {
   return date.toISOString().split("T")[0];

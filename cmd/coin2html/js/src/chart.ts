@@ -6,7 +6,7 @@ import {
   addSubAccountMaxInput,
   emptyElement,
   MainView,
-} from "./ui";
+} from "./views";
 import { groupWithSubAccounts } from "./utils";
 import { Account } from "./account";
 
