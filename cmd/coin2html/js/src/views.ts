@@ -242,6 +242,10 @@ export function addAccountList() {
     .on("click", (e: Event) => {
       State.SelectedAccount = (e.currentTarget as liWithAccount).__data__;
       updateAccount();
+    })
+    .on("dblclick", (e: Event) => {
+      State.SelectedAccount = (e.currentTarget as liWithAccount).__data__;
+      updateAccounts();
     });
 }
 
