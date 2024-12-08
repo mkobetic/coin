@@ -8,6 +8,7 @@ import {
   addSubAccountMaxInput,
   emptyElement,
   MainView,
+  addShowLocationInput,
 } from "./views";
 import { Account, Posting } from "./account";
 import {
@@ -49,6 +50,7 @@ export function viewRegister(options?: {
     addSubAccountMaxInput(containerSelector);
   if (State.View.Aggregate == "None") {
     addIncludeNotesInput(containerSelector);
+    addShowLocationInput(containerSelector);
   }
   const groupKey = Aggregation[State.View.Aggregate];
   if (groupKey) {
@@ -175,14 +177,16 @@ function viewRegisterFull(
     negated: boolean;
   }
 ) {
-  const table = addTableWithHeader(containerSelector, [
+  const labels = [
     "Date",
     "Description",
     "Account",
     "Amount",
     "Balance",
     "Cum.Total",
-  ]);
+  ];
+  if (State.View.ShowLocation) labels.push("Location");
+  const table = addTableWithHeader(containerSelector, labels);
   const total = new Amount(0, account.commodity);
   const data = trimToDateRange(
     account.postings,
@@ -197,7 +201,7 @@ function viewRegisterFull(
     .data((p, i) => {
       p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
-      return [
+      const values = [
         [dateToString(p.transaction.posted), "date"],
         [p.transaction.description, "text"],
         [p.transaction.other(p).account, "account"],
@@ -205,6 +209,9 @@ function viewRegisterFull(
         [p.balance, "amount"],
         [Amount.clone(total), "amount"],
       ];
+      if (State.View.ShowLocation)
+        values.push([p.transaction.location, "text"]);
+      return values;
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
@@ -235,14 +242,16 @@ function viewRegisterFullWithSubAccounts(
     negated: boolean;
   }
 ) {
-  const table = addTableWithHeader(containerSelector, [
+  const labels = [
     "Date",
     "Description",
     "SubAccount",
     "Account",
     "Amount",
     "Cum.Total",
-  ]);
+  ];
+  if (State.View.ShowLocation) labels.push("Location");
+  const table = addTableWithHeader(containerSelector, labels);
   const total = new Amount(0, account.commodity);
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
   const rows = table.append("tbody").selectAll("tr").data(data).enter();
@@ -253,7 +262,7 @@ function viewRegisterFullWithSubAccounts(
     .data((p, i) => {
       p.index = i;
       total.addIn(p.quantity, p.transaction.posted);
-      return [
+      const values = [
         [dateToString(p.transaction.posted), "date"],
         [p.transaction.description, "text"],
         [account.relativeName(p.account), "account"],
@@ -261,6 +270,9 @@ function viewRegisterFullWithSubAccounts(
         [p.quantity, "amount"],
         [Amount.clone(total), "amount"],
       ];
+      if (State.View.ShowLocation)
+        values.push([p.transaction.location, "text"]);
+      return values;
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")

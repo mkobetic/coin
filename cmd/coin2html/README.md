@@ -34,6 +34,10 @@ When aggregated with sub-accounts, the SubAccount Max option controls how many "
 
 When Aggregate is set to None, and Show Notes is checked, each transaction is displayed with an additional row containing the transaction notes.
 
+## Show Location
+
+When Aggregate is set to None, and Show Location is checked, each transaction is displayed with an additional column showing the file location of the transaction in the path:lineNr format, e.g. examples/yearly/2010.coin:17, supported by some editors for navigation.
+
 # Chart View
 
 Chart shows aggregated transactions (including sub-accounts) by the selected aggregation period as a bar chart. The meaning of the available options is the same as for the Register aggregations.

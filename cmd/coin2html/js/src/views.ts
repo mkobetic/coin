@@ -26,6 +26,7 @@ export const State = {
     Aggregate: "None" as keyof typeof Aggregation,
     // How many largest subaccounts to show when aggregating.
     AggregatedSubAccountMax: 5,
+    ShowLocation: false, // Show transaction location info
   },
 };
 
@@ -96,6 +97,24 @@ export function addIncludeNotesInput(containerSelector: string) {
     .attr("id", "includeNotes")
     .attr("type", "checkbox")
     .property("checked", State.View.ShowNotes);
+}
+
+export function addShowLocationInput(containerSelector: string) {
+  const container = d3.select(containerSelector);
+  container
+    .append("label")
+    .property("for", "showLocation")
+    .text("Show Location");
+  container
+    .append("input")
+    .on("change", (e, d) => {
+      const input = e.currentTarget as HTMLInputElement;
+      State.View.ShowLocation = input.checked;
+      updateView();
+    })
+    .attr("id", "showLocation")
+    .attr("type", "checkbox")
+    .property("checked", State.View.ShowLocation);
 }
 
 export function addSubAccountMaxInput(containerSelector: string) {
