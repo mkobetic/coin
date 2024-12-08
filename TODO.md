@@ -24,12 +24,12 @@
 
 ### coin2html
 
-- chart doesn't respect SelectedAccount
+- chart and register aggregation should show periodic balances not aggregated inflows for Assets/Liabilities
+- show location info
 - replace dateToString with d3.format
 - thousands separator
 - tooltips for columns, inputs and wherever useful
 - show details of selected posting
-- add location info
 - show details of selected posting group
 - filter subaccounts, payee, tag...
 - preserve view selection across root changes
@@ -37,6 +37,7 @@
 - trim to time range on export (need to recalc posting balances!)
 - balance charts
 - show commodities and prices
+- investment performance summary
 
 ### Issues
 
