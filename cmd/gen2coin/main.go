@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -16,7 +17,7 @@ import (
 
 var (
 	begin, end      coin.Date
-	byYear, byMonth bool
+	byYear, byMonth, asJson bool
 	rnd             = rand.New(rand.NewSource(time.Now().Unix()))
 )
 
@@ -33,6 +34,7 @@ func init() {
 	flag.Var(&end, "e", "end ledger on or before this date (default: today)")
 	flag.BoolVar(&byYear, "y", false, "split ledger into multiple files by year")
 	flag.BoolVar(&byMonth, "m", false, "split ledger into multiple files by month")
+	flag.BoolVar(&asJson, "j", false, "dump transactions only as JSON (single file)")
 
 	flag.Usage = func() {
 		w := flag.CommandLine.Output()
@@ -67,10 +69,15 @@ func main() {
 		s.generatePostings(s.Transaction)
 	}
 	if dir == "" { // just dump everything into stdout
-		for _, t := range transactions {
-			t.Write(os.Stdout, false)
-			fmt.Fprintln(os.Stdout)
-		}
+		if asJson {
+			encoder := json.NewEncoder(os.Stdout)
+			encoder.Encode(transactions)
+		 } else {
+				for _, t := range transactions {
+					t.Write(os.Stdout, false)
+					fmt.Fprintln(os.Stdout)
+				}
+			}
 		return
 	}
 
