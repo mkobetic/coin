@@ -20,6 +20,7 @@ export type PostingGroup = {
   postings: Posting[];
   sum: Amount; // sum of posting amounts
   total: Amount; // running total across an array of groups
+  balance: Amount; // balance of last posting in the group (or previous balance if the group is empty)
   offset?: number; // used to cache offset value (x) in layered stack chart
   width?: number; // used to cache width value (x) in layered stack chart
 };
@@ -38,18 +39,26 @@ export function groupBy(
   }
   const data: PostingGroup[] = [];
   const total = new Amount(0, commodity);
+  let balance = new Amount(0, commodity);
   return groupBy.range(State.StartDate, State.EndDate).map((date) => {
     let postings = groups.get(dateToString(date));
     const sum = new Amount(0, commodity);
-    if (!postings) {
+    if (!postings || postings.length == 0) {
       postings = [];
     } else {
       postings.forEach((p) => sum.addIn(p.quantity, date));
       total.addIn(sum, date);
+      balance = last(postings)!.balance;
     }
-    return { date, postings, sum, total: Amount.clone(total) };
+    return { date, postings, sum, total: Amount.clone(total), balance };
   });
 }
+
+// list of groups for an account
+export type AccountPostingGroups = {
+  account?: Account;
+  groups: PostingGroup[];
+};
 
 // Take an array of account posting groups and total them all by
 // adding the rest into the first one, return the first
@@ -65,17 +74,12 @@ function addIntoFirst(groups: AccountPostingGroups[]): AccountPostingGroups {
       g.postings.push(...g2.postings);
       g.sum.addIn(g2.sum, g.date);
       g.total.addIn(g2.total, g.date);
+      g.balance.addIn(g2.balance, g.date);
     });
   });
   total.account = undefined;
   return total;
 }
-
-// list of groups for an account
-export type AccountPostingGroups = {
-  account?: Account;
-  groups: PostingGroup[];
-};
 
 export function groupWithSubAccounts(
   account: Account,
@@ -98,7 +102,7 @@ export function groupWithSubAccounts(
     const postings = g.groups;
     return {
       index: i,
-      avg: postings[postings.length - 1].total.toNumber() / postings.length,
+      avg: last(postings)!.total.toNumber() / postings.length,
     };
   });
   // sort by average and pick top accounts
@@ -115,4 +119,9 @@ export function groupWithSubAccounts(
     top.push(other);
   }
   return top;
+}
+
+export function last<T>(list: T[]): T | undefined {
+  if (list.length == 0) return undefined;
+  return list[list.length - 1];
 }

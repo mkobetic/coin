@@ -11,6 +11,11 @@ export const Aggregation = {
   Yearly: d3.timeYear,
 };
 
+export enum AggregationStyle {
+  Flows = "Flows", // sum of flows for the period
+  Balances = "Balances", // balance at the end of the period
+}
+
 // UI State
 export const State = {
   // All these must be set after loading of data is finished, see initializeUI()
@@ -26,6 +31,7 @@ export const State = {
     Aggregate: "None" as keyof typeof Aggregation,
     // How many largest subaccounts to show when aggregating.
     AggregatedSubAccountMax: 5,
+    AggregationStyle: AggregationStyle.Flows as AggregationStyle,
     ShowLocation: false, // Show transaction location info
   },
 };
@@ -164,6 +170,24 @@ export function addAggregateInput(
     .data(data)
     .join("option")
     .property("selected", (v) => v == State.View.Aggregate)
+    .property("value", (v) => v)
+    .text((v) => v);
+}
+
+export function addAggregationStyleInput(containerSelector: string) {
+  const container = d3.select(containerSelector);
+  const aggregate = container.append("select").attr("id", "aggregationStyle");
+  aggregate.on("change", (e, d) => {
+    const select = e.currentTarget as HTMLSelectElement;
+    const selected = select.options[select.selectedIndex].value;
+    State.View.AggregationStyle = selected as AggregationStyle;
+    updateView();
+  });
+  aggregate
+    .selectAll("option")
+    .data(Object.keys(AggregationStyle))
+    .join("option")
+    .property("selected", (v) => v == State.View.AggregationStyle)
     .property("value", (v) => v)
     .text((v) => v);
 }

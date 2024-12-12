@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { dateToString } from "./utils";
+import { dateToString, last } from "./utils";
 
 // Commodity, Amount and Price
 
@@ -10,7 +10,7 @@ function newConversion(prices: Price[]): Conversion {
   if (prices.length == 0)
     throw new Error("cannot create conversion from empty price list");
   const from = prices[0].date;
-  const to = prices[prices.length - 1].date;
+  const to = last(prices)!.date;
   const dates = d3.timeWeek.range(from, to);
   if (dates.length == 0) return (d: Date) => prices[0].value;
   // scale from dates to the number of weeks/price points

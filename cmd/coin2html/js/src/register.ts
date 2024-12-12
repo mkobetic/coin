@@ -9,12 +9,15 @@ import {
   emptyElement,
   MainView,
   addShowLocationInput,
+  addAggregationStyleInput,
+  AggregationStyle,
 } from "./views";
 import { Account, Posting } from "./account";
 import {
   dateToString,
   groupBy,
   groupWithSubAccounts,
+  last,
   trimToDateRange,
 } from "./utils";
 import { Amount } from "./commodity";
@@ -46,11 +49,12 @@ export function viewRegister(options?: {
   emptyElement(containerSelector);
   addIncludeSubAccountsInput(containerSelector);
   addAggregateInput(containerSelector);
-  if (State.View.ShowSubAccounts && State.View.Aggregate != "None")
-    addSubAccountMaxInput(containerSelector);
   if (State.View.Aggregate == "None") {
     addIncludeNotesInput(containerSelector);
     addShowLocationInput(containerSelector);
+  } else {
+    addAggregationStyleInput(containerSelector);
+    if (State.View.ShowSubAccounts) addSubAccountMaxInput(containerSelector);
   }
   const groupKey = Aggregation[State.View.Aggregate];
   if (groupKey) {
@@ -97,7 +101,12 @@ function viewRegisterAggregated(
     .data((g) => {
       const row = [
         [dateToString(g.date), "date"],
-        [g.sum, "amount"],
+        [
+          State.View.AggregationStyle == AggregationStyle.Balances
+            ? g.balance
+            : g.sum,
+          "amount",
+        ],
       ];
       if (options.aggregatedTotal) row.push([g.total, "amount"]);
       return row;
@@ -126,6 +135,7 @@ function viewRegisterAggregatedWithSubAccounts(
   // transpose the groups into row data
   const total = new Amount(0, account.commodity);
   const data = dates.map((date, i) => {
+    const balance = new Amount(0, account.commodity);
     const sum = new Amount(0, account.commodity);
     const postings: Posting[] = [];
     const row = groups.map((gs) => {
@@ -134,10 +144,17 @@ function viewRegisterAggregatedWithSubAccounts(
         throw new Error("date mismatch transposing groups");
       postings.push(...g.postings);
       sum.addIn(g.sum, g.date);
+      balance.addIn(g.balance, g.date);
       return g;
     });
     total.addIn(sum, date);
-    row.push({ date: date, postings, sum, total: Amount.clone(total) });
+    row.push({
+      date: date,
+      postings,
+      sum,
+      total: Amount.clone(total),
+      balance,
+    });
     return row;
   });
   const labels = [
@@ -157,12 +174,23 @@ function viewRegisterAggregatedWithSubAccounts(
     .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((row) => {
-      const total = row[row.length - 1];
-      const columns = row.map((g) => [g.sum, "amount"]);
+      const total = last(row)!;
+      const columns = row.map((g) => [
+        State.View.AggregationStyle == AggregationStyle.Flows
+          ? g.sum
+          : g.balance,
+        "amount",
+      ]);
       // prepend date
       columns.unshift([dateToString(row[0].date), "date"]);
       // append total correctly
-      if (options.aggregatedTotal) columns.push([total.total, "amount"]);
+      if (options.aggregatedTotal)
+        columns.push([
+          State.View.AggregationStyle == AggregationStyle.Flows
+            ? total.total
+            : total.balance,
+          "amount",
+        ]);
       return columns;
     })
     .join("td")

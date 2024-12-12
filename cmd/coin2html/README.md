@@ -24,11 +24,15 @@ When checked transactions of the account and any sub-accounts are shown.
 
 ## Aggregate
 
-When None, the individual transactions are shown.
-When not None, the transactions are aggregated by the selected aggregation period (Weekly, Monthly, Quarterly, Yearly).
-When aggregated with sub-accounts, the SubAccount Max option controls how many "top" sub-accounts should be shown; the rest of the sub-accounts are combined into the "Other" column. Top here means the sub-accounts with the highest average transaction value across the time range.
+When `None`, the individual transactions are shown.
+When not `None`, the transactions are aggregated by the selected aggregation period (`Weekly`, `Monthly`, `Quarterly`, `Yearly`).
+When aggregated with sub-accounts, the `SubAccount Max` option controls how many "top" sub-accounts should be shown; the rest of the sub-accounts are combined into the "Other" column. Top here means the sub-accounts with the highest average transaction value across the time range.
 
 ![Register Aggregated Monthly](https://github.com/mkobetic/coin/assets/871693/ca4897e1-54f3-4d94-93c7-c054b925f566)
+
+### Aggregation Style
+
+When transactions are being aggregated, the aggregation is performed using one of two styles. `Flows` style sums the incoming/outgoing amounts for the period, and is generally useful for Income and Expenses accounts. `Balances` style shows the final account balance at the end of the period, and is generally useful for Assets and Liabilities accounts.
 
 ## Show Notes
 

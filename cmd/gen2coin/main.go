@@ -34,7 +34,7 @@ func init() {
 	flag.Var(&end, "e", "end ledger on or before this date (default: today)")
 	flag.BoolVar(&byYear, "y", false, "split ledger into multiple files by year")
 	flag.BoolVar(&byMonth, "m", false, "split ledger into multiple files by month")
-	flag.BoolVar(&asJson, "j", false, "dump transactions only as JSON (single file)")
+	flag.BoolVar(&asJson, "j", false, "dump transactions only as JSON to Stdout")
 
 	flag.Usage = func() {
 		w := flag.CommandLine.Output()
@@ -71,6 +71,7 @@ func main() {
 	if dir == "" { // just dump everything into stdout
 		if asJson {
 			encoder := json.NewEncoder(os.Stdout)
+			encoder.SetIndent("", "\t")
 			encoder.Encode(transactions)
 		 } else {
 				for _, t := range transactions {
