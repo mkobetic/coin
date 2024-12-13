@@ -93,14 +93,15 @@ export class Amount {
     const value = Number(parts[0].replace(".", ""));
     return new Amount(value, commodity);
   }
-  toString(): string {
+  toString(thousandsSeparator = true): string {
     let str = Math.abs(this.value).toString();
     if (this.commodity.decimals > 0) {
       if (str.length < this.commodity.decimals) {
         str = "0".repeat(this.commodity.decimals - str.length + 1) + str;
       }
+      const intPart = str.slice(0, -this.commodity.decimals);
       str =
-        triplets(str.slice(0, -this.commodity.decimals)).join(",") +
+        (thousandsSeparator ? triplets(intPart).join(",") : intPart) +
         "." +
         str.slice(-this.commodity.decimals);
       if (str[0] == ".") {
@@ -196,7 +197,7 @@ export function loadCommodities() {
         throw new Error("Unknown commodity: " + imported.commodity);
       }
       const amount = Amount.parse(imported.value);
-      if (amount.toString() != imported.value) {
+      if (amount.toString(false) != imported.value) {
         throw new Error(
           `Parsed amount "${amount}" doesn't match imported "${imported.value}"`
         );
