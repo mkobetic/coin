@@ -76,8 +76,11 @@ func (p *Posting) MarshalJSON() ([]byte, error) {
 	var value = map[string]interface{}{
 		"account":          p.Account.FullName,
 		"quantity":         p.Quantity,
-		"balance":          p.Balance,
-		"balance_asserted": p.BalanceAsserted,
+
+	}
+	if p.Balance != nil {
+		value["balance"] = p.Balance
+		value["balance_asserted"] = p.BalanceAsserted
 	}
 	if len(p.Notes) > 0 {
 		value["notes"] = p.Notes

@@ -154,6 +154,9 @@ func (a *Account) String() string {
 }
 
 func (a *Account) Location() string {
+	if a.file == "" {
+		return ""
+	}
 	return fmt.Sprintf("%s:%d", a.file, a.line)
 }
 
@@ -321,7 +324,9 @@ func (a *Account) MarshalJSON() ([]byte, error) {
 		"name":      a.Name,
 		"fullName":  a.FullName,
 		"commodity": a.Commodity.Id,
-		"location":  a.Location(),
+	}
+	if a.Location() != "" {
+		value["location"] = a.Location()
 	}
 	if !a.Closed.IsZero() {
 		value["closed"] = a.Closed.Format(DateFormat)

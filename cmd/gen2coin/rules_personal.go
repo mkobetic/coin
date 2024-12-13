@@ -43,7 +43,7 @@ func personal() []*rule {
 		newRule(monthly(1, 1, 1), "Enbridge Gas", "Checking", "Heat", 100, 200),
 		newRule(monthly(1, 1, 1), "Hydro One", "Checking", "Electricity", 50, 100),
 		newRule(monthly(1, 2, -15), "City Water&Sewer", "Checking", "Water", 100, 150),
-		newRule(monthly(1, 1, 1), "monthly savings", "Checking", "Savings", 300, 500),
+		newRule(monthly(1, 1, 1), "monthly savings", "Checking", "Savings", 300, 2000),
 		newRule(monthly(1, 1, -1), "monthly interest %2/12", "Interest", "Savings", TO_BALANCE, -50*12),
 	}
 }

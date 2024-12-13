@@ -1,7 +1,7 @@
-Generates a ledger sample based on a specified time range and a set of internal rules (see rules_*.go files).
+Generates a ledger sample based on a specified time range and a set of internal rules (see rules\_\*.go files).
 
 ```
-% gen2coin -h  
+% gen2coin -h
 Usage: gen2coin [flags] [directory path]
 
 Generates a ledger sample based on internally defined rules.
@@ -15,4 +15,6 @@ Flags:
         end ledger on or before this date (default: today)
   -m    split ledger into multiple files by month
   -y    split ledger into multiple files by year
+  -j    dump transactions only as JSON to Stdout
+  -wb   include balances on postings
 ```

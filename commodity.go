@@ -98,6 +98,9 @@ func (c *Commodity) String() string {
 }
 
 func (c *Commodity) Location() string {
+	if c.file == "" {
+		return ""
+	}
 	return fmt.Sprintf("%s:%d", c.file, c.line)
 }
 
@@ -237,7 +240,9 @@ func (c *Commodity) MarshalJSON() ([]byte, error) {
 		"id":       c.Id,
 		"name":     c.Name,
 		"decimals": c.Decimals,
-		"location": c.Location(),
+	}
+	if c.Location() != "" {
+		value["location"] = c.Location()
 	}
 	if c.Code != "" {
 		value["code"] = c.Code

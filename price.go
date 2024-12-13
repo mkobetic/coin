@@ -73,6 +73,9 @@ func (p *Price) String() string {
 }
 
 func (p *Price) Location() string {
+	if p.file == "" {
+		return ""
+	}
 	return fmt.Sprintf("%s:%d", p.file, p.line)
 }
 
@@ -82,7 +85,9 @@ func (p *Price) MarshalJSON() ([]byte, error) {
 		"commodity": p.Commodity.Id,
 		"currency":  p.Currency.Id,
 		"value":     p.Value,
-		"location":  p.Location(),
+	}
+	if p.Location() != "" {
+		value["location"] = p.Location()
 	}
 	return json.MarshalIndent(value, "", "\t")
 }

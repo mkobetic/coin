@@ -201,6 +201,9 @@ func (t *Transaction) String() string {
 }
 
 func (t *Transaction) Location() string {
+	if t.file == "" {
+		return ""
+	}
 	return fmt.Sprintf("%s:%d", t.file, t.line)
 }
 
@@ -221,8 +224,10 @@ func (t *Transaction) PostConversion(
 	toAmount *Amount,
 	toBalance *Amount,
 ) {
-	sFrom := &Posting{Account: from, Quantity: fromAmount, Balance: fromBalance, BalanceAsserted: fromBalance != nil}
-	sTo := &Posting{Account: to, Quantity: toAmount, Balance: toBalance, BalanceAsserted: toBalance != nil}
+	sFrom := &Posting{Account: from, Transaction: t, Quantity: fromAmount, Balance: fromBalance, BalanceAsserted: fromBalance != nil}
+	from.addPosting(sFrom)
+	sTo := &Posting{Account: to, Transaction: t, Quantity: toAmount, Balance: toBalance, BalanceAsserted: toBalance != nil}
+	to.addPosting(sTo)
 	if fromAmount.Sign() < 0 {
 		t.Postings = append(t.Postings, sTo, sFrom)
 	} else {
@@ -300,7 +305,9 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		"description": t.Description,
 		"postings":    t.Postings,
 		"posted":      t.Posted.Format(DateFormat),
-		"location":  t.Location(),
+	}
+	if t.Location() != "" {
+		value["location"] = t.Location()
 	}
 	if len(t.Notes) > 0 {
 		value["notes"] = t.Notes

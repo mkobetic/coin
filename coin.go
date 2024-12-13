@@ -239,7 +239,7 @@ func ResolveTransactions(checkPostings bool) {
 		var commodities = map[*Commodity]bool{}
 		for _, s := range t.Postings {
 			s.Account = MustFindAccount(s.accountName)
-			s.Account.Postings = append(s.Account.Postings, s)
+			s.Account.addPosting(s)
 			commodity = s.Account.Commodity
 			commodities[commodity] = true
 		}
