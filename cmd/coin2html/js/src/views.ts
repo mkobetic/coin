@@ -1,14 +1,15 @@
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { timeMonth, timeWeek, timeYear } from "d3-time";
 import { viewRegister } from "./register";
 import { viewChart } from "./chart";
-import { Account, Accounts, MaxDate, MinDate } from "./account";
+import { Account } from "./account";
 
 export const Aggregation = {
   None: null,
-  Weekly: d3.timeWeek,
-  Monthly: d3.timeMonth,
-  Quarterly: d3.timeMonth.every(3),
-  Yearly: d3.timeYear,
+  Weekly: timeWeek,
+  Monthly: timeMonth,
+  Quarterly: timeMonth.every(3),
+  Yearly: timeYear,
 };
 
 export enum AggregationStyle {
@@ -73,7 +74,7 @@ export const Views = {
 // View components
 
 export function addIncludeSubAccountsInput(containerSelector: string) {
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   container
     .append("label")
     .property("for", "includeSubAccounts")
@@ -91,7 +92,7 @@ export function addIncludeSubAccountsInput(containerSelector: string) {
 }
 
 export function addIncludeNotesInput(containerSelector: string) {
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   container.append("label").property("for", "includeNotes").text("Show Notes");
   container
     .append("input")
@@ -106,7 +107,7 @@ export function addIncludeNotesInput(containerSelector: string) {
 }
 
 export function addShowLocationInput(containerSelector: string) {
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   container
     .append("label")
     .property("for", "showLocation")
@@ -124,7 +125,7 @@ export function addShowLocationInput(containerSelector: string) {
 }
 
 export function addSubAccountMaxInput(containerSelector: string) {
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   container
     .append("label")
     .property("for", "subAccountMax")
@@ -149,7 +150,7 @@ export function addAggregateInput(
 ) {
   const opts = { includeNone: true }; // defaults
   Object.assign(opts, options);
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   container.append("label").property("for", "aggregate").text("Aggregate");
   const aggregate = container.append("select").attr("id", "aggregate");
   aggregate.on("change", (e, d) => {
@@ -175,7 +176,7 @@ export function addAggregateInput(
 }
 
 export function addAggregationStyleInput(containerSelector: string) {
-  const container = d3.select(containerSelector);
+  const container = select(containerSelector);
   const aggregate = container.append("select").attr("id", "aggregationStyle");
   aggregate.on("change", (e, d) => {
     const select = e.currentTarget as HTMLSelectElement;
@@ -205,7 +206,7 @@ export const AccountOutput = "#main output#account";
 export const MainView = "#main section#view";
 
 export function emptyElement(selector: string) {
-  (d3.select(selector).node() as Element).replaceChildren();
+  (select(selector).node() as Element).replaceChildren();
 }
 
 // UI Events
@@ -220,8 +221,7 @@ export function updateView() {
 export function updateAccount() {
   const account = State.SelectedAccount;
   // d3.select(AccountOutput).text(account.fullName);
-  const spans = d3
-    .select(AccountOutput)
+  const spans = select(AccountOutput)
     .selectAll("span")
     .data(account.withAllParents())
     .join("span")
@@ -242,7 +242,7 @@ export function addViewSelect() {
   const selectedViews = Object.keys(Views[account.name as keyof typeof Views]);
   if (!selectedViews.includes(State.SelectedView))
     State.SelectedView = selectedViews[0];
-  d3.select(ViewSelect)
+  select(ViewSelect)
     .on("change", (e) => {
       const select = e.currentTarget as HTMLSelectElement;
       State.SelectedView = select.options[select.selectedIndex].value;
@@ -258,7 +258,7 @@ export function addViewSelect() {
 type liWithAccount = HTMLLIElement & { __data__: Account };
 export function addAccountList() {
   const account = State.SelectedAccount;
-  d3.select(AccountList)
+  select(AccountList)
     .selectAll("li")
     .data(account.allChildren())
     .join("li")

@@ -1,4 +1,5 @@
-import * as d3 from "d3";
+import { scaleTime } from "d3-scale";
+import { timeWeek } from "d3-time";
 import { dateToString, last } from "./utils";
 
 // Commodity, Amount and Price
@@ -11,10 +12,10 @@ function newConversion(prices: Price[]): Conversion {
     throw new Error("cannot create conversion from empty price list");
   const from = prices[0].date;
   const to = last(prices)!.date;
-  const dates = d3.timeWeek.range(from, to);
+  const dates = timeWeek.range(from, to);
   if (dates.length == 0) return (d: Date) => prices[0].value;
   // scale from dates to the number of weeks/price points
-  const scale = d3.scaleTime([from, to], [0, dates.length - 1]).clamp(true);
+  const scale = scaleTime([from, to], [0, dates.length - 1]).clamp(true);
   // generate array of prices per week
   let cpi = 0;
   const weeks = dates.map((d) => {
@@ -93,20 +94,20 @@ export class Amount {
     return new Amount(value, commodity);
   }
   toString(): string {
-    let str = this.value.toString();
+    let str = Math.abs(this.value).toString();
     if (this.commodity.decimals > 0) {
       if (str.length < this.commodity.decimals) {
         str = "0".repeat(this.commodity.decimals - str.length + 1) + str;
       }
       str =
-        str.slice(0, -this.commodity.decimals) +
+        triplets(str.slice(0, -this.commodity.decimals)).join(",") +
         "." +
         str.slice(-this.commodity.decimals);
       if (str[0] == ".") {
         str = "0" + str;
       }
     }
-    return str + " " + this.commodity.id;
+    return (this.value < 0 ? "-" : "") + str + " " + this.commodity.id;
   }
   toNumber() {
     return this.value / 10 ** this.commodity.decimals;
@@ -209,4 +210,14 @@ export function loadCommodities() {
       commodity.prices.push(price);
     }
   }
+}
+
+function triplets(s: string): string[] {
+  const triplets = [];
+  for (let end = s.length; end > 0; end = end - 3) {
+    let start = end - 3;
+    if (start < 0) start = 0;
+    triplets.unshift(s.slice(start, end));
+  }
+  return triplets;
 }

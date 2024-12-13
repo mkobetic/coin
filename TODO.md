@@ -24,17 +24,15 @@
 
 ### coin2html
 
-- chart and register aggregation should show periodic balances not aggregated inflows for Assets/Liabilities
-- show location info
+- make commodity conversions more robust, they blow up too easily
 - replace dateToString with d3.format
-- thousands separator
 - tooltips for columns, inputs and wherever useful
 - show details of selected posting
 - show details of selected posting group
 - filter subaccounts, payee, tag...
-- preserve view selection across root changes
 - preserve UI state in history (make back/forward buttons work)
 - trim to time range on export (need to recalc posting balances!)
+- allow dropping a subaccount from aggregations (in both chart and register)
 - balance charts
 - show commodities and prices
 - investment performance summary

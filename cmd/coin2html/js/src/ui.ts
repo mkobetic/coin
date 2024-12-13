@@ -1,4 +1,3 @@
-import * as d3 from "d3";
 import {
   Account,
   Accounts,
@@ -19,6 +18,7 @@ import {
   updateView,
   Views,
 } from "./views";
+import { select } from "d3-selection";
 
 function initializeUI() {
   // Need to load before initializing the UI state.
@@ -32,7 +32,7 @@ function initializeUI() {
 
   const minDate = dateToString(new Date(MinDate.getFullYear(), 1, 1));
   const maxDate = dateToString(new Date(MaxDate.getFullYear() + 1, 1, 1));
-  d3.select(EndDateInput)
+  select(EndDateInput)
     .property("valueAsDate", State.EndDate)
     .property("min", minDate)
     .property("max", maxDate)
@@ -41,7 +41,7 @@ function initializeUI() {
       State.EndDate = new Date(input.value);
       updateView();
     });
-  d3.select(StartDateInput)
+  select(StartDateInput)
     .property("valueAsDate", State.StartDate)
     .property("min", minDate)
     .property("max", maxDate)
@@ -51,7 +51,7 @@ function initializeUI() {
       updateView();
     });
   type optionWithAccount = HTMLOptionElement & { __data__: Account };
-  d3.select(RootAccountSelect)
+  select(RootAccountSelect)
     .on("change", (e: Event) => {
       const select = e.currentTarget as HTMLSelectElement;
       const account = (
@@ -65,7 +65,7 @@ function initializeUI() {
     .join("option")
     .property("selected", (d) => d == State.SelectedAccount)
     .text((d) => d.fullName);
-  d3.select(ShowClosedAccounts)
+  select(ShowClosedAccounts)
     .on("change", (e: Event) => {
       const input = e.currentTarget as HTMLInputElement;
       State.ShowClosedAccounts = input.checked;

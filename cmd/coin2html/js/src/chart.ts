@@ -1,4 +1,3 @@
-import * as d3 from "d3";
 import {
   Aggregation,
   State,
@@ -9,6 +8,10 @@ import {
 } from "./views";
 import { groupWithSubAccounts } from "./utils";
 import { Account } from "./account";
+import { axisLeft, axisTop } from "d3-axis";
+import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
+import { schemeCategory10 } from "d3-scale-chromatic";
+import { select } from "d3-selection";
 
 export function viewChart(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
@@ -54,8 +57,7 @@ export function viewChart(options?: {
     height = dates.length * rowHeight + margin.top + margin.bottom,
     textOffset = (rowHeight * 3) / 4;
 
-  const svg = d3
-    .select(containerSelector)
+  const svg = select(containerSelector)
     .append("svg")
     .attr("id", "chart")
     .attr("width", "100%")
@@ -70,11 +72,11 @@ export function viewChart(options?: {
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var x = d3.scaleLinear([0, max], [0, width]).nice();
-  var y = d3.scaleTime([State.StartDate, State.EndDate], [0, height]);
-  var z = d3.scaleOrdinal([0, maxAccounts], d3.schemeCategory10);
-  var xAxis = d3.axisTop(x);
-  var yAxis = d3.axisLeft(y).ticks(groupKey, "%Y/%m/%d");
+  var x = scaleLinear([0, max], [0, width]).nice();
+  var y = scaleTime([State.StartDate, State.EndDate], [0, height]);
+  var z = scaleOrdinal([0, maxAccounts], schemeCategory10);
+  var xAxis = axisTop(x);
+  var yAxis = axisLeft(y).ticks(groupKey, "%Y/%m/%d");
 
   // bar layers
   var layer = chart

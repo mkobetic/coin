@@ -1,4 +1,3 @@
-import * as d3 from "d3";
 import {
   Aggregation,
   State,
@@ -21,10 +20,10 @@ import {
   trimToDateRange,
 } from "./utils";
 import { Amount } from "./commodity";
+import { select } from "d3-selection";
 
 function addTableWithHeader(containerSelector: string, labels: string[]) {
-  const table = d3
-    .select(containerSelector)
+  const table = select(containerSelector)
     .append("table")
     .attr("id", "register");
   table

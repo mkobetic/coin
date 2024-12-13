@@ -5,6 +5,6 @@ module.exports = {
   moduleDirectories: ["node_modules"],
   transformIgnorePatterns: [`node_modules`],
   moduleNameMapper: {
-    d3: "<rootDir>/node_modules/d3/dist/d3.min.js",
+    "^d3-(.*)$": "<rootDir>/node_modules/d3-$1/dist/d3-$1.min.js",
   },
 };
