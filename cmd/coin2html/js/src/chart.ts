@@ -5,8 +5,10 @@ import {
   addSubAccountMaxInput,
   emptyElement,
   MainView,
+  AggregationStyle,
+  addAggregationStyleInput,
 } from "./views";
-import { groupWithSubAccounts } from "./utils";
+import { groupWithSubAccounts, PostingGroup } from "./utils";
 import { Account } from "./account";
 import { axisLeft, axisTop } from "d3-axis";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -25,6 +27,7 @@ export function viewChart(options?: {
   addAggregateInput(containerSelector, {
     includeNone: false,
   });
+  addAggregationStyleInput(containerSelector);
   addSubAccountMaxInput(containerSelector);
 
   const groupKey = Aggregation[State.View.Aggregate] as d3.TimeInterval;
@@ -39,14 +42,22 @@ export function viewChart(options?: {
   // compute offsets for each group left to right
   // and max width for the x domain
   let max = 0;
+  const widthFromGroup = (group: PostingGroup) => {
+    let width: number;
+    if (State.View.AggregationStyle == AggregationStyle.Flows) {
+      width = Math.trunc(group.sum.toNumber());
+      if (opts.negated) width = -width;
+    } else {
+      width = Math.trunc(group.balance.toNumber());
+    }
+    return width < 0 ? 0 : width;
+  };
   dates.forEach((_, i) => {
     let offset = 0;
     accountGroups.forEach((gs) => {
       const group = gs.groups[i];
       group.offset = offset;
-      let sum = Math.trunc(group.sum.toNumber());
-      if (opts.negated) sum = -sum;
-      group.width = sum < 0 ? 0 : sum;
+      group.width = widthFromGroup(group);
       offset += group.width;
     });
     max = max < offset ? offset : max;
@@ -82,8 +93,7 @@ export function viewChart(options?: {
   var layer = chart
     .selectAll(".layer")
     .data(accountGroups)
-    .enter()
-    .append("g")
+    .join("g")
     .attr("class", "layer")
     .style("fill", (d, i) => z(i));
 
@@ -91,8 +101,7 @@ export function viewChart(options?: {
   layer
     .selectAll("rect")
     .data((d) => d.groups)
-    .enter()
-    .append("rect")
+    .join("rect")
     .attr("y", (d) => y(d.date))
     .attr("x", (d) => x(d.offset ?? 0))
     .attr("width", (d) => x(d.width ?? 0))
@@ -103,8 +112,7 @@ export function viewChart(options?: {
   layer
     .selectAll("text")
     .data((d) => d.groups)
-    .enter()
-    .append("text")
+    .join("text")
     .text((d) => {
       const v = d.width ?? 0;
       const w = (Math.log10(v) + 1) * 8;
@@ -120,8 +128,7 @@ export function viewChart(options?: {
   var legend = svg
     .selectAll(".legend")
     .data(labels)
-    .enter()
-    .append("g")
+    .join("g")
     .attr("class", "legend")
     .attr("transform", "translate(" + margin.left + ",0)");
 
