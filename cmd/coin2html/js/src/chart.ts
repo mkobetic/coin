@@ -43,13 +43,13 @@ export function viewChart(options?: {
   // and max width for the x domain
   let max = 0;
   const widthFromGroup = (group: PostingGroup) => {
-    let width: number;
-    if (State.View.AggregationStyle == AggregationStyle.Flows) {
-      width = Math.trunc(group.sum.toNumber());
-      if (opts.negated) width = -width;
-    } else {
-      width = Math.trunc(group.balance.toNumber());
-    }
+    let width = Math.trunc(
+      (State.View.AggregationStyle == AggregationStyle.Flows
+        ? group.sum
+        : group.balance
+      ).toNumber()
+    );
+    if (opts.negated) width = -width;
     return width < 0 ? 0 : width;
   };
   dates.forEach((_, i) => {
