@@ -20,7 +20,8 @@ export enum AggregationStyle {
 // UI State
 export const State = {
   // All these must be set after loading of data is finished, see initializeUI()
-  SelectedAccount: undefined as unknown as Account,
+  SelectedAccount: undefined as unknown as Account, // currently viewed account
+  AccountListRoot: undefined as unknown as Account, // account used to generate the account list
   SelectedView: "Register",
   StartDate: new Date(),
   EndDate: new Date(),
@@ -231,7 +232,8 @@ export function updateAccount() {
     .text((acc: Account) => acc.name)
     .on("click", (e: Event, acc: Account) => {
       State.SelectedAccount = acc;
-      updateAccount();
+      if (acc.isParentOf(State.AccountListRoot)) updateAccounts();
+      else updateAccount();
     });
   updateView();
 }
@@ -257,10 +259,10 @@ export function addViewSelect() {
 
 type liWithAccount = HTMLLIElement & { __data__: Account };
 export function addAccountList() {
-  const account = State.SelectedAccount;
+  State.AccountListRoot = State.SelectedAccount;
   select(AccountList)
     .selectAll("li")
-    .data(account.allChildren())
+    .data(State.AccountListRoot.allChildren())
     .join("li")
     .text((d) => State.SelectedAccount.relativeName(d))
     .on("click", (e: Event) => {

@@ -72,6 +72,11 @@ export class Account {
   getRootAccount(): Account {
     return this.parent ? this.parent.getRootAccount() : this;
   }
+  isParentOf(a: Account): boolean {
+    if (!a.parent) return false;
+    if (a.parent == this) return true;
+    return this.isParentOf(a.parent);
+  }
 }
 
 export interface Tags {
