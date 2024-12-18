@@ -24,7 +24,7 @@
 
 ### coin2html
 
-- make commodity conversions more robust, they blow up too easily
+- chart shows plain numeric values regardless of commodity!
 - replace dateToString with d3.format
 - tooltips for columns, inputs and wherever useful
 - show details of selected posting

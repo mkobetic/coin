@@ -48,7 +48,7 @@ export function groupBy(
     } else {
       postings.forEach((p) => sum.addIn(p.quantity, date));
       total.addIn(sum, date);
-      balance = last(postings)!.balance;
+      balance = Amount.clone(last(postings)!.balance);
     }
     return { date, postings, sum, total: Amount.clone(total), balance };
   });
@@ -81,7 +81,7 @@ function addIntoFirst(groups: AccountPostingGroups[]): AccountPostingGroups {
   return total;
 }
 
-export function groupWithSubAccounts(
+export function groupByWithSubAccounts(
   account: Account,
   groupKey: d3.TimeInterval,
   maxAccounts: number,

@@ -8,7 +8,7 @@ import {
   AggregationStyle,
   addAggregationStyleInput,
 } from "./views";
-import { groupWithSubAccounts, PostingGroup } from "./utils";
+import { groupByWithSubAccounts, PostingGroup } from "./utils";
 import { Account } from "./account";
 import { axisLeft, axisTop } from "d3-axis";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -33,7 +33,7 @@ export function viewChart(options?: {
   const groupKey = Aggregation[State.View.Aggregate] as d3.TimeInterval;
   const dates = groupKey.range(State.StartDate, State.EndDate);
   const maxAccounts = State.View.AggregatedSubAccountMax;
-  const accountGroups = groupWithSubAccounts(account, groupKey, maxAccounts, {
+  const accountGroups = groupByWithSubAccounts(account, groupKey, maxAccounts, {
     negated: opts.negated,
   });
   const labelFromAccount = (a: Account | undefined) =>
