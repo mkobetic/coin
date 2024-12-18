@@ -15,7 +15,7 @@ import { Account, Posting } from "./account";
 import {
   dateToString,
   groupBy,
-  groupWithSubAccounts,
+  groupByWithSubAccounts,
   last,
   trimToDateRange,
 } from "./utils";
@@ -125,13 +125,13 @@ function viewRegisterAggregatedWithSubAccounts(
   }
 ) {
   const dates = groupKey.range(State.StartDate, State.EndDate);
-  const groups = groupWithSubAccounts(
+  const groups = groupByWithSubAccounts(
     account,
     groupKey,
     State.View.AggregatedSubAccountMax,
     options
   );
-  // transpose the groups into row data
+  // convert the vertical groups into horizontal row data
   const total = new Amount(0, account.commodity);
   const data = dates.map((date, i) => {
     const balance = new Amount(0, account.commodity);

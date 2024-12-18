@@ -1,4 +1,4 @@
-import { Amount, Commodities, Commodity } from "./commodity";
+import { Amount, Commodity } from "./commodity";
 import { State } from "./views";
 import {
   AccountPostingGroups,
@@ -6,6 +6,10 @@ import {
   groupBy,
   trimToDateRange,
 } from "./utils";
+
+/**
+ *  Account, Posting and Transaction
+ */
 
 export class Account {
   children: Account[] = [];
@@ -166,17 +170,15 @@ export let MaxDate = new Date(0);
 
 export const Accounts: Record<string, Account> = {};
 export const Roots: Account[] = [];
-export function loadAccounts() {
-  const importedAccounts = JSON.parse(
-    document.getElementById("importedAccounts")!.innerText
-  ) as importedAccounts;
+export function loadAccounts(source: string) {
+  const importedAccounts = JSON.parse(source) as importedAccounts;
   for (const impAccount of Object.values(importedAccounts)) {
     if (impAccount.name == "Root") continue;
     const parent = Accounts[impAccount.parent];
     const account = new Account(
       impAccount.name,
       impAccount.fullName,
-      Commodities[impAccount.commodity],
+      Commodity.find(impAccount.commodity),
       parent,
       impAccount.location,
       impAccount.closed ? new Date(impAccount.closed) : undefined
@@ -186,10 +188,10 @@ export function loadAccounts() {
       Roots.push(account);
     }
   }
+}
 
-  const importedTransactions = JSON.parse(
-    document.getElementById("importedTransactions")!.innerText
-  ) as importedTransactions;
+export function loadTransactions(source: string) {
+  const importedTransactions = JSON.parse(source) as importedTransactions;
   for (const impTransaction of Object.values(importedTransactions)) {
     const posted = new Date(impTransaction.posted);
     if (posted < MinDate) MinDate = posted;

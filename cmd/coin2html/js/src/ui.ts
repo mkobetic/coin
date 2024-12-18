@@ -2,12 +2,13 @@ import {
   Account,
   Accounts,
   loadAccounts,
+  loadTransactions,
   MaxDate,
   MinDate,
   Roots,
 } from "./account";
 import { dateToString } from "./utils";
-import { loadCommodities } from "./commodity";
+import { loadCommodities, loadPrices } from "./commodity";
 import {
   EndDateInput,
   RootAccountSelect,
@@ -22,8 +23,10 @@ import { select } from "d3-selection";
 
 function initializeUI() {
   // Need to load before initializing the UI state.
-  loadCommodities();
-  loadAccounts();
+  loadCommodities(document.getElementById("importedCommodities")!.innerText);
+  loadPrices(document.getElementById("importedPrices")!.innerText);
+  loadAccounts(document.getElementById("importedAccounts")!.innerText);
+  loadTransactions(document.getElementById("importedTransactions")!.innerText);
   State.SelectedAccount = Accounts.Assets;
   State.SelectedView = Object.keys(Views.Assets)[0];
   State.StartDate = MinDate;

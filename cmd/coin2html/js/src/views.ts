@@ -203,7 +203,8 @@ export const ViewSelect = "#main #controls select#view";
 export const StartDateInput = "#main #controls input#start";
 export const EndDateInput = "#main #controls input#end";
 export const ShowClosedAccounts = "#main #controls input#closedAccounts";
-export const AccountOutput = "#main output#account";
+export const AccountName = "#main output#account span#name";
+export const AccountCommodity = "#main output#account span#commodity";
 export const MainView = "#main section#view";
 
 export function emptyElement(selector: string) {
@@ -221,11 +222,11 @@ export function updateView() {
 
 export function updateAccount() {
   const account = State.SelectedAccount;
-  // d3.select(AccountOutput).text(account.fullName);
-  const spans = select(AccountOutput)
-    .selectAll("span")
+  const spans = select(AccountName)
+    .selectAll("span.account")
     .data(account.withAllParents())
     .join("span")
+    .classed("account", true)
     .text((d) => (d.parent ? ":" : ""));
   spans
     .append("a")
@@ -235,6 +236,7 @@ export function updateAccount() {
       if (acc.isParentOf(State.AccountListRoot)) updateAccounts();
       else updateAccount();
     });
+  select(AccountCommodity).text(` (${account.commodity})`);
   updateView();
 }
 

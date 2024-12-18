@@ -24,15 +24,18 @@
 
 ### coin2html
 
-- make commodity conversions more robust, they blow up too easily
-- replace dateToString with d3.format
+- Other account should sum the rest into root account commodity
+- chart shows plain numeric values regardless of commodity!
+- allow dropping subaccounts from aggregations (in both chart and register)
 - tooltips for columns, inputs and wherever useful
+- replace dateToString with d3.format
+- try d3 binning for groupBy utils
+- try d3 layouts
 - show details of selected posting
 - show details of selected posting group
 - filter subaccounts, payee, tag...
 - preserve UI state in history (make back/forward buttons work)
 - trim to time range on export (need to recalc posting balances!)
-- allow dropping a subaccount from aggregations (in both chart and register)
 - balance charts
 - show commodities and prices
 - investment performance summary
