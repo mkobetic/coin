@@ -15,8 +15,9 @@ import { Account, Posting } from "./account";
 import {
   dateToString,
   groupBy,
-  groupWithSubAccounts,
+  groupByWithSubAccounts,
   last,
+  shortenAccountName,
   trimToDateRange,
 } from "./utils";
 import { Amount } from "./commodity";
@@ -125,13 +126,13 @@ function viewRegisterAggregatedWithSubAccounts(
   }
 ) {
   const dates = groupKey.range(State.StartDate, State.EndDate);
-  const groups = groupWithSubAccounts(
+  const groups = groupByWithSubAccounts(
     account,
     groupKey,
     State.View.AggregatedSubAccountMax,
     options
   );
-  // transpose the groups into row data
+  // convert the vertical groups into horizontal row data
   const total = new Amount(0, account.commodity);
   const data = dates.map((date, i) => {
     const balance = new Amount(0, account.commodity);
@@ -156,10 +157,13 @@ function viewRegisterAggregatedWithSubAccounts(
     });
     return row;
   });
+  const maxLabelLength = Math.round(150 / State.View.AggregatedSubAccountMax);
   const labels = [
     "Date",
     ...groups.map((g) =>
-      g.account ? account.relativeName(g.account) : "Other"
+      g.account
+        ? shortenAccountName(account.relativeName(g.account), maxLabelLength)
+        : "Other"
     ),
     "Total",
   ];
@@ -292,7 +296,7 @@ function viewRegisterFullWithSubAccounts(
       const values = [
         [dateToString(p.transaction.posted), "date"],
         [p.transaction.description, "text"],
-        [account.relativeName(p.account), "account"],
+        [shortenAccountName(account.relativeName(p.account), 30), "account"],
         [p.transaction.other(p).account, "account"],
         [p.quantity, "amount"],
         [Amount.clone(total), "amount"],

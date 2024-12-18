@@ -8,7 +8,11 @@ import {
   AggregationStyle,
   addAggregationStyleInput,
 } from "./views";
-import { groupWithSubAccounts, PostingGroup } from "./utils";
+import {
+  groupByWithSubAccounts,
+  PostingGroup,
+  shortenAccountName,
+} from "./utils";
 import { Account } from "./account";
 import { axisLeft, axisTop } from "d3-axis";
 import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
@@ -33,21 +37,26 @@ export function viewChart(options?: {
   const groupKey = Aggregation[State.View.Aggregate] as d3.TimeInterval;
   const dates = groupKey.range(State.StartDate, State.EndDate);
   const maxAccounts = State.View.AggregatedSubAccountMax;
-  const accountGroups = groupWithSubAccounts(account, groupKey, maxAccounts, {
+  const accountGroups = groupByWithSubAccounts(account, groupKey, maxAccounts, {
     negated: opts.negated,
   });
+  const maxLabelLength = Math.round(180 / State.View.AggregatedSubAccountMax);
   const labelFromAccount = (a: Account | undefined) =>
-    a ? account.relativeName(a) : "Other";
+    a ? shortenAccountName(account.relativeName(a), maxLabelLength) : "Other";
   const labels = accountGroups.map((gs) => labelFromAccount(gs.account));
   // compute offsets for each group left to right
   // and max width for the x domain
   let max = 0;
   const widthFromGroup = (group: PostingGroup) => {
     let width = Math.trunc(
-      (State.View.AggregationStyle == AggregationStyle.Flows
-        ? group.sum
-        : group.balance
-      ).toNumber()
+      account.commodity
+        .convert(
+          State.View.AggregationStyle == AggregationStyle.Flows
+            ? group.sum
+            : group.balance,
+          group.date
+        )
+        .toNumber()
     );
     if (opts.negated) width = -width;
     return width < 0 ? 0 : width;
