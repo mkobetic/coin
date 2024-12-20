@@ -48,7 +48,7 @@ export function groupBy(
     } else {
       postings.forEach((p) => sum.addIn(p.quantity, date));
       total.addIn(sum, date);
-      balance = last(postings)!.balance;
+      balance = Amount.clone(last(postings)!.balance);
     }
     return { date, postings, sum, total: Amount.clone(total), balance };
   });
@@ -60,14 +60,21 @@ export type AccountPostingGroups = {
   groups: PostingGroup[];
 };
 
-// Take an array of account posting groups and total them all by
-// adding the rest into the first one, return the first
-function addIntoFirst(groups: AccountPostingGroups[]): AccountPostingGroups {
-  // DESTRUCTIVE! add everything up into the first group
-  const total = groups[0];
-  const rest = groups.slice(1);
-  total.groups.forEach((g, i) => {
-    rest.forEach((gs) => {
+// Take an array of account posting groups and total them all.
+function sumAll(
+  groups: AccountPostingGroups[],
+  commodity: Commodity
+): AccountPostingGroups {
+  const total = [];
+  for (let i = 0; i < groups[0].groups.length; i++) {
+    const g: PostingGroup = {
+      date: groups[0].groups[i].date,
+      postings: [],
+      sum: new Amount(0, commodity),
+      total: new Amount(0, commodity),
+      balance: new Amount(0, commodity),
+    };
+    groups.forEach((gs) => {
       const g2 = gs.groups[i];
       if (g.date.getTime() != g2.date.getTime())
         throw new Error("date mismatch totaling groups");
@@ -76,12 +83,12 @@ function addIntoFirst(groups: AccountPostingGroups[]): AccountPostingGroups {
       g.total.addIn(g2.total, g.date);
       g.balance.addIn(g2.balance, g.date);
     });
-  });
-  total.account = undefined;
-  return total;
+    total.push(g);
+  }
+  return { groups: total };
 }
 
-export function groupWithSubAccounts(
+export function groupByWithSubAccounts(
   account: Account,
   groupKey: d3.TimeInterval,
   maxAccounts: number,
@@ -99,10 +106,12 @@ export function groupWithSubAccounts(
   );
   // compute average for each account
   const averages = groups.map((g, i) => {
-    const postings = g.groups;
+    const lastGroup = last(g.groups)!;
     return {
       index: i,
-      avg: last(postings)!.total.toNumber() / postings.length,
+      avg:
+        account.commodity.convert(lastGroup.total, lastGroup.date).toNumber() /
+        g.groups.length,
     };
   });
   // sort by average and pick top accounts
@@ -111,8 +120,9 @@ export function groupWithSubAccounts(
   // if there's more accounts than maxAccounts, total the rest into an Other list
   if (averages.length > maxAccounts) {
     // total the rest into other
-    const other = addIntoFirst(
-      averages.slice(maxAccounts - 1).map((avg) => groups[avg.index])
+    const other = sumAll(
+      averages.slice(maxAccounts - 1).map((avg) => groups[avg.index]),
+      account.commodity
     );
     // replace last with other
     top.pop();
@@ -124,4 +134,22 @@ export function groupWithSubAccounts(
 export function last<T>(list: T[]): T | undefined {
   if (list.length == 0) return undefined;
   return list[list.length - 1];
+}
+
+export function shortenAccountName(name: string, size: number) {
+  if (name.length <= size) return name;
+  const parts = name.split(":");
+  let over = name.length - size;
+  for (let i = 0; over > 0 && i < parts.length; i++) {
+    const l = parts[i].length;
+    if (l == 0) continue;
+    const drop = min(over, l - 1);
+    parts[i] = parts[i].slice(0, l - drop);
+    over -= drop;
+  }
+  return parts.join(":");
+}
+
+function min(a: number, b: number) {
+  return a < b ? a : b;
 }
