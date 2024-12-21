@@ -1,6 +1,10 @@
 import { select } from "d3-selection";
 import { timeMonth, timeWeek, timeYear } from "d3-time";
-import { renderPostingsWithSubAccounts, viewRegister } from "./register";
+import {
+  renderPostings,
+  renderPostingsWithSubAccounts,
+  viewRegister,
+} from "./register";
 import { viewChartTotals } from "./chart";
 import { Account } from "./account";
 import { PostingGroup, shortenAccountName, topN } from "./utils";
@@ -285,7 +289,7 @@ export function updateAccounts() {
   updateAccount();
 }
 
-export function showDetails(g: PostingGroup) {
+export function showDetails(g: PostingGroup, withSubaccounts = false) {
   emptyElement(Details);
   const details = select(Details);
   details
@@ -293,12 +297,14 @@ export function showDetails(g: PostingGroup) {
     .text("X")
     .on("click", () => details.attr("hidden", true));
   const account = State.SelectedAccount;
-  renderPostingsWithSubAccounts(
-    account,
-    topN(g.postings, 20, account.commodity),
-    Details,
-    { showLocation: true }
-  );
+  const data = topN(g.postings, 20, account.commodity);
+  const options = {
+    negated: false,
+    showLocation: true,
+  };
+  if (withSubaccounts)
+    renderPostingsWithSubAccounts(account, data, Details, options);
+  else renderPostings(account, data, Details, options);
 
   details.attr("hidden", null);
 }

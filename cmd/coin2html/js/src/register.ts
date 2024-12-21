@@ -189,7 +189,7 @@ function viewRegisterAggregatedWithSubAccounts(
     .join("td")
     .classed("amount", ([g, v, c]) => c == "amount")
     .text(([g, v, c]) => v(g))
-    .on("click", (e, [g, v, c]) => showDetails(g));
+    .on("click", (e, [g, v, c]) => showDetails(g, true));
 }
 
 function viewRegisterFull(
@@ -199,6 +199,34 @@ function viewRegisterFull(
     negated: boolean;
   }
 ) {
+  const data = trimToDateRange(
+    account.postings,
+    State.StartDate,
+    State.EndDate
+  );
+  renderPostings(account, data, containerSelector, {
+    ...options,
+    showLocation: State.View.ShowLocation,
+    showNotes: State.View.ShowNotes,
+  });
+}
+
+export function renderPostings(
+  account: Account,
+  data: Posting[],
+  containerSelector: string,
+  optionOverrides: {
+    negated: boolean;
+    showLocation?: boolean;
+    showNotes?: boolean;
+  }
+) {
+  const options = {
+    negated: false,
+    showLocation: false,
+    showNotes: false,
+  };
+  Object.assign(options, optionOverrides);
   const labels = [
     "Date",
     "Description",
@@ -207,14 +235,10 @@ function viewRegisterFull(
     "Balance",
     "Cum.Total",
   ];
-  if (State.View.ShowLocation) labels.push("Location");
+  if (options.showLocation) labels.push("Location");
   const table = addTableWithHeader(containerSelector, labels);
   const total = new Amount(0, account.commodity);
-  const data = trimToDateRange(
-    account.postings,
-    State.StartDate,
-    State.EndDate
-  );
+
   const rows = table.append("tbody").selectAll("tr").data(data).enter();
   rows
     .append("tr")
@@ -231,15 +255,15 @@ function viewRegisterFull(
         [p.balance, "amount"],
         [Amount.clone(total), "amount"],
       ];
-      if (State.View.ShowLocation)
-        values.push([p.transaction.location, "text"]);
+      if (options.showLocation)
+        values.push([p.transaction.location ?? "", "text"]);
       return values;
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
-    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
+    .attr("rowspan", (_, i) => (i == 0 && options.showNotes ? 2 : null))
     .text(([v, c]) => v.toString());
-  if (State.View.ShowNotes) {
+  if (options.showNotes) {
     rows
       .append("tr")
       .classed("even", (_, i) => i % 2 == 0)
@@ -266,6 +290,7 @@ function viewRegisterFullWithSubAccounts(
 ) {
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
   renderPostingsWithSubAccounts(account, data, containerSelector, {
+    ...options,
     showLocation: State.View.ShowLocation,
     showNotes: State.View.ShowNotes,
   });
@@ -275,7 +300,8 @@ export function renderPostingsWithSubAccounts(
   account: Account,
   data: Posting[],
   containerSelector: string,
-  optionOverrides?: {
+  optionOverrides: {
+    negated: boolean;
     showLocation?: boolean;
     showNotes?: boolean;
   }
@@ -312,7 +338,8 @@ export function renderPostingsWithSubAccounts(
         [p.quantity, "amount"],
         [Amount.clone(total), "amount"],
       ];
-      if (options.showLocation) values.push([p.transaction.location, "text"]);
+      if (options.showLocation)
+        values.push([p.transaction.location ?? "", "text"]);
       return values;
     })
     .join("td")

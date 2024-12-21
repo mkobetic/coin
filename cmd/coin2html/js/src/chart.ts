@@ -7,6 +7,7 @@ import {
   MainView,
   AggregationStyle,
   addAggregationStyleInput,
+  showDetails,
 } from "./views";
 import {
   groupByWithSubAccounts,
@@ -67,6 +68,7 @@ export function viewChartTotals(options?: {
       const group = gs.groups[i];
       group.offset = offset;
       group.width = widthFromGroup(group);
+      group.account = gs.account;
       offset += group.width;
     });
     max = max < offset ? offset : max;
@@ -115,7 +117,7 @@ export function viewChartTotals(options?: {
     .attr("x", (d) => x(d.offset ?? 0))
     .attr("width", (d) => x(d.width ?? 0))
     .attr("height", rowHeight - 1)
-    .on("click", (e, d) => console.log(e, d));
+    .on("click", (e, d) => showDetails(d, !d.account));
 
   // bar text
   layer

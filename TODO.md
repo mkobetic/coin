@@ -25,9 +25,8 @@
 ### coin2html
 
 - allow dropping subaccounts from aggregations (in both chart and register)
-- show details of selected posting
-- show details of selected posting group
 - filter subaccounts, payee, tag...
+- brush to select date range
 - replace dateToString with d3.format
 - try d3 binning for groupBy utils
 - try d3 layouts

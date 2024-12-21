@@ -83,7 +83,7 @@ export class Commodity {
     readonly id: string,
     readonly name: string,
     readonly decimals: number,
-    readonly location: string
+    readonly location?: string
   ) {}
 
   static find(id: string): Commodity {
@@ -145,7 +145,8 @@ export class Commodity {
 
   // convert amount to this commodity using price on given date
   convert(amount: Amount, date: Date): Amount {
-    if (amount.commodity == this || amount.isZero) return new Amount(0, this);
+    if (amount.commodity == this) return amount;
+    if (amount.isZero) return new Amount(0, this);
     const conversion = amount.commodity.findConversion(this);
     if (!conversion)
       throw new Error(
@@ -224,11 +225,13 @@ export class Amount {
     // accounting rounding should round 0.5 up
     return new Amount(Math.round(float), price.value.commodity);
   }
-  cmp(amount: Amount) {
-    const decimalDiff = this.commodity.decimals - amount.commodity.decimals;
-    return decimalDiff < 0
-      ? this.value * 10 ** -decimalDiff - amount.value
-      : this.value - amount.value * 10 ** decimalDiff;
+  cmp(amount: Amount, absolute = false) {
+    if (this.commodity != amount.commodity) {
+      throw new Error("comparing different commodities");
+    }
+    return absolute
+      ? Math.abs(this.value) - Math.abs(amount.value)
+      : this.value - amount.value;
   }
   reciprocal(decimals: number): number {
     const reciprocal = 10 ** this.commodity.decimals / this.value;
@@ -254,7 +257,7 @@ export class Price {
     readonly commodity: Commodity,
     readonly date: Date,
     readonly value: Amount,
-    readonly location: string
+    readonly location?: string
   ) {}
   static parse(input: string): Price {
     const parts = input.split(":");

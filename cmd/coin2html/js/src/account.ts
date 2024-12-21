@@ -18,9 +18,9 @@ export class Account {
     readonly name: string,
     readonly fullName: string,
     readonly commodity: Commodity,
-    readonly parent: Account,
-    readonly location: string,
-    readonly closed?: Date
+    readonly parent?: Account,
+    readonly closed?: Date,
+    readonly location?: string
   ) {
     if (parent) {
       parent.children.push(this);
@@ -116,9 +116,9 @@ export class Transaction {
   constructor(
     readonly posted: Date,
     readonly description: string,
-    readonly location: string,
     readonly notes?: string[],
-    readonly code?: string
+    readonly code?: string,
+    readonly location?: string
   ) {}
   toString(): string {
     return dateToString(this.posted) + " " + this.description;
@@ -180,8 +180,8 @@ export function loadAccounts(source: string) {
       impAccount.fullName,
       Commodity.find(impAccount.commodity),
       parent,
-      impAccount.location,
-      impAccount.closed ? new Date(impAccount.closed) : undefined
+      impAccount.closed ? new Date(impAccount.closed) : undefined,
+      impAccount.location
     );
     Accounts[account.fullName] = account;
     if (!parent) {
@@ -199,9 +199,9 @@ export function loadTransactions(source: string) {
     const transaction = new Transaction(
       posted,
       impTransaction.description,
-      impTransaction.location,
       impTransaction.notes,
-      impTransaction.code
+      impTransaction.code,
+      impTransaction.location
     );
     for (const impPosting of impTransaction.postings) {
       const account = Accounts[impPosting.account];
