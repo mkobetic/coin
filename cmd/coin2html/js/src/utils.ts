@@ -1,6 +1,6 @@
 import { Account, Posting } from "./account";
 import { Amount, Commodity } from "./commodity";
-import { State } from "./views";
+import { AggregationStyle, State } from "./views";
 
 export function dateToString(date: Date): string {
   return date.toISOString().split("T")[0];
@@ -24,6 +24,12 @@ export type PostingGroup = {
   offset?: number; // used to cache offset value (x) in layered stack chart
   width?: number; // used to cache width value (x) in layered stack chart
 };
+
+export function balanceOrSum(g: PostingGroup) {
+  return State.View.AggregationStyle == AggregationStyle.Flows
+    ? g.sum
+    : g.balance;
+}
 
 export function groupBy(
   postings: Posting[],
@@ -52,6 +58,20 @@ export function groupBy(
     }
     return { date, postings, sum, total: Amount.clone(total), balance };
   });
+}
+
+export function topN(
+  postings: Posting[],
+  n: number,
+  commodity: Commodity
+): Posting[] {
+  const top = [...postings];
+  top.sort(
+    (a, b) =>
+      commodity.convert(a.quantity, a.transaction.posted).toNumber() -
+      commodity.convert(b.quantity, b.transaction.posted).toNumber()
+  );
+  return top.slice(0, n);
 }
 
 // list of groups for an account

@@ -9,14 +9,16 @@ import {
   MainView,
   addShowLocationInput,
   addAggregationStyleInput,
-  AggregationStyle,
+  showDetails,
 } from "./views";
 import { Account, Posting } from "./account";
 import {
+  balanceOrSum,
   dateToString,
   groupBy,
   groupByWithSubAccounts,
   last,
+  PostingGroup,
   shortenAccountName,
   trimToDateRange,
 } from "./utils";
@@ -99,21 +101,18 @@ function viewRegisterAggregated(
     .classed("even", (_, i) => i % 2 == 0)
     .selectAll("td")
     .data((g) => {
-      const row = [
-        [dateToString(g.date), "date"],
-        [
-          State.View.AggregationStyle == AggregationStyle.Balances
-            ? g.balance
-            : g.sum,
-          "amount",
-        ],
+      const row: [PostingGroup, (g: PostingGroup) => string, string][] = [
+        [g, (g) => dateToString(g.date), "date"],
+        [g, (g) => balanceOrSum(g).toString(), "amount"],
       ];
-      if (options.aggregatedTotal) row.push([g.total, "amount"]);
+      if (options.aggregatedTotal)
+        row.push([g, (g) => g.total.toString(), "amount"]);
       return row;
     })
     .join("td")
-    .classed("amount", ([v, c]) => c == "amount")
-    .text(([v, c]) => v.toString());
+    .classed("amount", ([g, v, c]) => c == "amount")
+    .text(([g, v, c]) => v(g))
+    .on("click", (e, [g, v, c]) => showDetails(g));
 }
 
 function viewRegisterAggregatedWithSubAccounts(
@@ -178,27 +177,19 @@ function viewRegisterAggregatedWithSubAccounts(
     .selectAll("td")
     .data((row) => {
       const total = last(row)!;
-      const columns = row.map((g) => [
-        State.View.AggregationStyle == AggregationStyle.Flows
-          ? g.sum
-          : g.balance,
-        "amount",
-      ]);
+      const columns: [PostingGroup, (g: PostingGroup) => string, string][] =
+        row.map((g) => [g, (g) => balanceOrSum(g).toString(), "amount"]);
       // prepend date
-      columns.unshift([dateToString(row[0].date), "date"]);
+      columns.unshift([row[0], (g) => dateToString(g.date), "date"]);
       // append total correctly
       if (options.aggregatedTotal)
-        columns.push([
-          State.View.AggregationStyle == AggregationStyle.Flows
-            ? total.total
-            : total.balance,
-          "amount",
-        ]);
+        columns.push([total, (g) => balanceOrSum(g).toString(), "amount"]);
       return columns;
     })
     .join("td")
-    .classed("amount", ([v, c]) => c == "amount")
-    .text(([v, c]) => v.toString());
+    .classed("amount", ([g, v, c]) => c == "amount")
+    .text(([g, v, c]) => v(g))
+    .on("click", (e, [g, v, c]) => showDetails(g));
 }
 
 function viewRegisterFull(
@@ -273,6 +264,27 @@ function viewRegisterFullWithSubAccounts(
     negated: boolean;
   }
 ) {
+  const data = account.withAllChildPostings(State.StartDate, State.EndDate);
+  renderPostingsWithSubAccounts(account, data, containerSelector, {
+    showLocation: State.View.ShowLocation,
+    showNotes: State.View.ShowNotes,
+  });
+}
+
+export function renderPostingsWithSubAccounts(
+  account: Account,
+  data: Posting[],
+  containerSelector: string,
+  optionOverrides?: {
+    showLocation?: boolean;
+    showNotes?: boolean;
+  }
+) {
+  const options = {
+    showLocation: false,
+    showNotes: false,
+  };
+  Object.assign(options, optionOverrides);
   const labels = [
     "Date",
     "Description",
@@ -281,10 +293,9 @@ function viewRegisterFullWithSubAccounts(
     "Amount",
     "Cum.Total",
   ];
-  if (State.View.ShowLocation) labels.push("Location");
+  if (options.showLocation) labels.push("Location");
   const table = addTableWithHeader(containerSelector, labels);
   const total = new Amount(0, account.commodity);
-  const data = account.withAllChildPostings(State.StartDate, State.EndDate);
   const rows = table.append("tbody").selectAll("tr").data(data).enter();
   rows
     .append("tr")
@@ -301,15 +312,14 @@ function viewRegisterFullWithSubAccounts(
         [p.quantity, "amount"],
         [Amount.clone(total), "amount"],
       ];
-      if (State.View.ShowLocation)
-        values.push([p.transaction.location, "text"]);
+      if (options.showLocation) values.push([p.transaction.location, "text"]);
       return values;
     })
     .join("td")
     .classed("amount", ([v, c]) => c == "amount")
-    .attr("rowspan", (_, i) => (i == 0 && State.View.ShowNotes ? 2 : null))
+    .attr("rowspan", (_, i) => (i == 0 && options.showNotes ? 2 : null))
     .text(([v, c]) => v.toString());
-  if (State.View.ShowNotes) {
+  if (options.showNotes) {
     rows
       .append("tr")
       .classed("even", (_, i) => i % 2 == 0)

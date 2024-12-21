@@ -1,9 +1,9 @@
 import { select } from "d3-selection";
 import { timeMonth, timeWeek, timeYear } from "d3-time";
-import { viewRegister } from "./register";
-import { viewChart } from "./chart";
+import { renderPostingsWithSubAccounts, viewRegister } from "./register";
+import { viewChartTotals } from "./chart";
 import { Account } from "./account";
-import { shortenAccountName } from "./utils";
+import { PostingGroup, shortenAccountName, topN } from "./utils";
 
 export const Aggregation = {
   None: null,
@@ -44,11 +44,11 @@ export const State = {
 export const Views = {
   Assets: {
     Register: viewRegister,
-    Chart: viewChart,
+    Chart: viewChartTotals,
   },
   Liabilities: {
     Register: () => viewRegister({ negated: true }),
-    Chart: () => viewChart({ negated: true }),
+    Chart: () => viewChartTotals({ negated: true }),
   },
   Income: {
     Register: () =>
@@ -56,14 +56,14 @@ export const Views = {
         negated: true,
         aggregatedTotal: true,
       }),
-    Chart: () => viewChart({ negated: true }),
+    Chart: () => viewChartTotals({ negated: true }),
   },
   Expenses: {
     Register: () =>
       viewRegister({
         aggregatedTotal: true,
       }),
-    Chart: viewChart,
+    Chart: viewChartTotals,
   },
   Equity: {
     Register: viewRegister,
@@ -207,6 +207,7 @@ export const ShowClosedAccounts = "#main #controls input#closedAccounts";
 export const AccountName = "#main output#account span#name";
 export const AccountCommodity = "#main output#account span#commodity";
 export const MainView = "#main section#view";
+export const Details = "div#details";
 
 export function emptyElement(selector: string) {
   (select(selector).node() as Element).replaceChildren();
@@ -282,4 +283,22 @@ export function updateAccounts() {
   addViewSelect();
   addAccountList();
   updateAccount();
+}
+
+export function showDetails(g: PostingGroup) {
+  emptyElement(Details);
+  const details = select(Details);
+  details
+    .insert("a")
+    .text("X")
+    .on("click", () => details.attr("hidden", true));
+  const account = State.SelectedAccount;
+  renderPostingsWithSubAccounts(
+    account,
+    topN(g.postings, 20, account.commodity),
+    Details,
+    { showLocation: true }
+  );
+
+  details.attr("hidden", null);
 }
