@@ -23,6 +23,7 @@ export type PostingGroup = {
   balance: Amount; // balance of last posting in the group (or previous balance if the group is empty)
   offset?: number; // used to cache offset value (x) in layered stack chart
   width?: number; // used to cache width value (x) in layered stack chart
+  account?: Account; // used to cache account for the group
 };
 
 export function balanceOrSum(g: PostingGroup) {
@@ -66,10 +67,10 @@ export function topN(
   commodity: Commodity
 ): Posting[] {
   const top = [...postings];
-  top.sort(
-    (a, b) =>
-      commodity.convert(a.quantity, a.transaction.posted).toNumber() -
-      commodity.convert(b.quantity, b.transaction.posted).toNumber()
+  top.sort((a, b) =>
+    commodity
+      .convert(b.quantity, b.transaction.posted)
+      .cmp(commodity.convert(a.quantity, a.transaction.posted), true)
   );
   return top.slice(0, n);
 }

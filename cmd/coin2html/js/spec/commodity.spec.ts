@@ -7,14 +7,9 @@ import {
   newConversion,
   Price,
 } from "../src/commodity";
+import { setupCommodities } from "./setup";
 
-for (const [id, decimals] of Object.entries({
-  USD: 2,
-  CAD: 2,
-  EUR: 2,
-  CZK: 2,
-}))
-  if (!Commodities[id]) Commodities[id] = new Commodity(id, id, decimals, "");
+setupCommodities();
 
 describe("amount", () => {
   const CAD = commodity`CAD`;
@@ -91,10 +86,10 @@ describe("conversions", () => {
   });
 
   describe("amount conversions", () => {
-    const CAD = new Commodity("CAD", "CAD", 2, "");
-    const USD = new Commodity("USD", "USD", 2, "");
-    const EUR = new Commodity("EUR", "EUR", 2, "");
-    const CZK = new Commodity("CZK", "CZK", 2, "");
+    const CAD = Commodities.CAD;
+    const USD = Commodities.USD;
+    const EUR = Commodities.EUR;
+    const CZK = Commodities.CZK;
     const day = new Date("2000-01-01");
     for (const [com, val, com2] of [
       [CAD, 75, USD],
