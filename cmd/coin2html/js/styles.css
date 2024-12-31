@@ -45,6 +45,16 @@ label {
   margin: 0.3em;
 }
 
+/* Fixed details div hidden by default */
+div#details {
+  position: fixed;
+  left: 20%;
+  top: 20%;
+  background-color: white;
+  border-style: solid;
+  padding: 10px;
+}
+
 /* VIEW REGISTER */
 table#register {
   width: 100%;

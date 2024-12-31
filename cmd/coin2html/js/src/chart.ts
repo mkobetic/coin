@@ -19,7 +19,7 @@ import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
 import { schemeCategory10 } from "d3-scale-chromatic";
 import { select } from "d3-selection";
 
-export function viewChart(options?: {
+export function viewChartTotals(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
 }) {
   const containerSelector = MainView;
