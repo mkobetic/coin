@@ -25,7 +25,6 @@
 ### coin2html
 
 - update user docs in README (details, balances, screenshots ...)
-- balance charts
 - allow dropping subaccounts from aggregations (in both chart and register)
 - filter subaccounts, payee, tag...
 - brush to select date range
@@ -50,5 +49,7 @@
 - commodity renames?
 - language server?
 - lots/costs
+  - https://beancount.github.io/docs/how_inventories_work.html
+  - https://beancount.github.io/docs/a_proposal_for_an_improvement_on_inventory_booking.html
 - multiple commodities in single account?
 - query language

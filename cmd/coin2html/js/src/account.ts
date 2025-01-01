@@ -85,6 +85,7 @@ export class Account {
     const balance = this.balanceAt(date);
     const total = Amount.clone(balance);
     for (const child of this.children) {
+      if (!State.ShowClosedAccounts && child.isClosed(date)) continue;
       const childBalances = child.withAllChildBalances(date);
       balances = balances.concat(childBalances);
       total.addIn(childBalances[0].total, date);

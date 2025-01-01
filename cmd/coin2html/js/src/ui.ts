@@ -16,6 +16,7 @@ import {
   StartDateInput,
   State,
   updateAccounts,
+  updateAggregationForTimeRange,
   updateView,
   Views,
 } from "./views";
@@ -42,6 +43,7 @@ function initializeUI() {
     .on("change", (e) => {
       const input = e.currentTarget as HTMLInputElement;
       State.EndDate = new Date(input.value);
+      updateAggregationForTimeRange();
       updateView();
     });
   select(StartDateInput)
@@ -51,6 +53,7 @@ function initializeUI() {
     .on("change", (e) => {
       const input = e.currentTarget as HTMLInputElement;
       State.StartDate = new Date(input.value);
+      updateAggregationForTimeRange();
       updateView();
     });
   type optionWithAccount = HTMLOptionElement & { __data__: Account };

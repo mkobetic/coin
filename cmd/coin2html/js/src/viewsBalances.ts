@@ -19,9 +19,6 @@ export function viewBalances(options?: {
   const labels = ["Balance", "Total", "Account"];
   const table = addTableWithHeader(containerSelector, labels);
   let balances = account.withAllChildBalances(State.EndDate);
-  if (!State.ShowClosedAccounts) {
-    balances = balances.filter((b) => !b.account.isClosed(State.EndDate));
-  }
   balances = balances.filter(
     (b) => b.account.depthFrom(account) <= State.View.BalanceDepth
   );
