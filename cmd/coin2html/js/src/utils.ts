@@ -14,6 +14,12 @@ export function trimToDateRange(postings: Posting[], start: Date, end: Date) {
   return postings.slice(from, to);
 }
 
+export type AccountBalanceAndTotal = {
+  account: Account;
+  balance: Amount;
+  total: Amount;
+};
+
 // single entry of a list of postings grouped by some key (week,month,...)
 export type PostingGroup = {
   date: Date;

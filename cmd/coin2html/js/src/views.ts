@@ -8,6 +8,7 @@ import {
 import { viewChartTotals } from "./chart";
 import { Account } from "./account";
 import { PostingGroup, shortenAccountName, topN } from "./utils";
+import { viewBalances } from "./balance";
 
 export const Aggregation = {
   None: null,
@@ -27,7 +28,7 @@ export const State = {
   // All these must be set after loading of data is finished, see initializeUI()
   SelectedAccount: undefined as unknown as Account, // currently viewed account
   AccountListRoot: undefined as unknown as Account, // account used to generate the account list
-  SelectedView: "Register",
+  SelectedView: "Balance",
   StartDate: new Date(),
   EndDate: new Date(),
   ShowClosedAccounts: false,
@@ -40,6 +41,7 @@ export const State = {
     AggregatedSubAccountMax: 5,
     AggregationStyle: AggregationStyle.Flows as AggregationStyle,
     ShowLocation: false, // Show transaction location info
+    BalanceDepth: 3, // How many levels of subaccounts to show in balance view
   },
 };
 
@@ -47,14 +49,17 @@ export const State = {
 // All types have Register.
 export const Views = {
   Assets: {
+    Balances: viewBalances,
     Register: viewRegister,
     Chart: viewChartTotals,
   },
   Liabilities: {
+    Balances: viewBalances,
     Register: () => viewRegister({ negated: true }),
     Chart: () => viewChartTotals({ negated: true }),
   },
   Income: {
+    Balances: viewBalances,
     Register: () =>
       viewRegister({
         negated: true,
@@ -63,6 +68,7 @@ export const Views = {
     Chart: () => viewChartTotals({ negated: true }),
   },
   Expenses: {
+    Balances: viewBalances,
     Register: () =>
       viewRegister({
         aggregatedTotal: true,
@@ -70,9 +76,11 @@ export const Views = {
     Chart: viewChartTotals,
   },
   Equity: {
+    Balances: viewBalances,
     Register: viewRegister,
   },
   Unbalanced: {
+    Balances: viewBalances,
     Register: viewRegister,
   },
 };
@@ -146,6 +154,21 @@ export function addSubAccountMaxInput(containerSelector: string) {
     .attr("id", "subAccountMax")
     .attr("type", "number")
     .property("value", State.View.AggregatedSubAccountMax);
+}
+
+export function addBalanceDepthInput(containerSelector: string) {
+  const container = select(containerSelector);
+  container.append("label").property("for", "balanceDepth").text("Depth");
+  container
+    .append("input")
+    .on("change", (e, d) => {
+      const input = e.currentTarget as HTMLInputElement;
+      State.View.BalanceDepth = parseInt(input.value);
+      updateView();
+    })
+    .attr("id", "balanceDepth")
+    .attr("type", "number")
+    .property("value", State.View.BalanceDepth);
 }
 
 export function addAggregateInput(
@@ -307,4 +330,20 @@ export function showDetails(g: PostingGroup, withSubaccounts = false) {
   else renderPostings(account, data, Details, options);
 
   details.attr("hidden", null);
+}
+export function addTableWithHeader(
+  containerSelector: string,
+  labels: string[]
+) {
+  const table = select(containerSelector)
+    .append("table")
+    .attr("id", "register");
+  table
+    .append("thead")
+    .append("tr")
+    .selectAll("th")
+    .data(labels)
+    .join("th")
+    .text((d) => d);
+  return table;
 }

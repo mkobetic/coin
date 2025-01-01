@@ -10,6 +10,7 @@ import {
   addShowLocationInput,
   addAggregationStyleInput,
   showDetails,
+  addTableWithHeader,
 } from "./views";
 import { Account, Posting } from "./account";
 import {
@@ -23,21 +24,6 @@ import {
   trimToDateRange,
 } from "./utils";
 import { Amount } from "./commodity";
-import { select } from "d3-selection";
-
-function addTableWithHeader(containerSelector: string, labels: string[]) {
-  const table = select(containerSelector)
-    .append("table")
-    .attr("id", "register");
-  table
-    .append("thead")
-    .append("tr")
-    .selectAll("th")
-    .data(labels)
-    .join("th")
-    .text((d) => d);
-  return table;
-}
 
 export function viewRegister(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)

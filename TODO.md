@@ -24,16 +24,18 @@
 
 ### coin2html
 
+- update user docs in README (details, balances, screenshots ...)
+- balance charts
 - allow dropping subaccounts from aggregations (in both chart and register)
 - filter subaccounts, payee, tag...
 - brush to select date range
+- buttons to reset To/From to Min/Max date
 - replace dateToString with d3.format
 - try d3 binning for groupBy utils
 - try d3 layouts
 - tooltips for columns, inputs and wherever useful
 - preserve UI state in history (make back/forward buttons work)
 - trim to time range on export (need to recalc posting balances!)
-- balance charts
 - show commodities and prices
 - investment performance summary
 

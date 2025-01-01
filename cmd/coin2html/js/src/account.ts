@@ -1,6 +1,7 @@
 import { Amount, Commodity } from "./commodity";
 import { State } from "./views";
 import {
+  AccountBalanceAndTotal,
   AccountPostingGroups,
   dateToString,
   groupBy,
@@ -29,11 +30,20 @@ export class Account {
   allChildren(): Account[] {
     return this.children.reduce(
       (total: Account[], acc: Account) =>
-        State.ShowClosedAccounts || !acc.closed
+        State.ShowClosedAccounts || !acc.closed || acc.closed > State.EndDate
           ? total.concat([acc, ...acc.allChildren()])
           : total,
       []
     );
+  }
+  withAllChildren(): Account[] {
+    return [this, ...this.allChildren()];
+  }
+  balanceAt(date: Date): Amount {
+    const p = this.postings.findLast(
+      (p) => p.transaction.posted.getTime() <= date.getTime()
+    );
+    return p ? p.balance : new Amount(0, this.commodity);
   }
   toString(): string {
     return this.fullName;
@@ -70,6 +80,17 @@ export class Account {
       ),
     }));
   }
+  withAllChildBalances(date: Date): AccountBalanceAndTotal[] {
+    let balances: AccountBalanceAndTotal[] = [];
+    const balance = this.balanceAt(date);
+    const total = Amount.clone(balance);
+    for (const child of this.children) {
+      const childBalances = child.withAllChildBalances(date);
+      balances = balances.concat(childBalances);
+      total.addIn(childBalances[0].total, date);
+    }
+    return [{ account: this, balance, total }, ...balances];
+  }
   withAllParents(): Account[] {
     return this.parent ? this.parent.withAllParents().concat(this) : [this];
   }
@@ -80,6 +101,19 @@ export class Account {
     if (!a.parent) return false;
     if (a.parent == this) return true;
     return this.isParentOf(a.parent);
+  }
+  isClosed(date: Date): boolean {
+    return (
+      (this.closed && this.closed <= date) ||
+      (this.parent && this.parent.isClosed(date)) ||
+      false
+    );
+  }
+  depthFrom(parent: Account): number {
+    if (parent == this) return 0;
+    if (!this.parent) return -1;
+    const depth = this.parent.depthFrom(parent);
+    return depth < 0 ? depth : depth + 1;
   }
 }
 
