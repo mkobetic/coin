@@ -4,11 +4,11 @@ import {
   renderPostings,
   renderPostingsWithSubAccounts,
   viewRegister,
-} from "./register";
-import { viewChartTotals } from "./chart";
+} from "./viewsRegister";
+import { viewChartTotals } from "./viewsAggregatedRegisterChart";
 import { Account } from "./account";
 import { PostingGroup, shortenAccountName, topN } from "./utils";
-import { viewBalances } from "./balance";
+import { viewBalances } from "./viewsBalances";
 
 export const Aggregation = {
   None: null,
