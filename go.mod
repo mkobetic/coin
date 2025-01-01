@@ -13,5 +13,5 @@ require (
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	gopkg.in/yaml.v2 v2.2.4 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
