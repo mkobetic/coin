@@ -5,10 +5,11 @@ import {
   renderPostingsWithSubAccounts,
   viewRegister,
 } from "./viewsRegister";
-import { viewChartTotals } from "./viewsAggregatedRegisterChart";
+import { viewAggregatedRegisterChart } from "./viewsAggregatedRegisterChart";
 import { Account } from "./account";
 import { PostingGroup, shortenAccountName, topN } from "./utils";
 import { viewBalances } from "./viewsBalances";
+import { viewBalancesChart } from "./viewsBalancesChart";
 
 export const Aggregation = {
   None: null,
@@ -45,18 +46,22 @@ export const State = {
   },
 };
 
-// View types by account category.
+// Available view types by account category.
+// These define what is offered in the view drop-down.
 // All types have Register.
 export const Views = {
   Assets: {
     Balances: viewBalances,
     Register: viewRegister,
-    Chart: viewChartTotals,
+    ChartBalances: viewBalancesChart,
+    ChartAggregatedRegister: viewAggregatedRegisterChart,
   },
   Liabilities: {
     Balances: viewBalances,
     Register: () => viewRegister({ negated: true }),
-    Chart: () => viewChartTotals({ negated: true }),
+    ChartBalances: () => viewBalancesChart({ negated: true }),
+    ChartAggregatedRegister: () =>
+      viewAggregatedRegisterChart({ negated: true }),
   },
   Income: {
     Balances: viewBalances,
@@ -65,7 +70,9 @@ export const Views = {
         negated: true,
         aggregatedTotal: true,
       }),
-    Chart: () => viewChartTotals({ negated: true }),
+    ChartBalances: () => viewBalancesChart({ negated: true }),
+    ChartAggregatedRegister: () =>
+      viewAggregatedRegisterChart({ negated: true }),
   },
   Expenses: {
     Balances: viewBalances,
@@ -73,7 +80,8 @@ export const Views = {
       viewRegister({
         aggregatedTotal: true,
       }),
-    Chart: viewChartTotals,
+    ChartBalances: viewBalancesChart,
+    ChartAggregatedRegister: viewAggregatedRegisterChart,
   },
   Equity: {
     Balances: viewBalances,
@@ -193,6 +201,7 @@ export function addAggregateInput(
   );
   if (!opts.includeNone && State.View.Aggregate == "None") {
     State.View.Aggregate = data[0] as keyof typeof Aggregation;
+    updateAggregationForTimeRange();
     console.log("Aggregate = ", State.View.Aggregate);
   }
   aggregate
@@ -247,6 +256,17 @@ export function updateView() {
   const selectedViews = Views[account.name as keyof typeof Views];
   const view = selectedViews[State.SelectedView as keyof typeof selectedViews];
   view();
+}
+
+export function updateAggregationForTimeRange() {
+  if (State.View.Aggregate == "None") return;
+  const days =
+    (State.EndDate.getTime() - State.StartDate.getTime()) /
+    (1000 * 60 * 60 * 24);
+  if (days < 180) State.View.Aggregate = "Weekly";
+  else if (days < 3 * 180) State.View.Aggregate = "Monthly";
+  else if (days < 5 * 365) State.View.Aggregate = "Quarterly";
+  else State.View.Aggregate = "Yearly";
 }
 
 export function updateAccount() {

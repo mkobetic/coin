@@ -20,7 +20,7 @@ import { scaleLinear, scaleOrdinal, scaleTime } from "d3-scale";
 import { schemeCategory10 } from "d3-scale-chromatic";
 import { select } from "d3-selection";
 
-export function viewChartTotals(options?: {
+export function viewAggregatedRegisterChart(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
 }) {
   const containerSelector = MainView;
@@ -48,16 +48,13 @@ export function viewChartTotals(options?: {
   // compute offsets for each group left to right
   // and max width for the x domain
   let max = 0;
+  const amountFromGroup = (group: PostingGroup) =>
+    State.View.AggregationStyle == AggregationStyle.Flows
+      ? group.sum
+      : group.balance;
   const widthFromGroup = (group: PostingGroup) => {
     let width = Math.trunc(
-      account.commodity
-        .convert(
-          State.View.AggregationStyle == AggregationStyle.Flows
-            ? group.sum
-            : group.balance,
-          group.date
-        )
-        .toNumber()
+      account.commodity.convert(amountFromGroup(group), group.date).toNumber()
     );
     if (opts.negated) width = -width;
     return width < 0 ? 0 : width;
@@ -117,7 +114,9 @@ export function viewChartTotals(options?: {
     .attr("x", (d) => x(d.offset ?? 0))
     .attr("width", (d) => x(d.width ?? 0))
     .attr("height", rowHeight - 1)
-    .on("click", (e, d) => showDetails(d, !d.account));
+    .on("click", (e, d) => showDetails(d, !d.account))
+    .append("title")
+    .text((d) => `${d.account?.fullName ?? "Other"} ${amountFromGroup(d)}`);
 
   // bar text
   layer
