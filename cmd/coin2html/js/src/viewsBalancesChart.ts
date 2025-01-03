@@ -44,7 +44,9 @@ export function viewBalancesChart(options?: {
     )
   );
 
-  const [width, height] = [1200, 800];
+  const view = select(containerSelector);
+  const width = max((view.node()! as HTMLElement).clientWidth ?? 1200, 600);
+  const height = max(1600 - width * 0.67, 400);
   const tm = treemap<AccountBalanceAndTotal>()
     .size([width, height])
     .padding(4)
@@ -57,7 +59,7 @@ export function viewBalancesChart(options?: {
 
   let uidCounter = 0;
 
-  const svg = select(containerSelector)
+  const svg = view
     .append("svg")
     .attr("id", "chart")
     .attr("width", "100%")

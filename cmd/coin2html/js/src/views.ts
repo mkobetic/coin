@@ -53,14 +53,14 @@ export const Views = {
   Assets: {
     Balances: viewBalances,
     Register: viewRegister,
-    ChartBalances: viewBalancesChart,
-    ChartAggregatedRegister: viewAggregatedRegisterChart,
+    "Balances - Chart": viewBalancesChart,
+    "Aggregated Register - Chart": viewAggregatedRegisterChart,
   },
   Liabilities: {
     Balances: viewBalances,
     Register: () => viewRegister({ negated: true }),
-    ChartBalances: () => viewBalancesChart({ negated: true }),
-    ChartAggregatedRegister: () =>
+    "Balances - Chart": () => viewBalancesChart({ negated: true }),
+    "Aggregated Register - Chart": () =>
       viewAggregatedRegisterChart({ negated: true }),
   },
   Income: {
@@ -70,8 +70,8 @@ export const Views = {
         negated: true,
         aggregatedTotal: true,
       }),
-    ChartBalances: () => viewBalancesChart({ negated: true }),
-    ChartAggregatedRegister: () =>
+    "Balances - Chart": () => viewBalancesChart({ negated: true }),
+    "Aggregated Register - Chart": () =>
       viewAggregatedRegisterChart({ negated: true }),
   },
   Expenses: {
@@ -80,8 +80,8 @@ export const Views = {
       viewRegister({
         aggregatedTotal: true,
       }),
-    ChartBalances: viewBalancesChart,
-    ChartAggregatedRegister: viewAggregatedRegisterChart,
+    "Balances - Chart": viewBalancesChart,
+    "Aggregated Register - Chart": viewAggregatedRegisterChart,
   },
   Equity: {
     Balances: viewBalances,
