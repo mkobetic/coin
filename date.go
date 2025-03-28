@@ -17,6 +17,13 @@ func init() {
 // Cache today's values, so that we can spoof today for testing
 var Year, Month, Day int
 
+func WithYear(year int, f func()) {
+	was := Year
+	Year = year
+	defer func() { Year = was }()
+	f()
+}
+
 type Date struct {
 	time.Time
 }

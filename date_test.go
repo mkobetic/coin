@@ -1,8 +1,10 @@
 package coin
 
-import "testing"
+import (
+	"testing"
 
-import "github.com/mkobetic/coin/assert"
+	"github.com/mkobetic/coin/assert"
+)
 
 func Test_ParseDate(t *testing.T) {
 	Year, Month, Day = 2019, 10, 22

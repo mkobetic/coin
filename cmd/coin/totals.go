@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -13,171 +14,343 @@ import (
 	"github.com/mkobetic/coin/check"
 )
 
-// total represents an amount total for a time period.
-type total struct {
-	time.Time
-	*coin.Amount
+// timeTotal represents a total amount for a time period.
+// optionally
+type timeTotal struct {
+	time.Time // time is zero if we're not reducing by time
+	// exactly one of the following two must be not nil
+	total  *coin.Amount            // total if we are not reducing by other criteria
+	totals map[string]*coin.Amount // totals by other criteria
 }
 
-// totals aggregates time series amounts for accounts.
-// It must be initialized with a reducer before use.
-type totals struct {
-	// this must be set before using
-	*reducer
-	// these are internal
-	all     []*total
-	current *total
+func (t *timeTotal) Categories() (keys []string) {
+	for k := range t.totals {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
-// add amount at time t, t must not be before ts.current.Time,
-// i.e. items being added must be sorted by time.
-func (ts *totals) add(t time.Time, a *coin.Amount) {
-	period := ts.reduce(t)
-	if ts.current != nil && ts.current.Equal(period) {
-		err := ts.current.AddIn(a)
-		check.NoError(err, "cannot add %a to totals", a)
+func (t *timeTotal) AddIn(t2 *timeTotal, keysOnly bool) {
+	check.If(t.Time.Equal(t2.Time), "%v is not equal to %v", t.Time, t2.Time)
+	if t.total != nil && !keysOnly {
+		t.total.AddIn(t2.total)
 		return
 	}
-	amt := a.Copy()
-	ts.current = &total{Time: period, Amount: amt}
-	ts.all = append(ts.all, ts.current)
-}
-
-func (ts *totals) addTotals(ts2 ...*total) {
-	for _, t := range ts2 {
-		ts.add(t.Time, t.Amount)
+	for k, v := range t2.totals {
+		amt := t.totals[k]
+		if amt != nil {
+			if !keysOnly {
+				amt.AddIn(v)
+			}
+		} else {
+			if keysOnly {
+				t.totals[k] = coin.NewZeroAmount(v.Commodity)
+			} else {
+				t.totals[k] = v.Copy()
+			}
+		}
 	}
 }
 
-func (ts *totals) addTimes(ts2 ...*total) {
-	for _, t := range ts2 {
-		ts.add(t.Time, coin.NewZeroAmount(t.Commodity))
+func (t *timeTotal) Copy(keysOnly bool) *timeTotal {
+	if t.total != nil {
+		return &timeTotal{Time: t.Time, total: t.total.Copy()}
 	}
+	totals := make(map[string]*coin.Amount)
+	for k, v := range t.totals {
+		if keysOnly {
+			totals[k] = coin.NewZeroAmount(v.Commodity)
+		} else {
+			totals[k] = v.Copy()
+		}
+	}
+	return &timeTotal{Time: t.Time, totals: totals}
+}
+
+func (t *timeTotal) Commodity() *coin.Commodity {
+	if t.total != nil {
+		return t.total.Commodity
+	}
+	for _, v := range t.totals {
+		return v.Commodity
+	}
+	return nil
+}
+
+func (t *timeTotal) String() string {
+	output := t.Time.Format(coin.DateFormat) + ": "
+	if t.total != nil {
+		return output + t.total.String()
+	}
+	var totals []string
+	for k, v := range t.totals {
+		totals = append(totals, fmt.Sprintf("%s: %s", k, v))
+	}
+	return output + "{ " + strings.Join(totals, ", ") + " }"
+}
+
+func tsToStrings(ts ...*timeTotal) (out []string) {
+	for _, t := range ts {
+		out = append(out, t.String())
+	}
+	return out
+}
+
+// timeTotals aggregates time series amounts for accounts.
+// It must be initialized with a reducer before use.
+type timeTotals struct {
+	// at least one of these must be set before using
+	*timeReducer
+	*categoryReducer
+	// these are internal
+	all     []*timeTotal // ordered totals by time if we are reducing by time
+	current *timeTotal   // latest total, if not reducing by time then the only total
+}
+
+func (ts *timeTotals) Commodity() *coin.Commodity {
+	if ts.current != nil {
+		if c := ts.current.Commodity(); c != nil {
+			return c
+		}
+	}
+	for _, v := range ts.all {
+		if c := v.Commodity(); c != nil {
+			return c
+		}
+	}
+	return nil
+}
+
+// add posting to the totals
+// Assumes postings are added in time order,
+// which should be true since account postings are sorted by time.
+func (ts *timeTotals) add(p *coin.Posting) {
+	var period time.Time
+	if ts.timeReducer != nil {
+		period = ts.timeReducer.reduce(p.Transaction.Posted)
+	}
+	if ts.current != nil && ts.current.Equal(period) {
+		if ts.categoryReducer != nil {
+			category := ts.categoryReducer.reduce(p)
+			amt := ts.current.totals[category]
+			if amt != nil {
+				check.NoError(amt.AddIn(p.Quantity), "cannot add %a to totals", p.Quantity)
+			} else {
+				ts.current.totals[category] = p.Quantity.Copy()
+			}
+		} else {
+			check.NoError(ts.current.total.AddIn(p.Quantity), "cannot add %a to totals", p.Quantity)
+		}
+		return
+	}
+	amt := p.Quantity.Copy()
+	if ts.categoryReducer != nil {
+		category := ts.categoryReducer.reduce(p)
+		ts.current = &timeTotal{Time: period, totals: map[string]*coin.Amount{category: amt}}
+	} else {
+		ts.current = &timeTotal{Time: period, total: amt}
+	}
+	if ts.timeReducer != nil {
+		ts.all = append(ts.all, ts.current)
+	}
+}
+
+func (ts *timeTotals) newTotal(t time.Time, c *coin.Commodity) *timeTotal {
+	if ts.categoryReducer != nil {
+		return &timeTotal{Time: t, totals: make(map[string]*coin.Amount)}
+	} else {
+		check.If(c != nil, "need commodity to create total")
+		return &timeTotal{Time: t, total: coin.NewZeroAmount(c)}
+	}
+}
+
+// mergeTotals merges times and categories from ts2 into ts.
+// keysOnly = false only add times/categories that are missing with zero value
+// keysOnly = true add the ts2 amounts to corresponding ts values.
+func (ts *timeTotals) mergeTotals(ts2 *timeTotals, keysOnly bool) {
+	if ts.timeReducer == nil {
+		if ts2.current == nil {
+			return
+		}
+		if ts.current == nil {
+			ts.current = ts2.current.Copy(keysOnly)
+		} else {
+			ts.current.AddIn(ts2.current, keysOnly)
+		}
+		return
+	}
+	var offsets []int
+	var extras []*timeTotal
+	remaining := ts.all
+	// Add totals with matching time into ts,
+	// gather non-matching into extras with offsets where they should go
+	var j int
+	for _, t := range ts2.all {
+		i := sort.Search(len(remaining), func(i int) bool {
+			return !remaining[i].Time.Before(t.Time)
+		})
+		remaining = remaining[i:]
+		j += i
+		if len(remaining) > 0 && remaining[0].Time.Equal(t.Time) {
+			remaining[0].AddIn(t, keysOnly)
+		} else {
+			offsets = append(offsets, j)
+			j = 0
+			extras = append(extras, t)
+		}
+	}
+	if len(extras) == 0 {
+		// if everything matched we are done
+		return
+	}
+	// Otherwise inject the extras into the timeline.
+	remaining = ts.all
+	ts.all = make([]*timeTotal, 0, len(ts.all)+len(extras))
+	for i := 0; i < len(extras); i++ {
+		mark := offsets[i]
+		extra := extras[i]
+		com := ts.Commodity()
+		if com == nil {
+			com = extra.Commodity()
+		}
+		newExtra := ts.newTotal(extra.Time, com)
+		newExtra.AddIn(extra, keysOnly)
+		ts.all = append(ts.all, remaining[:mark]...)
+		ts.all = append(ts.all, newExtra)
+		remaining = remaining[mark:]
+	}
+	ts.all = append(ts.all, remaining...)
+	ts.current = ts.all[len(ts.all)-1]
 }
 
 // merge two sorted totals
-func (ts *totals) merge(ts2 *totals) {
-	all1, all2 := ts.all, ts2.all
-	ts.all, ts.current = nil, nil
-	for {
-		if len(all1) == 0 {
-			ts.addTotals(all2...)
-			return
-		}
-		if len(all2) == 0 {
-			ts.addTotals(all1...)
-			return
-		}
-		if all1[0].After(all2[0].Time) {
-			ts.addTotals(all2[0])
-			all2 = all2[1:]
-		} else {
-			ts.addTotals(all1[0])
-			all1 = all1[1:]
-		}
-	}
+func (ts *timeTotals) merge(ts2 *timeTotals) {
+	ts.mergeTotals(ts2, false)
 }
 
-// mergeTime backfills ts with missing times from ts2
-func (ts *totals) mergeTime(ts2 *totals) {
-	all1, all2 := ts.all, ts2.all
-	ts.all, ts.current = nil, nil
-	for {
-		if len(all1) == 0 {
-			ts.addTimes(all2...)
-			return
-		}
-		if len(all2) == 0 {
-			ts.addTotals(all1...)
-			return
-		}
-		if all1[0].After(all2[0].Time) {
-			ts.addTimes(all2[0])
-			all2 = all2[1:]
-		} else {
-			ts.addTotals(all1[0])
-			all1 = all1[1:]
-		}
-	}
+// mergeKeys backfills ts with missing times and categories from ts2
+func (ts *timeTotals) mergeKeys(ts2 *timeTotals) {
+	ts.mergeTotals(ts2, true)
 }
 
 // maxWidth returns the largest amount width needed for printing
-func (ts *totals) maxWidth() int {
+func (ts *timeTotals) maxWidth() int {
 	if ts == nil || ts.current == nil {
 		return 0
 	}
+	dec := ts.Commodity().Decimals
 	var max int
-	for _, t := range ts.all {
-		if w := t.Width(ts.current.Commodity.Decimals); w > max {
-			max = w
+	if len(ts.all) == 0 {
+		for _, amt := range ts.current.totals {
+			if w := amt.Width(dec); w > max {
+				max = w
+			}
 		}
-
+	} else {
+		for _, t := range ts.all {
+			if t.total == nil {
+				for _, v := range t.totals {
+					if w := v.Width(dec); w > max {
+						max = w
+					}
+				}
+			} else {
+				if w := t.total.Width(dec); w > max {
+					max = w
+				}
+			}
+		}
 	}
 	return max
 }
 
-// maxMagnitued returns the amount with largest absolute value
-func (ts *totals) maxMagnitude() *coin.Amount {
-	if len(ts.all) == 0 {
-		return nil
+func (ts *timeTotals) maxPeriodWidth() int {
+	if ts.timeReducer == nil {
+		return 0
 	}
-	max := ts.all[0].Amount
-	if len(ts.all) == 1 {
-		return max
+	return len(ts.all[0].Time.Format(ts.format))
+}
+
+func (ts *timeTotals) maxCategoryWidth() int {
+	periods := ts.all
+	if len(periods) == 0 {
+		periods = append(periods, ts.current)
 	}
-	for _, t := range ts.all[1:] {
-		if t.IsBigger(max) {
-			max = t.Amount
+	max := 0
+	for _, period := range periods {
+		for k := range period.totals {
+			if len(k) > max {
+				max = len(k)
+			}
 		}
 	}
 	return max
 }
 
 // cumMagnitude returns the sum of the totals
-func (ts *totals) cumMagnitude() *coin.Amount {
-	if len(ts.all) == 0 {
+func (ts *timeTotals) cumMagnitude() *coin.Amount {
+	if ts == nil || ts.current == nil {
 		return nil
 	}
-	total := coin.NewZeroAmount(ts.all[0].Commodity)
-	for _, t := range ts.all {
-		err := total.AddIn(t.Amount)
-		check.NoError(err, "computing cumulative magnitude")
+	total := coin.NewZeroAmount(ts.Commodity())
+	if len(ts.all) == 0 {
+		for _, amt := range ts.current.totals {
+			check.NoError(total.AddIn(amt), "computing cumulative magnitude")
+		}
+	} else {
+		for _, t := range ts.all {
+			if t.total != nil {
+				check.NoError(total.AddIn(t.total), "computing cumulative magnitude")
+			} else {
+				for _, v := range t.totals {
+					check.NoError(total.AddIn(v), "computing cumulative magnitude")
+				}
+			}
+		}
 	}
 	return total
 }
 
 // cumulative converts ts to a cumulative totals sequence
-func (ts *totals) makeCumulative() {
+func (ts *timeTotals) makeCumulative() {
+	check.If(ts.categoryReducer == nil, "category aggregation cannot be cumulative")
 	if ts.current == nil {
 		return
 	}
-	all := ts.all
-	cum := coin.NewZeroAmount(ts.current.Commodity)
-	ts.all, ts.current = nil, nil
-	for _, t := range all {
-		err := cum.AddIn(t.Amount)
+	cum := coin.NewZeroAmount(ts.Commodity())
+	for _, t := range ts.all {
+		err := cum.AddIn(t.total)
 		check.NoError(err, "converting totals to cumulative")
-		ts.add(t.Time, cum)
+		t.total = cum.Copy()
 	}
 }
 
-func (ts *totals) validate(acc string) {
+func (ts *timeTotals) validate(acc string) {
 	check.If(ts.current != nil, "current nil for %s", acc)
 	for _, t := range ts.all {
-		check.If(t.Amount != nil, "amount nil @ %s for %s",
+		check.If(t.total != nil, "amount nil @ %s for %s",
 			t.Time.Format(coin.DateFormat),
 			acc,
 		)
 	}
 }
 
-func (ts *totals) String() string {
-	if ts == nil {
+func (ts *timeTotals) String() string {
+	if ts == nil || ts.current == nil {
 		return "nil()"
 	}
 	count := len(ts.all)
 	if count == 0 {
-		return "0()"
+		count = len(ts.current.totals)
+		var keys []string
+		var kcount = 0
+		for k := range ts.current.totals {
+			keys = append(keys, k)
+			if kcount > 2 {
+				break
+			}
+		}
+		return fmt.Sprintf("%d(%s ...)", count, strings.Join(keys, ", "))
 	}
 	from := ts.all[0].Time.Format(coin.DateFormat)
 	if count == 1 {
@@ -187,7 +360,9 @@ func (ts *totals) String() string {
 	return fmt.Sprintf("%d(%s-%s)", count, from, to)
 }
 
-type accountTotals map[*coin.Account]*totals
+// accountTotals represents timeTotals across a hierarchy of accounts.
+// allows aggregated register to operate on the entire result.
+type accountTotals map[*coin.Account]*timeTotals
 
 func (ats accountTotals) String() string {
 	var items []string
@@ -201,9 +376,10 @@ func (ats accountTotals) String() string {
 	return fmt.Sprintf("totals{%s}", strings.Join(items, ", "))
 }
 
-func (ats accountTotals) newTotals(acc *coin.Account, by *reducer) *totals {
-	ts := &totals{reducer: by}
+func (ats accountTotals) newTotals(acc *coin.Account, period *timeReducer, category *categoryReducer) *timeTotals {
+	ts := &timeTotals{timeReducer: period, categoryReducer: category}
 	ats[acc] = ts
+
 	return ts
 }
 
@@ -271,9 +447,11 @@ func (ats accountTotals) top(n int) (topn accountTotals, order []*coin.Account) 
 // mergeTime backfills of all totals with times from ts,
 // so if ts has a union or superset of times of all the totals
 // this will align them all.
-func (ats accountTotals) mergeTime(ts *totals) {
+func (ats accountTotals) mergeTime(ts *timeTotals) {
 	for _, ts2 := range ats {
-		ts2.mergeTime(ts)
+		if ts2 != ts {
+			ts2.mergeKeys(ts)
+		}
 	}
 }
 
@@ -292,7 +470,7 @@ func (ats accountTotals) validate() {
 func (ats accountTotals) sanitize() {
 	var empty []*coin.Account
 	for acc, ts := range ats {
-		if len(ts.all) == 0 {
+		if ts.current == nil {
 			empty = append(empty, acc)
 		}
 	}
@@ -321,12 +499,16 @@ func (ats accountTotals) print(f io.Writer,
 	label func(*coin.Account) string,
 ) {
 	firstCol := ats[order[0]]
-	width1 := len(firstCol.all[0].Time.Format(firstCol.format))
-	widths := ats.widths(order)
 	format := []string{"%*s "}
+	periodWidth := firstCol.maxPeriodWidth()
+	categoryWidth := firstCol.maxCategoryWidth()
+	if periodWidth > 0 && categoryWidth > 0 {
+		format = append(format, " %*s ")
+	}
+	widths := ats.widths(order)
 	if label != nil {
+		format2 := append([]string{}, format...)
 		labels := make([]string, len(order))
-		format2 := []string{"%*s "}
 		for i, acc := range order {
 			l := label(acc)
 			labels[i] = l
@@ -336,51 +518,118 @@ func (ats accountTotals) print(f io.Writer,
 			format = append(format, " %*a ")
 			format2 = append(format2, " %*s ")
 		}
-		args := []interface{}{width1, ""}
+		var args []interface{}
+		if periodWidth > 0 {
+			args = append(args, periodWidth, "")
+		}
+		if categoryWidth > 0 {
+			args = append(args, categoryWidth, "")
+		}
 		for i := range widths {
-			args = append(args, widths[i])
-			args = append(args, labels[i])
+			args = append(args, widths[i], labels[i])
 		}
 		fmtString := strings.TrimSpace(strings.Join(format2, "|")) + "\n"
 		fmt.Fprintf(f, fmtString, args...)
 	}
 	fmtString := strings.TrimSpace(strings.Join(format, "|")) + "\n"
-	for i := range firstCol.all {
-		tm := firstCol.all[i].Time.Format(firstCol.format)
-		args := []interface{}{width1, tm}
-		for ii, acc := range order {
-			ts := ats[acc]
-			check.If(ts != nil, "nil totals for %s\n", label(acc))
-			t := ts.all[i]
-			tm2 := t.Time.Format(firstCol.format)
-			check.If(tm == tm2, "%s[%d]: %s != %s\n", label(acc), i, tm, tm2)
-			args = append(args, widths[ii])
-			args = append(args, t.Amount)
+	periods := firstCol.all
+	if len(periods) == 0 {
+		periods = append(periods, firstCol.current)
+	}
+	for i, period := range periods {
+		categories := period.Categories()
+		if len(categories) == 0 {
+			categories = []string{""}
+		} else {
+			slices.Sort(categories)
 		}
-		fmt.Fprintf(f, fmtString, args...)
+		for _, category := range categories {
+			var args []interface{}
+			if periodWidth > 0 {
+				tm := period.Time.Format(firstCol.format)
+				args = append(args, periodWidth, tm)
+			}
+			if categoryWidth > 0 {
+				args = append(args, categoryWidth, category)
+			}
+			for ii, acc := range order {
+				ts := ats[acc]
+				check.If(ts != nil, "nil totals for %s\n", label(acc))
+				t := ts.current
+				if periodWidth > 0 {
+					t = ts.all[i]
+					check.If(period.Time.Equal(t.Time), "%s[%d]: %s != %s\n", label(acc), i,
+						t.Time.Format(firstCol.format),
+						period.Time.Format(firstCol.format))
+				}
+				amt := t.total
+				if category != "" {
+					amt = t.totals[category]
+				}
+				args = append(args, widths[ii], amt)
+			}
+			fmt.Fprintf(f, fmtString, args...)
+		}
 	}
 }
 
+// rows converts accountTotals to a plain row result
+// suitable for output as csv or json.
 func (ats accountTotals) rows(
 	order []*coin.Account,
 	label func(*coin.Account) string,
 ) (rs rows) {
-	header := []string{"Date"}
+	var header []string
+	firstCol := ats[order[0]]
+	hasPeriod := firstCol.timeReducer != nil
+	hasCategory := firstCol.categoryReducer != nil
+	if hasPeriod {
+		header = append(header, "Date")
+	}
+	if hasCategory {
+		header = append(header, "Category")
+	}
 	for _, acc := range order {
 		header = append(header, label(acc))
 	}
 	rs = append(rs, header)
-	firstCol := ats[order[0]]
-	for i := range firstCol.all {
-		tm := firstCol.all[i].Time.Format(firstCol.format)
-		row := []string{tm}
-		for _, acc := range order {
-			t := ats[acc].all[i]
-			tm2 := t.Time.Format(firstCol.format)
-			check.If(tm == tm2, "%s[%d]: %s != %s\n", label(acc), i, tm, tm2)
-			row = append(row, t.Amount.String())
+	periods := firstCol.all
+	if len(periods) == 0 {
+		periods = append(periods, firstCol.current)
+	}
+	for i, period := range periods {
+		categories := period.Categories()
+		if len(categories) == 0 {
+			categories = []string{""}
+		} else {
+			slices.Sort(categories)
 		}
-		rs = append(rs, row)
+		for _, category := range categories {
+			var row []string
+			if hasPeriod {
+				row = append(row, period.Time.Format(firstCol.format))
+			}
+			if hasCategory {
+				row = append(row, category)
+			}
+			for _, acc := range order {
+				ts := ats[acc]
+				check.If(ts != nil, "nil totals for %s\n", label(acc))
+				t := ts.current
+				if hasPeriod {
+					t = ts.all[i]
+					check.If(period.Time.Equal(t.Time), "%s[%d]: %s != %s\n", label(acc), i,
+						t.Time.Format(firstCol.format),
+						period.Time.Format(firstCol.format))
+				}
+				amt := t.total
+				if category != "" {
+					amt = t.totals[category]
+				}
+				row = append(row, amt.String())
+			}
+			rs = append(rs, row)
+		}
 	}
 	return rs
 }
@@ -402,14 +651,36 @@ func (rs rows) writeJSON(f io.Writer) {
 	}
 }
 
-// reducer coerces time to specified period
+// categoryReducer extracts category string from a posting
+type categoryReducer struct {
+	reduce func(p *coin.Posting) string
+}
+
+var payees = categoryReducer{
+	reduce: func(p *coin.Posting) string {
+		return p.Transaction.Description
+	},
+}
+
+var tags = categoryReducer{
+	reduce: func(p *coin.Posting) string {
+		tags := p.Transaction.Tags.With(p.Tags)
+		if len(tags) == 0 {
+			return "<no-tags>"
+		} else {
+			return strings.Join(tags.KeysAndValues(), ",")
+		}
+	},
+}
+
+// timeReducer coerces time to specified period
 // and carries corresponding time format string.
-type reducer struct {
+type timeReducer struct {
 	reduce func(t time.Time) time.Time
 	format string
 }
 
-var week = reducer{
+var week = timeReducer{
 	reduce: func(t time.Time) time.Time {
 		dow := int(t.Weekday())
 		t = t.AddDate(0, 0, -dow)
@@ -419,7 +690,7 @@ var week = reducer{
 	format: coin.DateFormat,
 }
 
-var month = reducer{
+var month = timeReducer{
 	reduce: func(t time.Time) time.Time {
 		y, m, _ := t.Date()
 		return time.Date(y, m, 1, 12, 0, 0, 0, time.UTC)
@@ -427,7 +698,7 @@ var month = reducer{
 	format: coin.MonthFormat,
 }
 
-var quarter = reducer{
+var quarter = timeReducer{
 	reduce: func(t time.Time) time.Time {
 		y, m, _ := t.Date()
 		m = ((m - 1) / 3 * 3) + 1
@@ -436,7 +707,7 @@ var quarter = reducer{
 	format: coin.MonthFormat,
 }
 
-var year = reducer{
+var year = timeReducer{
 	reduce: func(t time.Time) time.Time {
 		y, _, _ := t.Date()
 		return time.Date(y, time.January, 1, 12, 0, 0, 0, time.UTC)

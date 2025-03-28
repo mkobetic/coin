@@ -14,6 +14,9 @@
   },
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
-  "files.trimTrailingWhitespace": true,
-  "makefile.configureOnOpen": false
+  "files.trimTrailingWhitespace": false, // breaks test files
+  "makefile.configureOnOpen": false,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }

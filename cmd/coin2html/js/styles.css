@@ -21,6 +21,7 @@ label {
   list-style-type: none;
   padding: 3px;
   margin: 3px;
+  overflow-y: auto;
 }
 #sidebar ul#accounts li:hover {
   background-color: gray;

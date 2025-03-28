@@ -51,6 +51,29 @@ func (t Tags) Keys() (keys []string) {
 	return keys
 }
 
+func (t Tags) KeysAndValues() (kvs []string) {
+	for k, v := range t {
+		if v == "" {
+			kvs = append(kvs, k)
+		} else {
+			kvs = append(kvs, k+":"+v)
+		}
+	}
+	sort.Strings(kvs)
+	return kvs
+}
+
+func (t Tags) With(t2 Tags) Tags {
+	tags := make(Tags)
+	for k, v := range t {
+		tags[k] = v
+	}
+	for k, v := range t2 {
+		tags[k] = v
+	}
+	return tags
+}
+
 // TagMatcher matches a posting or transaction against a tag expression.
 // Tag expression is one or two regular expressions separated by a colon,
 // matched against a tag key and optionally a tag value.

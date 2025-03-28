@@ -24,8 +24,9 @@
 
 ### coin2html
 
-- update user docs in README (details, balances, screenshots ...)
 - allow dropping subaccounts from aggregations (in both chart and register)
+- show reconciliation state in balance view (last reconciled date? vs balance date?)
+- show reconciliation flag in non-aggregated register
 - filter subaccounts, payee, tag...
 - brush to select date range
 - buttons to reset To/From to Min/Max date
@@ -35,6 +36,7 @@
 - tooltips for columns, inputs and wherever useful
 - preserve UI state in history (make back/forward buttons work)
 - trim to time range on export (need to recalc posting balances!)
+- trim to account subtree (need to recalc outer posting balances!)
 - show commodities and prices
 - investment performance summary
 

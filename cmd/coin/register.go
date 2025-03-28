@@ -23,6 +23,7 @@ type cmdRegister struct {
 	begin, end        coin.Date
 	weekly, monthly   bool
 	quarterly, yearly bool
+	byPayee, byTags   bool
 	top               int
 	cumulative        bool
 	maxLabelWidth     int
@@ -40,7 +41,7 @@ func (*cmdRegister) newCommand(names ...string) command {
 
 Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.verbose, "v", false, "log debug info to stderr")
-	cmd.BoolVar(&cmd.recurse, "r", false, "include subaccount postings in parent accounts")
+	cmd.BoolVar(&cmd.recurse, "r", false, "include sub-account postings in parent accounts")
 	// filtering options
 	cmd.Var(&cmd.begin, "b", "begin register from this date")
 	cmd.Var(&cmd.end, "e", "end register on this date")
@@ -51,7 +52,9 @@ Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.monthly, "m", false, "aggregate postings by month")
 	cmd.BoolVar(&cmd.quarterly, "q", false, "aggregate postings by quarter")
 	cmd.BoolVar(&cmd.yearly, "y", false, "aggregate postings by year")
-	cmd.IntVar(&cmd.top, "g", 5, "include this many largest subaccounts in aggregate results")
+	cmd.BoolVar(&cmd.byPayee, "bp", false, "aggregate postings by payee")
+	cmd.BoolVar(&cmd.byTags, "bt", false, "aggregate postings by tags")
+	cmd.IntVar(&cmd.top, "g", 5, "include this many largest sub-accounts in aggregate results")
 	cmd.BoolVar(&cmd.cumulative, "c", false, "aggregate cumulatively across time")
 	// output options
 	cmd.IntVar(&cmd.maxLabelWidth, "l", 12, "maximum width of a column label")
@@ -63,6 +66,7 @@ Lists or aggregate postings from the specified account.`)
 
 func (cmd *cmdRegister) init() {
 	check.If(cmd.NArg() > 0, "account filter is required")
+	check.If(!cmd.byPayee || !cmd.byTags, "-bp and -bt cannot be used together")
 	coin.LoadAll()
 }
 
@@ -72,50 +76,60 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 	if cmd.output == "text" {
 		fmt.Fprintln(f, acc.FullName, acc.Commodity.Id)
 	}
-	if by := cmd.period(); by != nil {
-		if cmd.recurse {
-			cmd.recursiveAggregatedRegister(f, acc, by)
-		} else {
-			cmd.flatAggregatedRegister(f, acc, by)
-		}
+	if cmd.isAggregating() {
+		cmd.aggregatedRegister(f, acc)
 	} else {
-		var opts = options{
-			prefix:    acc.FullName,
-			maxAcct:   cmd.maxLabelWidth,
-			location:  cmd.location,
-			commodity: acc.Commodity,
-			showNotes: cmd.showNotes,
-		}
-		if cmd.recurse {
-			var ps postings
-			acc.WithChildrenDo(func(a *coin.Account) {
-				ps = append(ps, cmd.trim(a.Postings)...)
-			})
-			sort.SliceStable(ps, func(i, j int) bool {
-				return ps[i].Transaction.Posted.Before(ps[j].Transaction.Posted)
-			})
-			ps.printLong(f, &opts)
-		} else {
-			cmd.trim(acc.Postings).print(f, &opts)
-		}
+		cmd.fullRegister(f, acc)
 	}
 }
 
-func (cmd *cmdRegister) flatAggregatedRegister(f io.Writer, acc *coin.Account, by *reducer) {
+func (cmd *cmdRegister) fullRegister(f io.Writer, acc *coin.Account) {
+	var opts = options{
+		prefix:    acc.FullName,
+		maxAcct:   cmd.maxLabelWidth,
+		location:  cmd.location,
+		commodity: acc.Commodity,
+		showNotes: cmd.showNotes,
+	}
+	if cmd.recurse {
+		var ps postings
+		acc.WithChildrenDo(func(a *coin.Account) {
+			ps = append(ps, cmd.trim(a.Postings)...)
+		})
+		sort.SliceStable(ps, func(i, j int) bool {
+			return ps[i].Transaction.Posted.Before(ps[j].Transaction.Posted)
+		})
+		ps.printLong(f, &opts)
+	} else {
+		cmd.trim(acc.Postings).print(f, &opts)
+	}
+}
+
+func (cmd *cmdRegister) aggregatedRegister(f io.Writer, acc *coin.Account) {
 	totals := accountTotals{}
 	acc.WithChildrenDo(func(a *coin.Account) {
-		ts := totals.newTotals(a, by)
+		ts := totals.newTotals(a, cmd.period(), cmd.category())
 		for _, p := range cmd.trim(a.Postings) {
-			ts.add(p.Transaction.Posted, p.Quantity)
+			ts.add(p)
 		}
 	})
+	// Propagate timelines and possibly amounts up top
+	acc.FirstWithChildrenDo(func(a *coin.Account) {
+		child := totals[a]
+		parent := totals[a.Parent]
+		if parent != nil {
+			if cmd.recurse {
+				parent.merge(child)
+			} else {
+				parent.mergeKeys(child)
+			}
+		}
+	})
+	totals.sanitize()
 	var accounts []*coin.Account
 	totals, accounts = totals.top(cmd.top)
-	top := totals[accounts[0]]
-	for _, ts := range totals {
-		top.mergeTime(ts)
-	}
-	totals.mergeTime(top)
+	totals.mergeTime(totals[acc])
+
 	if cmd.cumulative {
 		totals.makeCumulative()
 	}
@@ -133,50 +147,22 @@ func (cmd *cmdRegister) flatAggregatedRegister(f io.Writer, acc *coin.Account, b
 	totals.output(f, accounts, label, cmd.output)
 }
 
-func (cmd *cmdRegister) recursiveAggregatedRegister(f io.Writer, acc *coin.Account, by *reducer) {
-	totals := accountTotals{}
-	acc.WithChildrenDo(func(a *coin.Account) {
-		ts := totals.newTotals(a, by)
-		for _, p := range cmd.trim(a.Postings) {
-			ts.add(p.Transaction.Posted, p.Quantity)
-		}
-	})
-	if cmd.recurse {
-		acc.FirstWithChildrenDo(func(a *coin.Account) {
-			child := totals[a]
-			parent := totals[a.Parent]
-			if parent != nil {
-				parent.merge(child)
-			}
-		})
-	}
-	totals.sanitize()
-	accTotals := totals[acc]
-	check.If(accTotals != nil, "root account totals shouldn't be empty\n")
-	delete(totals, acc)
-	var accounts []*coin.Account
-	totals, accounts = totals.top(cmd.top)
-	totals.mergeTime(accTotals)
-	totals[acc] = accTotals
-	accounts = append(accounts, acc)
-	if cmd.cumulative {
-		totals.makeCumulative()
-	}
-	label := func(a *coin.Account) string {
-		switch a {
-		case nil:
-			return "Other"
-		case acc:
-			return "Totals"
-		default:
-			n := strings.TrimPrefix(a.FullName, acc.FullName)
-			return coin.ShortenAccountName(n, cmd.maxLabelWidth)
-		}
-	}
-	totals.output(f, accounts, label, cmd.output)
+func (cmd *cmdRegister) isAggregating() bool {
+	return cmd.period() != nil || cmd.category() != nil
 }
 
-func (cmd *cmdRegister) period() *reducer {
+func (cmd *cmdRegister) category() *categoryReducer {
+	switch {
+	case cmd.byPayee:
+		return &payees
+	case cmd.byTags:
+		return &tags
+	default:
+		return nil
+	}
+}
+
+func (cmd *cmdRegister) period() *timeReducer {
 	switch {
 	case cmd.weekly:
 		return &week
