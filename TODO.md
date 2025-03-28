@@ -1,6 +1,5 @@
 ### Features
 
-- register: aggregate by tags, payee, etc
 - thousand separator in amounts
 - check for account/cc numbers in transactions
 - balance: last reconciled posting date

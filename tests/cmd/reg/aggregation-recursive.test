@@ -23,3 +23,44 @@ Expenses CAD
 2010/06 |  4100.00 | 3000.00 | 1100.00
 2010/07 |  4900.00 | 3500.00 | 1400.00
 end test
+
+;
+; Aggregating by category
+;
+
+test register -r -bp Expenses
+Expenses CAD
+             | Expenses |   :Rent |   :Food
+     Freshco |  1400.00 |    0.00 | 1400.00
+Housing Corp |  3500.00 | 3500.00 |    0.00
+end test
+
+test register -r -bp -q Expenses
+Expenses CAD
+        |              | Expenses |   :Rent |  :Food
+2010/01 |      Freshco |   550.00 |    0.00 | 550.00
+2010/01 | Housing Corp |  1500.00 | 1500.00 |   0.00
+2010/04 |      Freshco |   550.00 |    0.00 | 550.00
+2010/04 | Housing Corp |  1500.00 | 1500.00 |   0.00
+2010/07 |      Freshco |   300.00 |    0.00 | 300.00
+2010/07 | Housing Corp |   500.00 |  500.00 |   0.00
+end test
+
+
+test register -r -bt Expenses
+Expenses CAD
+               | Expenses |   :Rent |  :Food
+     <no-tags> |  3900.00 | 3500.00 | 400.00
+ fruits:apples |   100.00 |    0.00 | 100.00
+fruits:bananas |   200.00 |    0.00 | 200.00
+fruits:berries |   300.00 |    0.00 | 300.00
+       veggies |   400.00 |    0.00 | 400.00
+end test
+
+test register -r -bt -t fruits Expenses
+Expenses CAD
+               | Expenses |  :Food
+ fruits:apples |   100.00 | 100.00
+fruits:bananas |   200.00 | 200.00
+fruits:berries |   300.00 | 300.00
+end test

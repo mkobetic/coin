@@ -10,11 +10,11 @@ account Expenses:Rent
   Bank 1000 CAD
   Salary
 
-2010/01/20 Freshco
+2010/01/20 Freshco ; #veggies
   Food 150 CAD
   Bank
 
-2010/01/28 Freshco
+2010/01/28 Freshco ; #fruits: apples
   Food 100 CAD
   Bank
 
@@ -34,8 +34,9 @@ account Expenses:Rent
   Rent 500 CAD
   Bank
 
-2010/03/08 Freshco
+2010/03/08 Freshco 
   Food 200 CAD
+  ; #fruits: bananas
   Bank
 
 2010/03/15 ACME Inc
@@ -70,7 +71,7 @@ account Expenses:Rent
   Bank 1000 CAD
   Salary
 
-2010/06/22 Freshco
+2010/06/22 Freshco ; #veggies
   Food 250 CAD
   Bank
 
@@ -78,8 +79,9 @@ account Expenses:Rent
   Rent 500 CAD
   Bank
 
-2010/07/03 Freshco
+2010/07/03 Freshco 
   Food 300 CAD
+  ; #fruits: berries
   Bank
 
 2010/07/15 ACME Inc

@@ -10,3 +10,12 @@ Date,:Rent,:Food,Expenses
 2010/06,500.00,250.00,0.00
 2010/07,500.00,300.00,0.00
 end test
+
+test register -bt -o csv Expenses
+Category,:Rent,:Food,Expenses
+<no-tags>,3500.00,400.00,0.00
+fruits:apples,0.00,100.00,0.00
+fruits:bananas,0.00,200.00,0.00
+fruits:berries,0.00,300.00,0.00
+veggies,0.00,400.00,0.00
+end test

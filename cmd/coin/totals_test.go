@@ -12,6 +12,7 @@ var CAD = &coin.Commodity{Id: "CAD", Decimals: 2}
 
 func makeTimeTotals(by *timeReducer, totals ...string) *timeTotals {
 	var all []*timeTotal
+	var current *timeTotal
 	for _, in := range totals {
 		parts := strings.Split(in, ":")
 		t := coin.MustParseDate(parts[0])
@@ -19,19 +20,20 @@ func makeTimeTotals(by *timeReducer, totals ...string) *timeTotals {
 		if len(parts) > 1 {
 			amt = coin.MustParseAmount(parts[1], CAD)
 		} else {
-		  amt = coin.NewZeroAmount(CAD)
+			amt = coin.NewZeroAmount(CAD)
 		}
-		all = append(all, &timeTotal{
-			Time: t,
+		current = &timeTotal{
+			Time:  t,
 			total: amt,
-		})
+		}
+		all = append(all, current)
 	}
 	return &timeTotals{
 		timeReducer: by,
-		all: all,
+		all:         all,
+		current:     current,
 	}
 }
-
 
 func Test_MergeTotals(t *testing.T) {
 	coin.WithYear(2025, func() {
