@@ -56,6 +56,13 @@ converts the ledger into an interactive single-page html viewer; everything is b
 
 ![Chart Monthly](https://github.com/mkobetic/coin/assets/871693/d640b4a4-1cd2-4faf-8fbd-0c10f3cc90b3)
 
+## Usage
+
+The repository is set up to automatically compile and release binaries for common desktop platforms (linux/mac/windows). Download .tgz archive suitable for your platform from the latest release here https://github.com/mkobetic/coin/releases. For most hardware you will want to use the amd64 version. For newer macbooks with Apple Silicon CPUs you'll want to use the arm64 version.
+
+The archive contains compiled executables for each of the commands listed above. The executables have no dependencies, they don't need anything to execute. There's no installation process, just put them somewhere on your $PATH or into a directory where you intend to use them. You can pick which ones you want to use and delete the rest.
+If you don't want any of them anymore, just delete the files.
+
 ## Assorted Ledger Differences
 
 (besides vastly reduced set of commands/options and capabilities)
