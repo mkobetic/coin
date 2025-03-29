@@ -1,0 +1,23 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build distribution tarballs
+        run: make dist
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        id: create_release
+        with:
+          artifacts: "dist/*.tgz"
+          omitBody: true

@@ -12,7 +12,9 @@ LDFLAGS += -X "github.com/mkobetic/coin.GoVersion=$(GO_VERSION)"
 BUILD := CGO_ENABLED=0 go install
 TEST := CGO_ENABLED=0 go test
 
-build: coin gc2coin ofx2coin csv2coin gen2coin coin2html
+BINARIES := coin gc2coin ofx2coin csv2coin gen2coin coin2html
+
+build: $(BINARIES)
 
 coin: *.go cmd/coin/*.go
 	$(BUILD) -ldflags '$(LDFLAGS)' ./cmd/coin
@@ -76,4 +78,35 @@ setup-ts:
 setup: setup-ts
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-.PHONY: test test-fixtures test-go fmt lint cover browse-coverage
+
+dist-linux-arm64: BUILD := GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o dist/coin-linux-arm64/
+dist-linux-arm64: build
+	tar zcf dist/coin-linux-arm64.tgz -C dist/coin-linux-arm64/ .
+
+dist-linux-amd64: BUILD := GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o dist/coin-linux-amd64/
+dist-linux-amd64: build
+	tar zcf dist/coin-linux-amd64.tgz -C dist/coin-linux-amd64/ .
+
+dist-osx-arm64: BUILD := GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o dist/coin-osx-arm64/
+dist-osx-arm64: build
+	tar zcf dist/coin-osx-arm64.tgz -C dist/coin-osx-arm64/ .
+
+dist-osx-amd64: BUILD := GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o dist/coin-osx-amd64/
+dist-osx-amd64: build
+	tar zcf dist/coin-osx-amd64.tgz -C dist/coin-osx-amd64/ .
+
+dist-windows-amd64: BUILD := GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o dist/coin-windows-amd64/
+dist-windows-amd64: build
+	tar zcf dist/coin-windows-amd64.tgz -C dist/coin-windows-amd64 .
+
+dist: setup-ts
+	$(MAKE) dist-linux-arm64
+	$(MAKE) dist-linux-amd64
+	$(MAKE) dist-osx-arm64
+	$(MAKE) dist-osx-amd64
+	$(MAKE) dist-windows-amd64
+
+dist-clean:
+	rm -rf dist/*
+
+.PHONY: build coin test test-fixtures test-go fmt lint cover browse-coverage dist dist-clean
