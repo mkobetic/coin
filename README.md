@@ -1,4 +1,5 @@
 ![tests](https://github.com/mkobetic/coin/actions/workflows/test.yaml/badge.svg)
+![downloads](https://img.shields.io/github/downloads/mkobetic/coin/total.svg)
 
 **NB:** This is still a work in progress, a lot of information is missing and is filled in gradually. There isn't much in terms of user documentation beyond the READMEs, but most features follow the same pattern as ledger-cli. You can learn most things from ledger-cli's or beancount's excellent documentation.
 
@@ -26,7 +27,7 @@ For illustration here's how a sample COINDB directory could look like
 
 ## Commands
 
-Coin includes several executables.
+There are several executables available with this project.
 
 ### coin
 
