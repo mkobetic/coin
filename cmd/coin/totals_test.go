@@ -36,7 +36,7 @@ func makeTimeTotals(by *timeReducer, totals ...string) *timeTotals {
 }
 
 func Test_MergeTotals(t *testing.T) {
-	coin.WithYear(2025, func() {
+	coin.WithDate("2025/3/3", func() {
 		t1 := makeTimeTotals(&month, "1/1:1", "2/2:2", "4/4:4")
 		t2 := makeTimeTotals(&month, "2/2:10", "3/3:30", "5/5:50")
 		assert.Equal(t, t1.String(), "3(2025/01/01-2025/04/04)")
@@ -54,7 +54,7 @@ func Test_MergeTotals(t *testing.T) {
 }
 
 func Test_MergeTotalsTimeOnly(t *testing.T) {
-	coin.WithYear(2025, func() {
+	coin.WithDate("2025/3/3", func() {
 		t1 := makeTimeTotals(&month, "1/1:1", "2/2:2", "4/4:4")
 		t2 := makeTimeTotals(&month, "2/2:10", "3/3:30", "5/5:50")
 		assert.Equal(t, t1.String(), "3(2025/01/01-2025/04/04)")

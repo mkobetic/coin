@@ -9,18 +9,24 @@ import (
 )
 
 func init() {
-	var m time.Month
-	Year, m, Day = time.Now().Date()
-	Month = int(m)
+	Year, Month, Day = time.Now().Date()
 }
 
 // Cache today's values, so that we can spoof today for testing
-var Year, Month, Day int
+var Year, Day int
+var Month time.Month
 
 func WithYear(year int, f func()) {
 	was := Year
 	Year = year
 	defer func() { Year = was }()
+	f()
+}
+
+func WithDate(date string, f func()) {
+	Y, M, D := Year, Month, Day
+	Year, Month, Day = MustParseDate(date).Date()
+	defer func() { Year, Month, Day = Y, M, D }()
 	f()
 }
 
@@ -69,7 +75,7 @@ func parseDate(match map[string]string, idx int) (t time.Time, err error) {
 		return t, fmt.Errorf("multiple date fields not implemented!")
 	}
 	// Set date to today
-	y, m, d := Year, Month, Day
+	y, m, d := Year, int(Month), Day
 	offset := match["offset"]
 	if match["ymd"] != "" {
 		d, _ = strconv.Atoi(match["ymdd"])
