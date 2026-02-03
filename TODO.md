@@ -24,7 +24,6 @@
 
 ### coin2html
 
-- allow dropping subaccounts from aggregations (in both chart and register)
 - show reconciliation state in balance view (last reconciled date? vs balance date?)
 - show reconciliation flag in non-aggregated register
 - filter subaccounts, payee, tag...

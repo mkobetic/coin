@@ -8,6 +8,8 @@ import {
   AggregationStyle,
   addAggregationStyleInput,
   showDetails,
+  addExcludedSubAccountsSpan,
+  updateView,
 } from "./views";
 import {
   groupByWithSubAccounts,
@@ -22,10 +24,11 @@ import { select } from "d3-selection";
 
 export function viewAggregatedRegisterChart(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
+  exclude?: Account[];
 }) {
   const containerSelector = MainView;
   const account = State.SelectedAccount;
-  const opts = { negated: false }; // defaults
+  const opts = { negated: false, exclude: State.View.ExcludeSubAccounts }; // defaults
   Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
@@ -34,13 +37,17 @@ export function viewAggregatedRegisterChart(options?: {
   });
   addAggregationStyleInput(containerSelector);
   addSubAccountMaxInput(containerSelector);
+  addExcludedSubAccountsSpan(containerSelector, account);
 
   const groupKey = Aggregation[State.View.Aggregate] as d3.TimeInterval;
   const dates = groupKey.range(State.StartDate, State.EndDate);
   const maxAccounts = State.View.AggregatedSubAccountMax;
-  const accountGroups = groupByWithSubAccounts(account, groupKey, maxAccounts, {
-    negated: opts.negated,
-  });
+  const accountGroups = groupByWithSubAccounts(
+    account,
+    groupKey,
+    maxAccounts,
+    opts,
+  );
   const maxLabelLength = Math.round(180 / State.View.AggregatedSubAccountMax);
   const labelFromAccount = (a: Account | undefined) =>
     a ? shortenAccountName(account.relativeName(a), maxLabelLength) : "Other";
@@ -54,7 +61,7 @@ export function viewAggregatedRegisterChart(options?: {
       : group.balance;
   const widthFromGroup = (group: PostingGroup) => {
     let width = Math.trunc(
-      account.commodity.convert(amountFromGroup(group), group.date).toNumber()
+      account.commodity.convert(amountFromGroup(group), group.date).toNumber(),
     );
     if (opts.negated) width = -width;
     return width < 0 ? 0 : width;
@@ -137,7 +144,7 @@ export function viewAggregatedRegisterChart(options?: {
 
   var legend = svg
     .selectAll(".legend")
-    .data(labels)
+    .data(accountGroups.map((gs) => gs.account))
     .join("g")
     .attr("class", "legend")
     .attr("transform", "translate(" + margin.left + ",0)");
@@ -154,7 +161,12 @@ export function viewAggregatedRegisterChart(options?: {
 
   legend
     .append("text")
-    .text((d) => d)
+    .text((a) => labelFromAccount(a))
     .attr("x", (d, i) => w * i + 10)
-    .attr("y", textOffset);
+    .attr("y", textOffset)
+    .on("click", (e, d) => {
+      if (!d) return;
+      State.View.ExcludeSubAccounts.push(d);
+      updateView();
+    });
 }
