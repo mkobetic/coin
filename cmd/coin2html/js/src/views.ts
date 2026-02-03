@@ -36,6 +36,7 @@ export const State = {
   View: {
     // Should we recurse into subaccounts
     ShowSubAccounts: false,
+    ExcludeSubAccounts: [] as Account[],
     ShowNotes: false, // Show notes in register view
     Aggregate: "None" as keyof typeof Aggregation,
     // How many largest subaccounts to show when aggregating.
@@ -183,7 +184,7 @@ export function addAggregateInput(
   containerSelector: string,
   options?: {
     includeNone?: boolean;
-  }
+  },
 ) {
   const opts = { includeNone: true }; // defaults
   Object.assign(opts, options);
@@ -197,7 +198,7 @@ export function addAggregateInput(
     updateView();
   });
   let data = Object.keys(Aggregation).filter(
-    (k) => opts.includeNone || k != "None"
+    (k) => opts.includeNone || k != "None",
   );
   if (!opts.includeNone && State.View.Aggregate == "None") {
     State.View.Aggregate = data[0] as keyof typeof Aggregation;
@@ -229,6 +230,28 @@ export function addAggregationStyleInput(containerSelector: string) {
     .property("selected", (v) => v == State.View.AggregationStyle)
     .property("value", (v) => v)
     .text((v) => v);
+}
+
+export function addExcludedSubAccountsSpan(
+  containerSelector: string,
+  account: Account,
+) {
+  const container = select(containerSelector);
+  container
+    .append("label")
+    .property("for", "excludedSubAccounts")
+    .text("Exclude");
+  const aggregate = container.append("span").attr("id", "excludedSubAccounts");
+  aggregate
+    .selectAll("span")
+    .data(State.View.ExcludeSubAccounts)
+    .join("span")
+    .on("click", (e, d) => {
+      var i = State.View.ExcludeSubAccounts.indexOf(d);
+      State.View.ExcludeSubAccounts.splice(i, 1);
+      updateView();
+    })
+    .text((v) => ` ${account.relativeName(v)}`);
 }
 
 // UI Node Selectors
@@ -353,7 +376,7 @@ export function showDetails(g: PostingGroup, withSubaccounts = false) {
 }
 export function addTableWithHeader(
   containerSelector: string,
-  labels: string[]
+  labels: string[],
 ) {
   const table = select(containerSelector)
     .append("table")

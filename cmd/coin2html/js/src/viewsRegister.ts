@@ -11,6 +11,8 @@ import {
   addAggregationStyleInput,
   showDetails,
   addTableWithHeader,
+  updateView,
+  addExcludedSubAccountsSpan,
 } from "./views";
 import { Account, Posting } from "./account";
 import {
@@ -24,6 +26,7 @@ import {
   trimToDateRange,
 } from "./utils";
 import { Amount } from "./commodity";
+import { select } from "d3-selection";
 
 export function viewRegister(options?: {
   negated?: boolean; // is this negatively denominated account (e.g. Income/Liability)
@@ -31,7 +34,11 @@ export function viewRegister(options?: {
 }) {
   const containerSelector = MainView;
   const account = State.SelectedAccount;
-  const opts = { negated: false, aggregatedTotal: false };
+  const opts = {
+    negated: false,
+    aggregatedTotal: false,
+    exclude: State.View.ExcludeSubAccounts,
+  };
   Object.assign(opts, options);
   // clear out the container
   emptyElement(containerSelector);
@@ -42,7 +49,10 @@ export function viewRegister(options?: {
     addShowLocationInput(containerSelector);
   } else {
     addAggregationStyleInput(containerSelector);
-    if (State.View.ShowSubAccounts) addSubAccountMaxInput(containerSelector);
+    if (State.View.ShowSubAccounts) {
+      addSubAccountMaxInput(containerSelector);
+      addExcludedSubAccountsSpan(containerSelector, account);
+    }
   }
   const groupKey = Aggregation[State.View.Aggregate];
   if (groupKey) {
@@ -51,7 +61,7 @@ export function viewRegister(options?: {
         containerSelector,
         groupKey,
         account,
-        opts
+        opts,
       );
     else viewRegisterAggregated(containerSelector, groupKey, account, opts);
   } else {
@@ -68,7 +78,7 @@ function viewRegisterAggregated(
   options: {
     negated: boolean;
     aggregatedTotal: boolean;
-  }
+  },
 ) {
   const labels = ["Date", "Amount"];
   if (options.aggregatedTotal) labels.push("Cum.Total");
@@ -77,7 +87,7 @@ function viewRegisterAggregated(
     account.postings,
     groupKey,
     (p) => p.transaction.posted,
-    account.commodity
+    account.commodity,
   );
   table
     .append("tbody")
@@ -108,14 +118,15 @@ function viewRegisterAggregatedWithSubAccounts(
   options: {
     negated: boolean;
     aggregatedTotal: boolean;
-  }
+    exclude: Account[];
+  },
 ) {
   const dates = groupKey.range(State.StartDate, State.EndDate);
   const groups = groupByWithSubAccounts(
     account,
     groupKey,
     State.View.AggregatedSubAccountMax,
-    options
+    options,
   );
   // convert the vertical groups into horizontal row data
   const total = new Amount(0, account.commodity);
@@ -142,18 +153,26 @@ function viewRegisterAggregatedWithSubAccounts(
     });
     return row;
   });
+  const table = select(containerSelector)
+    .append("table")
+    .attr("id", "register");
+  const header = table.append("thead").append("tr");
   const maxLabelLength = Math.round(150 / State.View.AggregatedSubAccountMax);
-  const labels = [
-    "Date",
-    ...groups.map((g) =>
-      g.account
-        ? shortenAccountName(account.relativeName(g.account), maxLabelLength)
-        : "Other"
-    ),
-    "Total",
-  ];
-  if (options.aggregatedTotal) labels.push("Cum.Total");
-  const table = addTableWithHeader(containerSelector, labels);
+  const accounts = header
+    .selectAll("th")
+    .data(groups.map((g) => g.account))
+    .join("th")
+    .on("click", (e, d) => {
+      if (!d) return;
+      State.View.ExcludeSubAccounts.push(d);
+      updateView();
+    })
+    .text((a?: Account) =>
+      a ? shortenAccountName(account.relativeName(a), maxLabelLength) : "Other",
+    );
+  header.insert("th", ":first-child").text("Date");
+  header.append("th").text("Total");
+  if (options.aggregatedTotal) header.append("th").text("Cum.Total");
   table
     .append("tbody")
     .selectAll("tr")
@@ -183,12 +202,12 @@ function viewRegisterFull(
   account: Account,
   options: {
     negated: boolean;
-  }
+  },
 ) {
   const data = trimToDateRange(
     account.postings,
     State.StartDate,
-    State.EndDate
+    State.EndDate,
   );
   renderPostings(account, data, containerSelector, {
     ...options,
@@ -205,7 +224,7 @@ export function renderPostings(
     negated: boolean;
     showLocation?: boolean;
     showNotes?: boolean;
-  }
+  },
 ) {
   const options = {
     negated: false,
@@ -272,7 +291,7 @@ function viewRegisterFullWithSubAccounts(
   account: Account,
   options: {
     negated: boolean;
-  }
+  },
 ) {
   const data = account.withAllChildPostings(State.StartDate, State.EndDate);
   renderPostingsWithSubAccounts(account, data, containerSelector, {
@@ -290,7 +309,7 @@ export function renderPostingsWithSubAccounts(
     negated: boolean;
     showLocation?: boolean;
     showNotes?: boolean;
-  }
+  },
 ) {
   const options = {
     showLocation: false,
