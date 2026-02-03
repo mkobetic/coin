@@ -42,7 +42,7 @@ export function groupBy(
   postings: Posting[],
   groupBy: d3.TimeInterval,
   date: (p: Posting) => Date,
-  commodity: Commodity
+  commodity: Commodity,
 ): PostingGroup[] {
   const groups = new Map<string, Posting[]>();
   for (const p of postings) {
@@ -70,13 +70,13 @@ export function groupBy(
 export function topN(
   postings: Posting[],
   n: number,
-  commodity: Commodity
+  commodity: Commodity,
 ): Posting[] {
   const top = [...postings];
   top.sort((a, b) =>
     commodity
       .convert(b.quantity, b.transaction.posted)
-      .cmp(commodity.convert(a.quantity, a.transaction.posted), true)
+      .cmp(commodity.convert(a.quantity, a.transaction.posted), true),
   );
   return top.slice(0, n);
 }
@@ -90,7 +90,7 @@ export type AccountPostingGroups = {
 // Take an array of account posting groups and total them all.
 function sumAll(
   groups: AccountPostingGroups[],
-  commodity: Commodity
+  commodity: Commodity,
 ): AccountPostingGroups {
   const total = [];
   for (let i = 0; i < groups[0].groups.length; i++) {
@@ -121,15 +121,17 @@ export function groupByWithSubAccounts(
   maxAccounts: number,
   options?: {
     negated?: boolean;
-  }
+    exclude?: Account[];
+  },
 ) {
-  const opts = { negated: false }; // default
+  const opts = { negated: false, exclude: [] }; // default
   Object.assign(opts, options);
   // get all account group lists
   const groups = account.withAllChildPostingGroups(
     State.StartDate,
     State.EndDate,
-    groupKey
+    groupKey,
+    opts.exclude,
   );
   // compute average for each account
   const averages = groups.map((g, i) => {
@@ -149,7 +151,7 @@ export function groupByWithSubAccounts(
     // total the rest into other
     const other = sumAll(
       averages.slice(maxAccounts - 1).map((avg) => groups[avg.index]),
-      account.commodity
+      account.commodity,
     );
     // replace last with other
     top.pop();

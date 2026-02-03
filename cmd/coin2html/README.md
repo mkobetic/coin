@@ -59,6 +59,10 @@ When aggregating with sub-accounts, the `SubAccount Max` option controls how man
 
 The `Total` column sums up the amounts in the row. The `Cum.Total` is the running total of the rows.
 
+### Aggregation Excluded SubAccounts
+
+When aggregating with sub-accounts, the `Excluded` control shows sub-accounts that are excluded from the sub-account set. When a sub-account set is excluded its data and data of its sub-accounts is eliminated completely from the calculations. A sub-account can be added to the excluded set by clicking on it's heading in the results table, it will then show up in the list next to the `Excluded` label. To add it back in, click the account name in the Excluded list.
+
 ### Aggregation Details
 
 When aggregating each row represents a group of postings. If aggregating with subaccounts each column in the row represents different group of postings. Clicking the amount field opens a `Details` view that lists top 20 postings by the absolute value of their amounts. This can be useful to find any outliers.
@@ -85,6 +89,3 @@ This chart is a visual analog of the tabular Register view when aggregating with
 A hover tooltip shows the amount that each rectangle represents. As with aggregated Register view, clicking a rectangle shows the top 20 posting details
 
 ![Register Chart with Posting Details](https://github.com/user-attachments/assets/0fd171c9-b018-44cc-8d55-f65c806884df)
-
-
-

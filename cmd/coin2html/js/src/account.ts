@@ -21,27 +21,30 @@ export class Account {
     readonly commodity: Commodity,
     readonly parent?: Account,
     readonly closed?: Date,
-    readonly location?: string
+    readonly location?: string,
   ) {
     if (parent) {
       parent.children.push(this);
     }
   }
-  allChildren(): Account[] {
+  allChildren(exclude: Account[] = []): Account[] {
     return this.children.reduce(
       (total: Account[], acc: Account) =>
-        State.ShowClosedAccounts || !acc.closed || acc.closed > State.EndDate
-          ? total.concat([acc, ...acc.allChildren()])
+        (State.ShowClosedAccounts ||
+          !acc.closed ||
+          acc.closed > State.EndDate) &&
+        !exclude.includes(acc)
+          ? total.concat([acc, ...acc.allChildren(exclude)])
           : total,
-      []
+      [],
     );
   }
-  withAllChildren(): Account[] {
-    return [this, ...this.allChildren()];
+  withAllChildren(exclude: Account[] = []): Account[] {
+    return [this, ...this.allChildren(exclude)];
   }
   balanceAt(date: Date): Amount {
     const p = this.postings.findLast(
-      (p) => p.transaction.posted.getTime() <= date.getTime()
+      (p) => p.transaction.posted.getTime() <= date.getTime(),
     );
     return p ? p.balance : new Amount(0, this.commodity);
   }
@@ -52,21 +55,26 @@ export class Account {
   relativeName(child: Account): string {
     return child.fullName.slice(this.fullName.length);
   }
-  withAllChildPostings(from: Date, to: Date): Posting[] {
-    const postings = trimToDateRange(this.postings, from, to).concat(
-      this.children.map((c) => c.withAllChildPostings(from, to)).flat()
-    );
-    postings.sort(
-      (a, b) => a.transaction.posted.getTime() - b.transaction.posted.getTime()
-    );
-    return postings;
+  withAllChildPostings(
+    from: Date,
+    to: Date,
+    exclude: Account[] = [],
+  ): Posting[] {
+    return this.withAllChildren(exclude)
+      .map((acc) => trimToDateRange(acc.postings, from, to))
+      .flat()
+      .sort(
+        (a, b) =>
+          a.transaction.posted.getTime() - b.transaction.posted.getTime(),
+      );
   }
   withAllChildPostingGroups(
     from: Date,
     to: Date,
-    groupKey: d3.TimeInterval
+    groupKey: d3.TimeInterval,
+    exclude: Account[] = [],
   ): AccountPostingGroups[] {
-    let accounts = this.allChildren();
+    let accounts = this.allChildren(exclude);
     accounts.unshift(this);
     // drop accounts with no postings
     accounts = accounts.filter((a) => a.postings.length > 0);
@@ -76,17 +84,21 @@ export class Account {
         trimToDateRange(acc.postings, from, to),
         groupKey,
         (p) => p.transaction.posted,
-        acc.commodity
+        acc.commodity,
       ),
     }));
   }
-  withAllChildBalances(date: Date): AccountBalanceAndTotal[] {
+  withAllChildBalances(
+    date: Date,
+    exclude: Account[] = [],
+  ): AccountBalanceAndTotal[] {
     let balances: AccountBalanceAndTotal[] = [];
     const balance = this.balanceAt(date);
     const total = Amount.clone(balance);
     for (const child of this.children) {
       if (!State.ShowClosedAccounts && child.isClosed(date)) continue;
-      const childBalances = child.withAllChildBalances(date);
+      if (exclude.includes(child)) continue;
+      const childBalances = child.withAllChildBalances(date, exclude);
       balances = balances.concat(childBalances);
       total.addIn(childBalances[0].total, date);
     }
@@ -131,7 +143,7 @@ export class Posting {
     readonly balance: Amount,
     readonly balance_asserted?: boolean,
     readonly notes?: string[],
-    readonly tags?: Tags
+    readonly tags?: Tags,
   ) {
     transaction.postings.push(this);
     account.postings.push(this);
@@ -153,7 +165,7 @@ export class Transaction {
     readonly description: string,
     readonly notes?: string[],
     readonly code?: string,
-    readonly location?: string
+    readonly location?: string,
   ) {}
   toString(): string {
     return dateToString(this.posted) + " " + this.description;
@@ -216,7 +228,7 @@ export function loadAccounts(source: string) {
       Commodity.find(impAccount.commodity),
       parent,
       impAccount.closed ? new Date(impAccount.closed) : undefined,
-      impAccount.location
+      impAccount.location,
     );
     Accounts[account.fullName] = account;
     if (!parent) {
@@ -236,7 +248,7 @@ export function loadTransactions(source: string) {
       impTransaction.description,
       impTransaction.notes,
       impTransaction.code,
-      impTransaction.location
+      impTransaction.location,
     );
     for (const impPosting of impTransaction.postings) {
       const account = Accounts[impPosting.account];
@@ -252,7 +264,7 @@ export function loadTransactions(source: string) {
         balance,
         impPosting.balance_asserted,
         impPosting.notes,
-        impPosting.tags
+        impPosting.tags,
       );
     }
   }
