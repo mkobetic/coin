@@ -294,6 +294,7 @@ export function updateAggregationForTimeRange() {
 
 export function updateAccount() {
   const account = State.SelectedAccount;
+  State.View.ExcludeSubAccounts = [];
   const spans = select(AccountName)
     .selectAll("span.account")
     .data(account.withAllParents())
