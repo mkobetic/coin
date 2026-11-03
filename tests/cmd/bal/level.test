@@ -1,0 +1,44 @@
+commodity CAD
+  format 1.00 CAD
+
+account Assets:Bank:Checking
+account Expenses:Food:Groceries
+account Expenses:Food:Dining
+account Expenses:Rent
+
+2020/01/01 Store
+  Expenses:Food:Groceries 100 CAD
+  Assets:Bank:Checking
+
+2020/01/02 Bistro
+  Expenses:Food:Dining 50 CAD
+  Assets:Bank:Checking
+
+2020/01/03 Landlord
+  Expenses:Rent 500 CAD
+  Assets:Bank:Checking
+
+; -l limits account depth printed while preserving cumulative totals
+test balance -l 1
+   0.00 | -650.00 CAD | Assets
+   0.00 |  650.00 CAD | Expenses
+end test
+
+test balance -l 2
+   0.00 | -650.00 CAD | Assets
+   0.00 | -650.00 CAD | Assets:Bank
+   0.00 |  650.00 CAD | Expenses
+   0.00 |  150.00 CAD | Expenses:Food
+ 500.00 |  500.00 CAD | Expenses:Rent
+end test
+
+test balance -l 3
+   0.00 | -650.00 CAD | Assets
+   0.00 | -650.00 CAD | Assets:Bank
+-650.00 | -650.00 CAD | Assets:Bank:Checking
+   0.00 |  650.00 CAD | Expenses
+   0.00 |  150.00 CAD | Expenses:Food
+  50.00 |   50.00 CAD | Expenses:Food:Dining
+ 100.00 |  100.00 CAD | Expenses:Food:Groceries
+ 500.00 |  500.00 CAD | Expenses:Rent
+end test

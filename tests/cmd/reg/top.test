@@ -1,0 +1,58 @@
+commodity CAD
+  format 1.00 CAD
+
+account Assets:Bank
+account Expenses:Rent
+account Expenses:Food
+account Expenses:Utilities
+account Expenses:Phone
+
+2020/01/05 Landlord
+  Expenses:Rent 1000 CAD
+  Assets:Bank -1000 CAD = -1000 CAD
+
+2020/01/10 Market
+  Expenses:Food 500 CAD
+  Assets:Bank -500 CAD
+
+2020/01/15 Hydro
+  Expenses:Utilities 200 CAD
+  Assets:Bank -200 CAD
+
+2020/01/20 Telecom
+  Expenses:Phone 100 CAD
+  Assets:Bank -100 CAD = -1800 CAD
+
+2020/02/05 Landlord
+  Expenses:Rent 1000 CAD
+  Assets:Bank -1000 CAD
+
+2020/02/15 Hydro
+  Expenses:Utilities 200 CAD
+  Assets:Bank -200 CAD
+
+; postings with balance assertions (= ...) are marked with '*' (flat and recursive)
+test register -e 2020/02/01 Bank
+Assets:Bank CAD
+2020/01/05 | Landlord | Expense:Rent | -1000.00 | -1000.00 CAD*
+2020/01/10 |   Market | Expense:Food |  -500.00 | -1500.00 CAD 
+2020/01/15 |    Hydro | Ex:Utilities |  -200.00 | -1700.00 CAD 
+2020/01/20 |  Telecom | Expens:Phone |  -100.00 | -1800.00 CAD*
+end test
+
+test register -r -e 2020/02/01 Assets
+Assets CAD
+2020/01/05 | Landlord | :Bank | Expense:Rent | -1000.00 | -1000.00 CAD*
+2020/01/10 |   Market | :Bank | Expense:Food |  -500.00 | -1500.00 CAD 
+2020/01/15 |    Hydro | :Bank | Ex:Utilities |  -200.00 | -1700.00 CAD 
+2020/01/20 |  Telecom | :Bank | Expens:Phone |  -100.00 | -1800.00 CAD*
+end test
+
+; -g limits to top N accounts by magnitude and merges remaining subaccounts into Other
+test register -r -m -g 3 -l 5 Expenses
+Expenses CAD
+        | Expenses |   :Rent |  :Food |  Other
+2020/01 |  1800.00 | 1000.00 | 500.00 | 300.00
+2020/02 |  1200.00 | 1000.00 |   0.00 | 200.00
+end test
+

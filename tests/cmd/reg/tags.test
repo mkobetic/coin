@@ -20,15 +20,30 @@ account CCC
   BBB 4 CAD
   AAA
 
+; match tag key and value regex
 test reg -t one:only BBB
 BBB CAD
 2020/01/01 | joe | AAA | -2.00 | -2.00 CAD 
 2020/01/01 | bud | AAA |  4.00 | 2.00 CAD 
 end test
 
+; match tag key regardless of value
 test reg -t one BBB
 BBB CAD
 2020/01/01 |  joe | AAA | -2.00 | -2.00 CAD 
 2020/01/01 | fred | CCC |  3.00 | 1.00 CAD 
 2020/01/01 |  bud | AAA |  4.00 | 5.00 CAD 
+end test
+
+; inverted tag match (! prefix)
+test reg -t !one BBB
+BBB CAD
+2020/01/01 | bob | AAA | -1.00 | -1.00 CAD 
+end test
+
+test reg -t !one:nope BBB
+BBB CAD
+2020/01/01 | bob | AAA | -1.00 | -1.00 CAD 
+2020/01/01 | joe | AAA | -2.00 | -3.00 CAD 
+2020/01/01 | bud | AAA |  4.00 | 1.00 CAD 
 end test

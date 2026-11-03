@@ -19,3 +19,14 @@ test register -bt -o json Expenses
 ["fruits:berries","0.00","300.00","0.00"]
 ["veggies","0.00","400.00","0.00"]
 end test
+
+; JSON output with both time period (-q) and category (-bp) columns
+test register -r -q -bp -o json Expenses
+["Date","Category","Expenses",":Rent",":Food"]
+["2010/01","Freshco","550.00","0.00","550.00"]
+["2010/01","Housing Corp","1500.00","1500.00","0.00"]
+["2010/04","Freshco","550.00","0.00","550.00"]
+["2010/04","Housing Corp","1500.00","1500.00","0.00"]
+["2010/07","Freshco","300.00","0.00","300.00"]
+["2010/07","Housing Corp","500.00","500.00","0.00"]
+end test

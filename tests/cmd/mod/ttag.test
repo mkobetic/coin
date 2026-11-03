@@ -1,0 +1,35 @@
+commodity CAD
+  format 1.00 CAD
+account AAA
+account BBB
+
+2020 bob
+  AAA 1 CAD
+  BBB
+
+2020 joe ; short
+  AAA 2 CAD
+  BBB
+
+2020 fred ; XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  AAA 3 CAD
+  BBB
+
+; -tt: adds transaction tag inline when note is short, or on a new line when over 80 chars
+test m -a AAA -tt: #added:yes
+2020/01/01 bob ; #added:yes
+  AAA   1.00 CAD
+  BBB  -1.00 CAD
+
+2020/01/01 joe ; short #added:yes
+  AAA   2.00 CAD
+  BBB  -2.00 CAD
+
+2020/01/01 fred
+  ; XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  ; #added:yes
+  AAA   3.00 CAD
+  BBB  -3.00 CAD
+
+end test
+

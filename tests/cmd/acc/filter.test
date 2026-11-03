@@ -1,0 +1,60 @@
+commodity CAD
+  default
+commodity USD
+
+account Assets:Bank:Checking
+  note Main checking account
+  commodity CAD
+
+account Assets:Bank:Savings
+  note US savings
+  commodity USD
+
+account Assets:OldBank
+  note Closed bank
+  closed 2019/12/31
+
+account Assets:OldBank:Checking
+  note Inherited closed status
+
+account Expenses:Food
+  note Groceries and dining
+
+; closed accounts (including children of closed accounts) are hidden by default
+test accounts
+Assets                  | CAD        | 
+Assets:Bank             | CAD        | 
+Assets:Bank:Checking    | CAD        | Main checking account
+Assets:Bank:Savings     | USD        | US savings
+Expenses                | CAD        | 
+Expenses:Food           | CAD        | Groceries and dining
+Root                    | CAD        | 
+Unbalanced              | CAD        | 
+end test
+
+; -c includes closed accounts
+test accounts -c
+Assets                  | CAD        | 
+Assets:Bank             | CAD        | 
+Assets:Bank:Checking    | CAD        | Main checking account
+Assets:Bank:Savings     | USD        | US savings
+Assets:OldBank          | CAD        | Closed bank
+Assets:OldBank:Checking | CAD        | Inherited closed status
+Expenses                | CAD        | 
+Expenses:Food           | CAD        | Groceries and dining
+Root                    | CAD        | 
+Unbalanced              | CAD        | 
+end test
+
+; filter accounts by pattern
+test acc Bank:
+Assets:Bank             | CAD        | 
+Assets:Bank:Checking    | CAD        | Main checking account
+Assets:Bank:Savings     | USD        | US savings
+end test
+
+; combine -c and pattern filter
+test a -c OldBank
+Assets:OldBank          | CAD        | Closed bank
+Assets:OldBank:Checking | CAD        | Inherited closed status
+end test

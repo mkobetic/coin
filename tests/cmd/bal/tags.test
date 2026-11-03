@@ -20,14 +20,28 @@ account CCC
   BBB 4 CAD
   AAA
 
+; match tag key and value regex
 test bal -t one:only
  0.00 | -2.00 CAD | Root
 -4.00 | -4.00 CAD | AAA
  2.00 |  2.00 CAD | BBB
 end test
 
+; match tag key regardless of value
 test bal -t one
  0.00 |  1.00 CAD | Root
 -4.00 | -4.00 CAD | AAA
  5.00 |  5.00 CAD | BBB
+end test
+
+; inverted tag match (! prefix) matches tagged postings/transactions not matching key/value
+test bal -t !one
+ 1.00 |  1.00 CAD | AAA
+-1.00 | -1.00 CAD | BBB
+end test
+
+test bal -t !one:nope
+ 0.00 | -2.00 CAD | Root
+-3.00 | -3.00 CAD | AAA
+ 1.00 |  1.00 CAD | BBB
 end test

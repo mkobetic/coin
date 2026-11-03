@@ -37,6 +37,7 @@ Expenses:Rent CAD
 2010/07/25 | 500.00
 end test
 
+; without -r, subaccount columns are shown separately without rolling into parent
 test register -m Expenses
 Expenses CAD
         |  :Rent |  :Food | Expenses
@@ -47,6 +48,19 @@ Expenses CAD
 2010/05 | 500.00 | 300.00 |     0.00
 2010/06 | 500.00 | 250.00 |     0.00
 2010/07 | 500.00 | 300.00 |     0.00
+end test
+
+; -c accumulates totals across time periods
+test register -m -c Expenses
+Expenses CAD
+        |   :Rent |   :Food | Expenses
+2010/01 |  500.00 |  250.00 |     0.00
+2010/02 | 1000.00 |  350.00 |     0.00
+2010/03 | 1500.00 |  550.00 |     0.00
+2010/04 | 2000.00 |  550.00 |     0.00
+2010/05 | 2500.00 |  850.00 |     0.00
+2010/06 | 3000.00 | 1100.00 |     0.00
+2010/07 | 3500.00 | 1400.00 |     0.00
 end test
 
 ;

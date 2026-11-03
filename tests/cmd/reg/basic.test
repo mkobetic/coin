@@ -22,6 +22,7 @@ Income:Salary CAD
 2010/07/15 | ACME Inc | Assets:Bank | -1000.00 | -7000.00 CAD 
 end test
 
+; -r includes postings from subaccounts
 test register -r Expenses
 Expenses CAD
 2010/01/20 |      Freshco | :Food | Assets:Bank | 150.00 |  150.00 CAD 
@@ -40,6 +41,7 @@ Expenses CAD
 2010/07/30 | Housing Corp | :Rent | Assets:Bank | 500.00 | 4900.00 CAD 
 end test
 
+; filter postings by payee regex (-p)
 test register -p Fresh Bank
 Assets:Bank CAD
 2010/01/20 | Freshco | Expense:Food | -150.00 |  -150.00 CAD 
@@ -49,4 +51,41 @@ Assets:Bank CAD
 2010/05/05 | Freshco | Expense:Food | -300.00 |  -850.00 CAD 
 2010/06/22 | Freshco | Expense:Food | -250.00 | -1100.00 CAD 
 2010/07/03 | Freshco | Expense:Food | -300.00 | -1400.00 CAD 
+end test
+
+; filter by date range [begin, end)
+test register -b 2010/03/01 -e 2010/06/01 Food
+Expenses:Food CAD
+2010/03/08 | Freshco | Assets:Bank | 200.00 | 200.00 CAD 
+2010/05/05 | Freshco | Assets:Bank | 300.00 | 500.00 CAD 
+end test
+
+; inverted payee regex (! prefix) excludes matching payees
+test reg -p !Fresh -e 2010/03/01 Bank
+Assets:Bank CAD
+2010/01/15 |     ACME Inc | Incom:Salary | 1000.00 | 1000.00 CAD 
+2010/01/30 | Housing Corp | Expense:Rent | -500.00 |  500.00 CAD 
+2010/02/15 |     ACME Inc | Incom:Salary | 1000.00 | 1500.00 CAD 
+2010/02/28 | Housing Corp | Expense:Rent | -500.00 | 1000.00 CAD 
+end test
+
+; -l shortens account labels to max width
+test r -l 6 -e 2010/02/01 Food
+Expenses:Food CAD
+2010/01/20 | Freshco | A:Bank | 150.00 | 150.00 CAD 
+2010/01/28 | Freshco | A:Bank | 100.00 | 250.00 CAD 
+end test
+
+; -f includes file:line location column (flat and recursive)
+test register -f -e 2010/02/01 Food
+Expenses:Food CAD
+2010/01/20 | Freshco | Assets:Bank | 150.00 | 150.00 CAD | tests/cmd/reg/basic.coin:13
+2010/01/28 | Freshco | Assets:Bank | 100.00 | 250.00 CAD | tests/cmd/reg/basic.coin:17
+end test
+
+test register -r -f -e 2010/02/01 Expenses
+Expenses CAD
+2010/01/20 |      Freshco | :Food | Assets:Bank | 150.00 | 150.00 CAD | tests/cmd/reg/basic.coin:13
+2010/01/28 |      Freshco | :Food | Assets:Bank | 100.00 | 250.00 CAD | tests/cmd/reg/basic.coin:17
+2010/01/30 | Housing Corp | :Rent | Assets:Bank | 500.00 | 750.00 CAD | tests/cmd/reg/basic.coin:21
 end test
