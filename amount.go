@@ -58,6 +58,9 @@ func (a *Amount) Format(f fmt.State, c rune) {
 	val := new(big.Rat)
 	val.SetFrac(a.Int, bigPow10(a.Commodity.Decimals))
 	str := val.FloatString(p)
+	if c == 'd' {
+		str = addThousandSep(str, p)
+	}
 	if f.Flag(' ') && a.Sign() >= 0 {
 		str = " " + str
 	}
@@ -181,12 +184,49 @@ func MustParseAmount(f string, c *Commodity) *Amount {
 	return amt
 }
 
+func addThousandSep(str string, decimals int) string {
+	start := 0
+	if str[0] == '-' {
+		start = 1
+	}
+	end := len(str)
+	if decimals > 0 {
+		end -= decimals + 1
+	}
+	n := end - start
+	if n <= 3 {
+		return str
+	}
+	var b strings.Builder
+	b.Grow(len(str) + (n-1)/3)
+	r := (n-1)%3 + 1
+	b.WriteString(str[:start+r])
+	for i := start + r; i < end; i += 3 {
+		b.WriteByte(',')
+		b.WriteString(str[i : i+3])
+	}
+	b.WriteString(str[end:])
+	return b.String()
+}
+
 func (a *Amount) Width(decimals int) int {
+	return a.width(decimals, false)
+}
+
+func (a *Amount) WidthWithDelimiters(decimals int) int {
+	return a.width(decimals, true)
+}
+
+func (a *Amount) width(decimals int, delimiters bool) int {
 	w := bigLog10(a.Int) + 1
 	if w <= a.Decimals {
 		w = a.Decimals + 1
 	}
-	w = w - a.Decimals + decimals
+	w = w - a.Decimals
+	if delimiters {
+		w += (w - 1) / 3
+	}
+	w += decimals
 	if decimals > 0 {
 		w++ // decimal point
 	}
