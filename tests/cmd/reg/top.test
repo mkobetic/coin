@@ -31,7 +31,7 @@ account Expenses:Phone
   Expenses:Utilities 200 CAD
   Assets:Bank -200 CAD
 
-; postings with balance assertions (= ...) are marked with '*' (flat and recursive)
+; postings with balance assertions (= ...) display '*' after commodity
 test register -e 2020/02/01 Bank
 Assets:Bank CAD
 2020/01/05 | Landlord | Expense:Rent | -1000.00 | -1000.00 CAD*
@@ -40,6 +40,7 @@ Assets:Bank CAD
 2020/01/20 |  Telecom | Expens:Phone |  -100.00 | -1800.00 CAD*
 end test
 
+; balance assertions marked with '*' in recursive register as well
 test register -r -e 2020/02/01 Assets
 Assets CAD
 2020/01/05 | Landlord | :Bank | Expense:Rent | -1000.00 | -1000.00 CAD*
@@ -48,7 +49,7 @@ Assets CAD
 2020/01/20 |  Telecom | :Bank | Expens:Phone |  -100.00 | -1800.00 CAD*
 end test
 
-; -g limits to top N accounts by magnitude and merges remaining subaccounts into Other
+; -g 3 limits to top 3 subaccounts by volume and rolls the rest into Other; -l 5 sets max column header width
 test register -r -m -g 3 -l 5 Expenses
 Expenses CAD
         | Expenses |   :Rent |  :Food |  Other

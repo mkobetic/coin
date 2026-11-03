@@ -18,6 +18,7 @@ account CCC
   AAA
   ; two
 
+; format preserves short inline notes and multiline notes with standard indentation
 test fmt
 2020/01/01 bob ; one
   AAA   1.00 CAD

@@ -1,5 +1,6 @@
 include basic.coin
 
+; monthly aggregation
 test register -m -o csv Expenses
 Date,:Rent,:Food,Expenses
 2010/01,500.00,250.00,0.00
@@ -11,6 +12,7 @@ Date,:Rent,:Food,Expenses
 2010/07,500.00,300.00,0.00
 end test
 
+; tag aggregation
 test register -bt -o csv Expenses
 Category,:Rent,:Food,Expenses
 <no-tags>,3500.00,400.00,0.00
@@ -20,7 +22,7 @@ fruits:berries,0.00,300.00,0.00
 veggies,0.00,400.00,0.00
 end test
 
-; CSV output with both time period (-q) and category (-bp) columns
+; quarterly (-q) and by payee (-bp) aggregation
 test register -r -q -bp -o csv Expenses
 Date,Category,Expenses,:Rent,:Food
 2010/01,Freshco,550.00,0.00,550.00

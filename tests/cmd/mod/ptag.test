@@ -12,7 +12,7 @@ account CCC
   AAA 2 CAD
   BBB ; #keep
 
-; match posting by tag (-pt) to move account (-a:) and append posting tag (-pt:)
+; -pt matches postings with tag; -a: moves them to target account; -pt: appends tag to the posting
 test mod -pt move -a: CCC -pt: #moved:ok
 2020/01/01 bob
   AAA   1.00 CAD

@@ -12,6 +12,7 @@ account CCC
   AAA 2 CAD; hi
   BBB ; #one: and only
 
+; -tt filters transactions by tag regex; -a selects posting account; -pt: appends tag to that posting
 test mod -tt two -a BBB -pt: #bar:baz
 2020/01/01 bob ; #two
   AAA   1.00 CAD

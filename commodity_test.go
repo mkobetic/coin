@@ -11,7 +11,7 @@ func Test_ParseCommodity(t *testing.T) {
 	r := strings.NewReader(`
 commodity NBC814
   note Altamira Precision Canadian Index Fund
-  format 1.0000 NBC814
+  format 1,000.0000 NBC814
 
 commodity BND
   note Vanguard Total Bond Market ETF

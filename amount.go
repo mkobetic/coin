@@ -11,7 +11,7 @@ import (
 	"github.com/mkobetic/coin/rex"
 )
 
-var AmountREX = rex.MustCompile(`(?P<amount>-?[\d]+(?P<decimals>\.[\d]+)?)\s+%s`, CommodityREX)
+var AmountREX = rex.MustCompile(`(?P<amount>-?[\d]+(,\d{3})*(?P<decimals>\.[\d]+)?)\s+%s`, CommodityREX)
 
 type Amount struct {
 	*big.Int
@@ -74,6 +74,7 @@ func (a *Amount) Format(f fmt.State, c rune) {
 
 func parseAmount(s string, c *Commodity) (*Amount, error) {
 	ss := strings.Split(s, ".")
+	ss[0] = strings.ReplaceAll(ss[0], ",", "")
 	if len(ss) == 1 {
 		i, err := strconv.ParseInt(ss[0], 10, 64)
 		if err != nil {

@@ -14,6 +14,7 @@ account Expenses:Rent
   Expenses
   Bank -20 CAD
 
+; -a matches postings with account Expenses; -a: reassigns them to Expenses:Food
 test modify -a Expenses -a: Food
 2000/01/01 ACME
   Assets:Bank     1000.00 CAD

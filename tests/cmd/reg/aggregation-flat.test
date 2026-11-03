@@ -1,5 +1,6 @@
 include basic.coin
 
+; aggregate leaf account postings by month (-m)
 test register -m Food
 Expenses:Food CAD
         |   Food
@@ -11,6 +12,7 @@ Expenses:Food CAD
 2010/07 | 300.00
 end test
 
+; aggregate postings by quarter (-q)
 test register -q Salary
 Income:Salary CAD
         |   Salary
@@ -19,12 +21,14 @@ Income:Salary CAD
 2010/07 | -1000.00
 end test
 
+; aggregate postings by year (-y)
 test register -y Salary
 Income:Salary CAD
      |   Salary
 2010 | -7000.00
 end test
 
+; aggregate postings by week (-w), labeled by week start date
 test register -w Rent
 Expenses:Rent CAD
            |   Rent
@@ -67,6 +71,7 @@ end test
 ; Aggregating by category
 ;
 
+; aggregate postings by payee (-bp)
 test register -bp Expenses
 Expenses CAD
              |   :Rent |   :Food | Expenses
@@ -74,6 +79,7 @@ Expenses CAD
 Housing Corp | 3500.00 |    0.00 |     0.00
 end test
 
+; 2D aggregation: quarterly time periods (-q) and payees (-bp)
 test register -bp -q Expenses
 Expenses CAD
         |              |   :Rent |  :Food | Expenses
@@ -86,6 +92,7 @@ Expenses CAD
 end test
 
 
+; aggregate postings by tag (-bt), including <no-tags> for untagged postings
 test register -bt Food
 Expenses:Food CAD
                |   Food
@@ -96,10 +103,24 @@ fruits:berries | 300.00
        veggies | 400.00
 end test
 
+; -bt with tag filter (-t) restricts to matching tag categories
 test register -bt -t fruits Food
 Expenses:Food CAD
                |   Food
  fruits:apples | 100.00
 fruits:bananas | 200.00
 fruits:berries | 300.00
+end test
+
+; 2D aggregation: monthly time periods (-m) broken down by tag (-bt)
+test register -bt -m Food
+Expenses:Food CAD
+        |                |   Food
+2010/01 |  fruits:apples | 100.00
+2010/01 |        veggies | 150.00
+2010/02 |      <no-tags> | 100.00
+2010/03 | fruits:bananas | 200.00
+2010/05 |      <no-tags> | 300.00
+2010/06 |        veggies | 250.00
+2010/07 | fruits:berries | 300.00
 end test

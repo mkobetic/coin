@@ -17,6 +17,8 @@ account Expenses:Food
   Expenses 500 CAD
   Bank
 
+
+; -p filters transactions by payee regex; only matching transactions have their -a postings moved to -a:
 test modify -a Expenses -p Loeb -a: Food
 2000/01/01 ACME
   Assets:Bank     1000.00 CAD

@@ -58,3 +58,14 @@ test a -c OldBank
 Assets:OldBank          | CAD        | Closed bank
 Assets:OldBank:Checking | CAD        | Inherited closed status
 end test
+
+; multiple matches excluding closed
+test acc Checking
+Assets:Bank:Checking    | CAD        | Main checking account
+end test
+
+; multiple matches including closed
+test acc -c :Bank:Check
+Assets:Bank:Checking    | CAD        | Main checking account
+Assets:OldBank:Checking | CAD        | Inherited closed status
+end test
