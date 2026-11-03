@@ -16,10 +16,10 @@ func init() {
 
 type cmdFormat struct {
 	flagsWithUsage
-	ledger     bool
-	replace    bool
-	trimWS     bool
-	delimiters bool
+	ledger      bool
+	replace     bool
+	trimWS      bool
+	thousandSep bool
 }
 
 func (*cmdFormat) newCommand(names ...string) command {
@@ -31,7 +31,7 @@ Output transactions from specified files sorted and in the standard format.`)
 	cmd.BoolVar(&cmd.ledger, "ledger", false, "use ledger compatible format")
 	cmd.BoolVar(&cmd.replace, "i", false, "format files in-place")
 	cmd.BoolVar(&cmd.trimWS, "t", false, "trim excessive whitespace from descriptions")
-	cmd.BoolVar(&cmd.delimiters, "ts", false, "print amounts with thousand separators")
+	cmd.BoolVar(&cmd.thousandSep, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -73,7 +73,7 @@ func (cmd *cmdFormat) writeTransactions(f io.Writer) {
 			t.Description = trimWS(t.Description)[0]
 			t.Notes = trimWS(t.Notes...)
 		}
-		t.Write(f, cmd.ledger, cmd.delimiters)
+		t.Write(f, cmd.ledger, cmd.thousandSep)
 		fmt.Fprintln(f)
 	}
 }

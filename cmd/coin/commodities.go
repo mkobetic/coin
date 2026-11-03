@@ -21,10 +21,10 @@ func init() {
 
 type cmdCommodities struct {
 	flagsWithUsage
-	getQuotes  bool
-	prices     bool
-	location   bool
-	delimiters bool
+	getQuotes   bool
+	prices      bool
+	location    bool
+	thousandSep bool
 }
 
 func (*cmdCommodities) newCommand(names ...string) command {
@@ -36,7 +36,7 @@ Lists commodities and prices.`)
 	cmd.BoolVar(&cmd.getQuotes, "q", false, "get current quotes for all commodities")
 	cmd.BoolVar(&cmd.prices, "p", false, "print commodity price stats")
 	cmd.BoolVar(&cmd.location, "f", false, "include file location on price list")
-	cmd.BoolVar(&cmd.delimiters, "ts", false, "print amounts with thousand separators")
+	cmd.BoolVar(&cmd.thousandSep, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -60,7 +60,7 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 		if cmd.location {
 			lineFmt = "%s %a %s %s\n"
 		}
-		if cmd.delimiters {
+		if cmd.thousandSep {
 			lineFmt = strings.ReplaceAll(lineFmt, "%a", "%d")
 		}
 		for _, ps := range commodity.Prices {
@@ -76,7 +76,7 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 	}
 	if cmd.getQuotes {
 		lineFmt := "P %s %s %a %s\n"
-		if cmd.delimiters {
+		if cmd.thousandSep {
 			lineFmt = "P %s %s %d %s\n"
 		}
 		coin.CommoditiesDo(func(c *coin.Commodity) {
@@ -109,7 +109,7 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 	}
 	coin.CommoditiesDo(func(c *coin.Commodity) {
 		if cmd.prices {
-			if cmd.delimiters {
+			if cmd.thousandSep {
 				fmt.Fprintf(f, "%d\n", c)
 			} else {
 				fmt.Fprintln(f, c.String())

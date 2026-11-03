@@ -217,13 +217,13 @@ func (a *Amount) WidthWithDelimiters(decimals int) int {
 	return a.width(decimals, true)
 }
 
-func (a *Amount) width(decimals int, delimiters bool) int {
+func (a *Amount) width(decimals int, thousandSep bool) int {
 	w := bigLog10(a.Int) + 1
 	if w <= a.Decimals {
 		w = a.Decimals + 1
 	}
 	w = w - a.Decimals
-	if delimiters {
+	if thousandSep {
 		w += (w - 1) / 3
 	}
 	w += decimals

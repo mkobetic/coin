@@ -78,7 +78,7 @@ func (transactions TransactionsByTime) Day(day time.Time) TransactionsByTime {
 	return transactions[start : start+count]
 }
 
-func (t *Transaction) Write(w io.Writer, ledger, delimiters bool) error {
+func (t *Transaction) Write(w io.Writer, ledger, thousandSep bool) error {
 	notes := t.Notes
 	line := t.Posted.Format(DateFormat) + " "
 	if t.Code != "" {
@@ -105,7 +105,7 @@ func (t *Transaction) Write(w io.Writer, ledger, delimiters bool) error {
 			maxn = l
 		}
 		l := s.Quantity.Width(s.Account.Commodity.Decimals)
-		if delimiters {
+		if thousandSep {
 			l = s.Quantity.WidthWithDelimiters(s.Account.Commodity.Decimals)
 		}
 		if l > maxa {
@@ -113,7 +113,7 @@ func (t *Transaction) Write(w io.Writer, ledger, delimiters bool) error {
 		}
 	}
 	for _, s := range t.Postings {
-		err = s.Write(w, 2, maxn, maxa, ledger, delimiters)
+		err = s.Write(w, 2, maxn, maxa, ledger, thousandSep)
 		if err != nil {
 			return err
 		}

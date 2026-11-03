@@ -20,7 +20,7 @@ type cmdBalance struct {
 	tag         string
 	zeroBalance bool
 	level       int
-	delimiters  bool
+	thousandSep bool
 }
 
 func (*cmdBalance) newCommand(names ...string) command {
@@ -35,7 +35,7 @@ Lists balances for account and its subaccounts (default: Root).`)
 	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] (regex)")
 	cmd.BoolVar(&cmd.zeroBalance, "z", false, "list accounts with zero total balance")
 	cmd.IntVar(&cmd.level, "l", 0, "print accounts up to this level, 0 means all")
-	cmd.BoolVar(&cmd.delimiters, "ts", false, "print amounts with thousand separators")
+	cmd.BoolVar(&cmd.thousandSep, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -72,9 +72,9 @@ func (cmd *cmdBalance) execute(f io.Writer) {
 }
 
 func (cmd *cmdBalance) print(f io.Writer, acc *coin.Account, totals, cumulative balances) {
-	width, cumWidth, curWidth := totals.maxWidth(cmd.delimiters), cumulative.maxWidth(cmd.delimiters), cumulative.curWidth()
+	width, cumWidth, curWidth := totals.maxWidth(cmd.thousandSep), cumulative.maxWidth(cmd.thousandSep), cumulative.curWidth()
 	lineFmt := "%*a | %*a %-*s | %s\n"
-	if cmd.delimiters {
+	if cmd.thousandSep {
 		lineFmt = "%*d | %*d %-*s | %s\n"
 	}
 	acc.WithChildrenDo(func(a *coin.Account) {
@@ -115,11 +115,11 @@ func (cmd *cmdBalance) trim(ps []*coin.Posting) postings {
 
 type balances map[*coin.Account]*coin.Amount
 
-func (bs balances) maxWidth(delimiters bool) int {
+func (bs balances) maxWidth(thousandSep bool) int {
 	var max int
 	for acc, amt := range bs {
 		w := amt.Width(acc.Commodity.Decimals)
-		if delimiters {
+		if thousandSep {
 			w = amt.WidthWithDelimiters(acc.Commodity.Decimals)
 		}
 		if w > max {

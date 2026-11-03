@@ -20,12 +20,12 @@ type Posting struct {
 	accountName string
 }
 
-func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger, delimiters bool) error {
+func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger, thousandSep bool) error {
 	notes := s.Notes
 	commodity := s.Quantity.Commodity
 	lineFmt := "%*s%-*s  %*.*f %s"
 	balFmt := " = %.*f %s"
-	if delimiters {
+	if thousandSep {
 		lineFmt = "%*s%-*s  %*.*d %s"
 		balFmt = " = %.*d %s"
 	}

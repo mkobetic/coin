@@ -234,13 +234,13 @@ func (ts *timeTotals) mergeKeys(ts2 *timeTotals) {
 }
 
 // maxWidth returns the largest amount width needed for printing
-func (ts *timeTotals) maxWidth(delimiters bool) int {
+func (ts *timeTotals) maxWidth(thousandSep bool) int {
 	if ts == nil || ts.current == nil {
 		return 0
 	}
 	dec := ts.Commodity().Decimals
 	width := func(a *coin.Amount) int {
-		if delimiters {
+		if thousandSep {
 			return a.WidthWithDelimiters(dec)
 		}
 		return a.Width(dec)
@@ -389,9 +389,9 @@ func (ats accountTotals) newTotals(acc *coin.Account, period *timeReducer, categ
 	return ts
 }
 
-func (ats accountTotals) widths(order []*coin.Account, delimiters bool) (widths []int) {
+func (ats accountTotals) widths(order []*coin.Account, thousandSep bool) (widths []int) {
 	for _, acc := range order {
-		widths = append(widths, ats[acc].maxWidth(delimiters))
+		widths = append(widths, ats[acc].maxWidth(thousandSep))
 	}
 	return widths
 }
@@ -489,7 +489,7 @@ func (ats accountTotals) output(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
 	format string,
-	delimiters bool,
+	thousandSep bool,
 ) {
 	switch format {
 	case "json":
@@ -497,14 +497,14 @@ func (ats accountTotals) output(f io.Writer,
 	case "csv":
 		ats.rows(order, label).writeCSV(f)
 	default:
-		ats.print(f, order, label, delimiters)
+		ats.print(f, order, label, thousandSep)
 	}
 }
 
 func (ats accountTotals) print(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
-	delimiters bool,
+	thousandSep bool,
 ) {
 	firstCol := ats[order[0]]
 	format := []string{"%*s "}
@@ -513,12 +513,12 @@ func (ats accountTotals) print(f io.Writer,
 	if periodWidth > 0 && categoryWidth > 0 {
 		format = append(format, " %*s ")
 	}
-	widths := ats.widths(order, delimiters)
+	widths := ats.widths(order, thousandSep)
 	if label != nil {
 		format2 := append([]string{}, format...)
 		labels := make([]string, len(order))
 		amtFmt := " %*a "
-		if delimiters {
+		if thousandSep {
 			amtFmt = " %*d "
 		}
 		for i, acc := range order {

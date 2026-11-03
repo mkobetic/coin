@@ -40,7 +40,7 @@ func Test_AmountWidth(t *testing.T) {
 	for i, fix := range []struct {
 		amt             string
 		decimals, width int
-		delimiters      bool
+		thousandSep     bool
 	}{
 		{"0.09", 2, 4, false},
 		{"-0.09", 2, 5, false},
@@ -52,7 +52,7 @@ func Test_AmountWidth(t *testing.T) {
 		amt, err := parseAmount(fix.amt, cad)
 		assert.NoError(t, err)
 		width := amt.Width(fix.decimals)
-		if fix.delimiters {
+		if fix.thousandSep {
 			width = amt.WidthWithDelimiters(fix.decimals)
 		}
 		assert.Equal(t, width, fix.width, "%d. not equal", i)
