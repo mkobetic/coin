@@ -118,7 +118,7 @@ func main() {
 	}
 
 	for _, t := range transactions {
-		t.Write(os.Stdout, false)
+		t.Write(os.Stdout, false, false)
 		fmt.Fprintln(os.Stdout)
 	}
 }

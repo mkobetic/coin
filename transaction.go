@@ -78,7 +78,7 @@ func (transactions TransactionsByTime) Day(day time.Time) TransactionsByTime {
 	return transactions[start : start+count]
 }
 
-func (t *Transaction) Write(w io.Writer, ledger bool) error {
+func (t *Transaction) Write(w io.Writer, ledger, delimiters bool) error {
 	notes := t.Notes
 	line := t.Posted.Format(DateFormat) + " "
 	if t.Code != "" {
@@ -104,12 +104,16 @@ func (t *Transaction) Write(w io.Writer, ledger bool) error {
 		if l := len(s.Account.FullName); l > maxn {
 			maxn = l
 		}
-		if l := s.Quantity.Width(s.Account.Commodity.Decimals); l > maxa {
+		l := s.Quantity.Width(s.Account.Commodity.Decimals)
+		if delimiters {
+			l = s.Quantity.WidthWithDelimiters(s.Account.Commodity.Decimals)
+		}
+		if l > maxa {
 			maxa = l
 		}
 	}
 	for _, s := range t.Postings {
-		err = s.Write(w, 2, maxn, maxa, ledger)
+		err = s.Write(w, 2, maxn, maxa, ledger, delimiters)
 		if err != nil {
 			return err
 		}
@@ -196,7 +200,7 @@ func (p *Parser) parseTransaction(fn string) (*Transaction, error) {
 
 func (t *Transaction) String() string {
 	var b strings.Builder
-	t.Write(&b, false)
+	t.Write(&b, false, false)
 	return b.String()
 }
 

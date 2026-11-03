@@ -33,3 +33,19 @@ test format
   Assets:Bank    -500.00 CAD
 
 end test
+
+; -ts prints amounts with thousand separators
+test format -ts
+2000/01/01 ACME
+  Assets:Bank     1,000.00 CAD
+  Income:Salary  -1,000.00 CAD
+
+2000/02/01 Loeb
+  Expenses:Food   20.00 CAD
+  Assets:Bank    -20.00 CAD
+
+2000/03/03 
+  Expenses:Rent   500.00 CAD
+  Assets:Bank    -500.00 CAD
+
+end test
