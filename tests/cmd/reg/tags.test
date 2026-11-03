@@ -35,12 +35,13 @@ BBB CAD
 2020/01/01 |  bud | AAA |  4.00 | 5.00 CAD 
 end test
 
-; inverted tag match (! prefix)
+; inverted tag key match (!key): excludes postings/transactions tagged with key
 test reg -t !one BBB
 BBB CAD
 2020/01/01 | bob | AAA | -1.00 | -1.00 CAD 
 end test
 
+; inverted tag key:value match (!key:val): excludes postings/transactions matching key and value
 test reg -t !one:nope BBB
 BBB CAD
 2020/01/01 | bob | AAA | -1.00 | -1.00 CAD 

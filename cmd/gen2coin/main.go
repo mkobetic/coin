@@ -83,7 +83,7 @@ func main() {
 			encoder.Encode(transactions)
 		 } else {
 				for _, t := range transactions {
-					t.Write(os.Stdout, false)
+					t.Write(os.Stdout, false, false)
 					fmt.Fprintln(os.Stdout)
 				}
 			}
@@ -119,7 +119,7 @@ func main() {
 		w, err = os.Create(filepath.Join(dir, label+".coin"))
 		check.NoError(err, "opening transaction file %s.coin", label)
 		for _, t := range batch {
-			t.Write(w, false)
+			t.Write(w, false, false)
 			fmt.Fprintln(w)
 		}
 		check.NoError(w.Close(), "closing transaction file %s.coin", label)

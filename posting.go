@@ -20,16 +20,22 @@ type Posting struct {
 	accountName string
 }
 
-func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger bool) error {
+func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth int, ledger, thousandSep bool) error {
 	notes := s.Notes
 	commodity := s.Quantity.Commodity
-	line := fmt.Sprintf("%*s%-*s  %*.*f %s",
+	lineFmt := "%*s%-*s  %*.*f %s"
+	balFmt := " = %.*f %s"
+	if thousandSep {
+		lineFmt = "%*s%-*s  %*.*d %s"
+		balFmt = " = %.*d %s"
+	}
+	line := fmt.Sprintf(lineFmt,
 		accountOffset, "",
 		accountWidth, s.Account.FullName,
 		amountWidth, commodity.Decimals, s.Quantity, commodity.SafeId(ledger))
 	if s.BalanceAsserted {
 		commodity = s.Balance.Commodity
-		line += fmt.Sprintf(" = %.*f %s", commodity.Decimals, s.Balance, commodity.SafeId(ledger))
+		line += fmt.Sprintf(balFmt, commodity.Decimals, s.Balance, commodity.SafeId(ledger))
 	}
 	if len(notes) > 0 && len(notes[0])+len(line) < TRANSACTION_LINE_MAX-3 {
 		line += " ; " + notes[0]
@@ -50,7 +56,7 @@ func (s *Posting) Write(w io.Writer, accountOffset, accountWidth, amountWidth in
 
 func (s *Posting) String() string {
 	var b strings.Builder
-	s.Write(&b, 0, len(s.Account.FullName)+2, bigLog10(s.Quantity.Int)+3, false)
+	s.Write(&b, 0, len(s.Account.FullName)+2, bigLog10(s.Quantity.Int)+3, false, false)
 	return b.String()
 }
 

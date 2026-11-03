@@ -40,3 +40,15 @@ test format -ledger
   Assets:Bank         -200.00 CAD = 800.00 CAD
 
 end test
+
+; -ts formats posting amounts and balance assertions with thousand separators
+test format -ts
+2020/01/01 (101) ACME
+  Assets:Bank     1,000.00 CAD = 1,000.00 CAD
+  Income:Salary  -1,000.00 CAD
+
+2020/01/02 Buy Fund
+  Assets:Investments  10.0000 NBC814 = 10.0000 NBC814
+  Assets:Bank         -200.00 CAD = 800.00 CAD
+
+end test

@@ -1,5 +1,6 @@
 include basic.coin
 
+; recursive monthly aggregation (-r -m): parent Expenses column rolls up all subaccounts
 test register -r -m Expenses
 Expenses CAD
         | Expenses |  :Rent |  :Food
@@ -12,6 +13,7 @@ Expenses CAD
 2010/07 |   800.00 | 500.00 | 300.00
 end test
 
+; recursive monthly cumulative aggregation (-r -m -c)
 test register -r -m -c Expenses
 Expenses CAD
         | Expenses |   :Rent |   :Food
@@ -28,6 +30,7 @@ end test
 ; Aggregating by category
 ;
 
+; recursive payee aggregation (-r -bp): Expenses column sums all subaccount flows per payee
 test register -r -bp Expenses
 Expenses CAD
              | Expenses |   :Rent |   :Food
@@ -35,6 +38,7 @@ Expenses CAD
 Housing Corp |  3500.00 | 3500.00 |    0.00
 end test
 
+; recursive 2D aggregation: quarterly time periods (-q) and payees (-bp)
 test register -r -bp -q Expenses
 Expenses CAD
         |              | Expenses |   :Rent |  :Food
@@ -47,6 +51,7 @@ Expenses CAD
 end test
 
 
+; recursive tag aggregation (-r -bt): parent Expenses column sums all subaccounts per tag
 test register -r -bt Expenses
 Expenses CAD
                | Expenses |   :Rent |  :Food
@@ -57,6 +62,7 @@ fruits:berries |   300.00 |    0.00 | 300.00
        veggies |   400.00 |    0.00 | 400.00
 end test
 
+; recursive tag aggregation filtered by tag pattern (-t fruits)
 test register -r -bt -t fruits Expenses
 Expenses CAD
                | Expenses |  :Food

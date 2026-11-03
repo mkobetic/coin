@@ -111,8 +111,8 @@ func Test_ParseTransactionCode(t *testing.T) {
 func Test_ParseTransactionBalance(t *testing.T) {
 	r := strings.NewReader(`
 2018/10/01 payee1
-  AA 10.00 CAD
-  BB -10.00 CAD = 50.00 CAD
+  AA 1,010.00 CAD
+  BB -1,010.00 CAD = 1,050.00 CAD
 `)
 	p := NewParser(r)
 	i, err := p.Next("")
@@ -121,7 +121,8 @@ func Test_ParseTransactionBalance(t *testing.T) {
 	assert.Equal(t, ok, true)
 	assert.Equal(t, tr.Description, "payee1")
 	assert.Equal(t, len(tr.Postings), 2)
-	assert.Equal(t, fmt.Sprintf("%a", tr.Postings[1].Balance), "50.00")
+	assert.Equal(t, fmt.Sprintf("%a", tr.Postings[0].Quantity), "1010.00")
+	assert.Equal(t, fmt.Sprintf("%a", tr.Postings[1].Balance), "1050.00")
 }
 
 func Test_TransactionsByTimeDay(t *testing.T) {

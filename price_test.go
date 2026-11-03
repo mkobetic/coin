@@ -16,7 +16,7 @@ func Test_ParsePrice(t *testing.T) {
 	r := strings.NewReader(`
 P 1988/06/29 TDB162 9.69 CAD
 P 1988/07/28 TDB162 9.58 CAD
-P 1988/08/30 TDB162 9.45 CAD
+P 1988/08/30 TDB162 1,009.45 CAD
 `)
 	p := NewParser(r)
 	i, err := p.Next("")
@@ -44,5 +44,5 @@ P 1988/08/30 TDB162 9.45 CAD
 	assert.Equal(t, pr.CommodityId, "TDB162")
 	assert.Equal(t, pr.currencyId, "CAD")
 	assert.Equal(t, pr.Time.Format(DateFormat), "1988/08/30")
-	assert.Equal(t, fmt.Sprintf("%a", pr.Value), "9.45")
+	assert.Equal(t, fmt.Sprintf("%a", pr.Value), "1009.45")
 }

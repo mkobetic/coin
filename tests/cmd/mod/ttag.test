@@ -15,7 +15,8 @@ account BBB
   AAA 3 CAD
   BBB
 
-; -tt: adds transaction tag inline when note is short, or on a new line when over 80 chars
+; -a targets transactions with postings in AAA; -tt: appends tag to transaction header
+; (placed inline if under line limit, or added as a new note line if too long)
 test m -a AAA -tt: #added:yes
 2020/01/01 bob ; #added:yes
   AAA   1.00 CAD

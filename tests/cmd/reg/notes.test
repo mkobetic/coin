@@ -57,7 +57,6 @@ Income:Salary CAD
            ; paycheck
 end test
 
-; -n with recursive (-r) register
 test register -r -n Expenses
 Expenses CAD
 2010/01/20 |      Freshco | :Food | Assets:Bank | 150.00 | 150.00 CAD 

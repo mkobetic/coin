@@ -122,7 +122,7 @@ func main() {
 			f, done = next(strconv.Itoa(year) + coin.TransactionsExtension)
 			defer done()
 		}
-		err := p.Write(f, *ledger)
+		err := p.Write(f, *ledger, false)
 		if err != nil {
 			panic(err)
 		}

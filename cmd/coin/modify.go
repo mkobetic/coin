@@ -26,6 +26,7 @@ type cmdModify struct {
 	fSetAccount string
 	fSetTTag    string
 	fSetPTag    string
+	thousandSep bool
 
 	// internal
 	from, to         *coin.Account
@@ -47,6 +48,7 @@ Modify transactions or postings in specified files. Rewrites the files in place.
 	cmd.StringVar(&cmd.fSetAccount, "a:", "", "move posting matching -a to given account")
 	cmd.StringVar(&cmd.fSetPTag, "pt:", "", "add tag to posting matching -a")
 	cmd.StringVar(&cmd.fSetTTag, "tt:", "", "add tag to transaction")
+	cmd.BoolVar(&cmd.thousandSep, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -81,7 +83,7 @@ func (cmd *cmdModify) execute(f io.Writer) {
 	if cmd.NArg() == 0 { // for testing
 		for _, t := range coin.Transactions {
 			cmd.modify(t)
-			t.Write(f, false)
+			t.Write(f, false, cmd.thousandSep)
 			fmt.Fprintln(f)
 		}
 		return
@@ -96,7 +98,7 @@ func (cmd *cmdModify) execute(f io.Writer) {
 			if cmd.modify(t) {
 				count++
 			}
-			t.Write(tf, false)
+			t.Write(tf, false, cmd.thousandSep)
 			fmt.Fprintln(tf)
 		}
 		err = os.Remove(fn)

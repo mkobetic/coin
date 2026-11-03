@@ -82,7 +82,7 @@ func main() {
 	sort.Stable(transactions)
 
 	for _, t := range transactions {
-		t.Write(os.Stdout, false)
+		t.Write(os.Stdout, false, false)
 		fmt.Fprintln(os.Stdout)
 	}
 }

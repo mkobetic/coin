@@ -30,6 +30,7 @@ type cmdRegister struct {
 	location          bool
 	output            string
 	showNotes         bool
+	thousandSep       bool
 	payee             string
 	tag               string
 }
@@ -61,6 +62,7 @@ Lists or aggregate postings from the specified account.`)
 	cmd.BoolVar(&cmd.location, "f", false, "include file location on postings in non-aggregated results")
 	cmd.StringVar(&cmd.output, "o", "text", "output format for aggregated results: text, json, csv")
 	cmd.BoolVar(&cmd.showNotes, "n", false, "show transaction notes if present (non-aggregated)")
+	cmd.BoolVar(&cmd.thousandSep, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -85,11 +87,12 @@ func (cmd *cmdRegister) execute(f io.Writer) {
 
 func (cmd *cmdRegister) fullRegister(f io.Writer, acc *coin.Account) {
 	var opts = options{
-		prefix:    acc.FullName,
-		maxAcct:   cmd.maxLabelWidth,
-		location:  cmd.location,
-		commodity: acc.Commodity,
-		showNotes: cmd.showNotes,
+		prefix:      acc.FullName,
+		maxAcct:     cmd.maxLabelWidth,
+		location:    cmd.location,
+		commodity:   acc.Commodity,
+		showNotes:   cmd.showNotes,
+		thousandSep: cmd.thousandSep,
 	}
 	if cmd.recurse {
 		var ps postings
@@ -144,7 +147,7 @@ func (cmd *cmdRegister) aggregatedRegister(f io.Writer, acc *coin.Account) {
 			return coin.ShortenAccountName(n, cmd.maxLabelWidth)
 		}
 	}
-	totals.output(f, accounts, label, cmd.output)
+	totals.output(f, accounts, label, cmd.output, cmd.thousandSep)
 }
 
 func (cmd *cmdRegister) isAggregating() bool {

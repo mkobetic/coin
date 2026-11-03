@@ -28,6 +28,18 @@ test balance
 -1000.00 | -1000.00 CAD | Income:Salary
 end test
 
+; -ts prints amounts with thousand separators
+test balance -ts
+     0.00 |    480.00 CAD | Assets
+   480.00 |    480.00 CAD | Assets:Bank
+     0.00 |    520.00 CAD | Expenses
+    20.00 |     20.00 CAD | Expenses:Food
+   500.00 |    500.00 CAD | Expenses:Rent
+     0.00 | -1,000.00 CAD | Income
+-1,000.00 | -1,000.00 CAD | Income:Salary
+end test
+
+; include only transactions on/after 2000/01/02
 test balance -b 2000/01/02
    0.00 | -520.00 CAD | Assets
 -520.00 | -520.00 CAD | Assets:Bank
@@ -36,6 +48,7 @@ test balance -b 2000/01/02
  500.00 |  500.00 CAD | Expenses:Rent
 end test
 
+; include only transactions before 2000/01/02
 test balance -e 2000/01/02
     0.00 |  1000.00 CAD | Assets
  1000.00 |  1000.00 CAD | Assets:Bank

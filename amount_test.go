@@ -25,6 +25,9 @@ func Test_ParseAmount(t *testing.T) {
 		{"-50.01", "-50.01"},
 		{"0.011", "0.01"},
 		{"-100.00", "-100.00"},
+		{"1,000", "1000.00"},
+		{"-1,234.56", "-1234.56"},
+		{"1,234,567.891", "1234567.89"},
 	} {
 		amt, err := parseAmount(fix.in, cad)
 		assert.NoError(t, err)
@@ -37,13 +40,21 @@ func Test_AmountWidth(t *testing.T) {
 	for i, fix := range []struct {
 		amt             string
 		decimals, width int
+		thousandSep     bool
 	}{
-		{"0.09", 2, 4},
-		{"-0.09", 2, 5},
+		{"0.09", 2, 4, false},
+		{"-0.09", 2, 5, false},
+		{"999.99", 2, 6, true},
+		{"1000.00", 2, 8, true},
+		{"-1000.00", 2, 9, true},
+		{"1234567.89", 2, 12, true},
 	} {
 		amt, err := parseAmount(fix.amt, cad)
 		assert.NoError(t, err)
 		width := amt.Width(fix.decimals)
+		if fix.thousandSep {
+			width = amt.WidthWithDelimiters(fix.decimals)
+		}
 		assert.Equal(t, width, fix.width, "%d. not equal", i)
 	}
 }
@@ -61,15 +72,19 @@ func Test_FormatWidthAmount(t *testing.T) {
 	for i, fix := range []struct {
 		amt             string
 		width, decimals int
+		verb            string
 		out             string
 	}{
-		{"10", 5, 0, "   10"},
-		{"-50.01", 10, 2, "    -50.01"},
-		{"0.001", 2, 3, "0.000"},
+		{"10", 5, 0, "%*.*f", "   10"},
+		{"-50.01", 10, 2, "%*.*f", "    -50.01"},
+		{"0.001", 2, 3, "%*.*f", "0.000"},
+		{"1000", 9, 2, "%*.*d", " 1,000.00"},
+		{"-1234567.89", 13, 2, "%*.*d", "-1,234,567.89"},
+		{"123456", 7, 0, "%*.*d", "123,456"},
 	} {
 		amt, err := parseAmount(fix.amt, cad)
 		assert.NoError(t, err)
-		res := fmt.Sprintf("%*.*f", fix.width, fix.decimals, amt)
+		res := fmt.Sprintf(fix.verb, fix.width, fix.decimals, amt)
 		assert.Equal(t, res, fix.out, "%d. not equal", i)
 	}
 }

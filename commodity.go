@@ -76,14 +76,26 @@ func (c *Commodity) SafeId(ledger bool) string {
 }
 
 func (c *Commodity) String() string {
+	return c.string("a")
+}
+
+func (c *Commodity) Format(f fmt.State, r rune) {
+	verb := "a"
+	if r == 'd' {
+		verb = "d"
+	}
+	io.WriteString(f, c.string(verb))
+}
+
+func (c *Commodity) string(verb string) string {
 	if len(c.Prices) == 0 {
 		return c.Id
 	}
 	var prices []string
 	for c, p := range c.Prices {
-		format := "%s %a %s [%d]"
+		format := "%s %" + verb + " %s [%d]"
 		if c.Decimals > 0 {
-			format = "%s %." + strconv.Itoa(c.Decimals) + "a %s [%d]"
+			format = "%s %." + strconv.Itoa(c.Decimals) + verb + " %s [%d]"
 		}
 		prices = append(prices,
 			fmt.Sprintf(format,

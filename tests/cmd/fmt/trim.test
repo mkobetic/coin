@@ -24,6 +24,7 @@ account Expenses:Rent
   Rent 500 CAD
   Bank
 
+; -t trims excess whitespace inside transaction descriptions and notes
 test format -t
 2000/01/01 ACME Inc ; gimme
   Assets:Bank     1000.00 CAD

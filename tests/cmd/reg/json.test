@@ -1,5 +1,6 @@
 include basic.coin
 
+; JSON output for recursive monthly aggregation (-r -m -o json)
 test register -r -m -o json Expenses
 ["Date","Expenses",":Rent",":Food"]
 ["2010/01","750.00","500.00","250.00"]
@@ -11,6 +12,7 @@ test register -r -m -o json Expenses
 ["2010/07","800.00","500.00","300.00"]
 end test
 
+; JSON output for category aggregation by tag (-bt -o json)
 test register -bt -o json Expenses
 ["Category",":Rent",":Food","Expenses"]
 ["\u003cno-tags\u003e","3500.00","400.00","0.00"]
@@ -20,7 +22,7 @@ test register -bt -o json Expenses
 ["veggies","0.00","400.00","0.00"]
 end test
 
-; JSON output with both time period (-q) and category (-bp) columns
+; JSON output with both quarterly aggregation (-q) and by payee aggregation (-bp)
 test register -r -q -bp -o json Expenses
 ["Date","Category","Expenses",":Rent",":Food"]
 ["2010/01","Freshco","550.00","0.00","550.00"]
