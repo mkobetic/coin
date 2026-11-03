@@ -13,13 +13,36 @@ account CCC
     ; ho #three: nope, whatever
   BBB ; #one: and only
 
+; list all tag keys (with trailing colon if tag has values)
 test tags
 one:
 three:
 two
 end test
 
+; -v includes distinct sorted values, filtered by tag name regex
 test tags -v t
 three: "a ok", "nope"
 two
+end test
+
+; -a lists accounts associated with each tag
+test tags -a
+one:
+	BBB
+three:
+	AAA
+	BBB
+two
+	BBB
+	AAA
+end test
+
+; combine -a, -v, and tag name regex
+test tags -a -v o
+one: "and only"
+	BBB
+two
+	BBB
+	AAA
 end test

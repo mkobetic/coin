@@ -1,0 +1,26 @@
+commodity CAD
+  format 1.00 CAD
+account AAA
+account BBB
+account CCC
+
+2020 bob
+  AAA 1 CAD
+  BBB ; #move
+
+2020 joe
+  AAA 2 CAD
+  BBB ; #keep
+
+; match posting by tag (-pt) to move account (-a:) and append posting tag (-pt:)
+test mod -pt move -a: CCC -pt: #moved:ok
+2020/01/01 bob
+  AAA   1.00 CAD
+  CCC  -1.00 CAD ; #move #moved:ok
+
+2020/01/01 joe
+  AAA   2.00 CAD
+  BBB  -2.00 CAD ; #keep
+
+end test
+

@@ -32,8 +32,31 @@ test commodities
     NBC814 |            |   | Altamira Precision Candian Index Fund
 end test
 
+; -p prints latest price and price count per commodity
 test commodities -p
 CAD
 IGI268: 2010/06/28 25.79 CAD [7]
 NBC814: 2010/06/28 18.60 CAD [7]
+end test
+
+; passing a commodity lists its price history (newest first)
+test com IGI268
+2010/06/28 25.79 CAD
+2010/06/24 27.06 CAD
+2010/06/21 27.35 CAD
+2010/06/17 27.64 CAD
+2010/06/14 27.19 CAD
+2010/06/10 27.02 CAD
+2010/06/07 25.78 CAD
+end test
+
+; -f includes file:line locations on the price list
+test c -f NBC814
+2010/06/28 18.60 CAD tests/cmd/com/prices.test:26
+2010/06/24 19.34 CAD tests/cmd/com/prices.test:25
+2010/06/21 19.54 CAD tests/cmd/com/prices.test:22
+2010/06/17 19.72 CAD tests/cmd/com/prices.test:21
+2010/06/14 19.73 CAD tests/cmd/com/prices.test:18
+2010/06/10 19.29 CAD tests/cmd/com/prices.test:16
+2010/06/07 19.04 CAD tests/cmd/com/prices.test:15
 end test

@@ -43,6 +43,7 @@ test balance -e 2000/01/02
 -1000.00 | -1000.00 CAD | Income:Salary
 end test
 
+; -z includes accounts with zero balance
 test balance -z -e 2000/01/02
     0.00 |     0.00 CAD | Root
     0.00 |  1000.00 CAD | Assets
@@ -53,4 +54,40 @@ test balance -z -e 2000/01/02
     0.00 | -1000.00 CAD | Income
 -1000.00 | -1000.00 CAD | Income:Salary
     0.00 |     0.00 CAD | Unbalanced
+end test
+
+; restrict to account subtree
+test balance Expenses
+  0.00 | 520.00 CAD | Expenses
+ 20.00 |  20.00 CAD | Expenses:Food
+500.00 | 500.00 CAD | Expenses:Rent
+end test
+
+; filter postings by payee regex (-p)
+test bal -p Loeb
+  0.00 | -20.00 CAD | Assets
+-20.00 | -20.00 CAD | Assets:Bank
+  0.00 |  20.00 CAD | Expenses
+ 20.00 |  20.00 CAD | Expenses:Food
+end test
+
+; bounded date range [begin, end)
+test b -b 2000/01/02 -e 2000/01/03
+  0.00 | -20.00 CAD | Assets
+-20.00 | -20.00 CAD | Assets:Bank
+  0.00 |  20.00 CAD | Expenses
+ 20.00 |  20.00 CAD | Expenses:Food
+end test
+
+; begin date after all transactions yields zero balances
+test balance -z -b 2001/01/01
+0.00 | 0.00 CAD | Root
+0.00 | 0.00 CAD | Assets
+0.00 | 0.00 CAD | Assets:Bank
+0.00 | 0.00 CAD | Expenses
+0.00 | 0.00 CAD | Expenses:Food
+0.00 | 0.00 CAD | Expenses:Rent
+0.00 | 0.00 CAD | Income
+0.00 | 0.00 CAD | Income:Salary
+0.00 | 0.00 CAD | Unbalanced
 end test

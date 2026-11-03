@@ -1,0 +1,42 @@
+commodity CAD
+  format 1.00 CAD
+
+commodity NBC814
+  format 1.0000 NBC814
+
+account Assets:Bank
+account Assets:Investments
+  commodity NBC814
+account Income:Salary
+
+2020/01/01 (101) ACME
+  Assets:Bank 1000 CAD = 1000 CAD
+  Income:Salary
+
+2020/01/02 Buy Fund
+  Assets:Investments 10 NBC814 = 10 NBC814
+  Assets:Bank -200 CAD = 800 CAD
+
+; format transaction codes, balance assertions, and multi-commodity postings
+test f
+2020/01/01 (101) ACME
+  Assets:Bank     1000.00 CAD = 1000.00 CAD
+  Income:Salary  -1000.00 CAD
+
+2020/01/02 Buy Fund
+  Assets:Investments  10.0000 NBC814 = 10.0000 NBC814
+  Assets:Bank         -200.00 CAD = 800.00 CAD
+
+end test
+
+; -ledger quotes commodity names containing digits or special characters
+test format -ledger
+2020/01/01 (101) ACME
+  Assets:Bank     1000.00 CAD = 1000.00 CAD
+  Income:Salary  -1000.00 CAD
+
+2020/01/02 Buy Fund
+  Assets:Investments  10.0000 "NBC814" = 10.0000 "NBC814"
+  Assets:Bank         -200.00 CAD = 800.00 CAD
+
+end test

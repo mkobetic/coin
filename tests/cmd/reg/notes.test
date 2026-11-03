@@ -28,6 +28,7 @@ account Expenses:Rent
   Rent 500 CAD
   Bank
 
+; -n prints posting notes followed by transaction notes
 test register -n Bank
 Assets:Bank CAD
 2010/01/15 |     ACME Inc | Incom:Salary | 1000.00 | 1000.00 CAD 
@@ -54,4 +55,13 @@ Income:Salary CAD
            ; thank
            ; you
            ; paycheck
+end test
+
+; -n with recursive (-r) register
+test register -r -n Expenses
+Expenses CAD
+2010/01/20 |      Freshco | :Food | Assets:Bank | 150.00 | 150.00 CAD 
+2010/01/28 |      Freshco | :Food | Assets:Bank | 100.00 | 250.00 CAD 
+           ; found it!
+2010/01/30 | Housing Corp | :Rent | Assets:Bank | 500.00 | 750.00 CAD 
 end test

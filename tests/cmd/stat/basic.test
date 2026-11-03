@@ -22,3 +22,25 @@ Prices: 0
 Accounts: 7
 Transactions: 3
 end test
+
+; filter transaction count by [begin, end) date range
+test stats -b 2000/01/02
+Commodities: 1
+Prices: 0
+Accounts: 7
+Transactions: 2
+end test
+
+test s -e 2000/01/02
+Commodities: 1
+Prices: 0
+Accounts: 7
+Transactions: 1
+end test
+
+test stats -b 2001/01/01
+Commodities: 1
+Prices: 0
+Accounts: 7
+Transactions: 0
+end test
