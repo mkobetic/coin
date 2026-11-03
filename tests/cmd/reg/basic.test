@@ -92,3 +92,24 @@ Expenses CAD
 2010/01/28 |      Freshco | :Food | Assets:Bank | 100.00 | 250.00 CAD | tests/cmd/reg/basic.coin:17
 2010/01/30 | Housing Corp | :Rent | Assets:Bank | 500.00 | 750.00 CAD | tests/cmd/reg/basic.coin:21
 end test
+
+; -ts prints amounts with thousand separators (flat and recursive)
+test register -ts Salary
+Income:Salary CAD
+2010/01/15 | ACME Inc | Assets:Bank | -1,000.00 | -1,000.00 CAD 
+2010/02/15 | ACME Inc | Assets:Bank | -1,000.00 | -2,000.00 CAD 
+2010/03/15 | ACME Inc | Assets:Bank | -1,000.00 | -3,000.00 CAD 
+2010/04/15 | ACME Inc | Assets:Bank | -1,000.00 | -4,000.00 CAD 
+2010/05/15 | ACME Inc | Assets:Bank | -1,000.00 | -5,000.00 CAD 
+2010/06/15 | ACME Inc | Assets:Bank | -1,000.00 | -6,000.00 CAD 
+2010/07/15 | ACME Inc | Assets:Bank | -1,000.00 | -7,000.00 CAD 
+end test
+
+test register -r -ts -e 2010/03/01 Expenses
+Expenses CAD
+2010/01/20 |      Freshco | :Food | Assets:Bank | 150.00 |   150.00 CAD 
+2010/01/28 |      Freshco | :Food | Assets:Bank | 100.00 |   250.00 CAD 
+2010/01/30 | Housing Corp | :Rent | Assets:Bank | 500.00 |   750.00 CAD 
+2010/02/02 |      Freshco | :Food | Assets:Bank | 100.00 |   850.00 CAD 
+2010/02/28 | Housing Corp | :Rent | Assets:Bank | 500.00 | 1,350.00 CAD 
+end test

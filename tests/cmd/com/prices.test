@@ -24,7 +24,7 @@ P 2010/06/21 IGI268 27.35 CAD
 P 2010/06/24 IGI268 27.06 CAD
 P 2010/06/24 NBC814 19.34 CAD
 P 2010/06/28 NBC814 18.60 CAD
-P 2010/06/28 IGI268 25.79 CAD
+P 2010/06/28 IGI268 1025.79 CAD
 
 test commodities
        CAD |            |   | 
@@ -35,13 +35,31 @@ end test
 ; -p prints latest price and price count per commodity
 test commodities -p
 CAD
-IGI268: 2010/06/28 25.79 CAD [7]
+IGI268: 2010/06/28 1025.79 CAD [7]
+NBC814: 2010/06/28 18.60 CAD [7]
+end test
+
+; -p -ts prints latest price with thousand separators
+test commodities -p -ts
+CAD
+IGI268: 2010/06/28 1,025.79 CAD [7]
 NBC814: 2010/06/28 18.60 CAD [7]
 end test
 
 ; passing a commodity lists its price history (newest first)
 test com IGI268
-2010/06/28 25.79 CAD
+2010/06/28 1025.79 CAD
+2010/06/24 27.06 CAD
+2010/06/21 27.35 CAD
+2010/06/17 27.64 CAD
+2010/06/14 27.19 CAD
+2010/06/10 27.02 CAD
+2010/06/07 25.78 CAD
+end test
+
+; -ts prints price history with thousand separators
+test com -ts IGI268
+2010/06/28 1,025.79 CAD
 2010/06/24 27.06 CAD
 2010/06/21 27.35 CAD
 2010/06/17 27.64 CAD

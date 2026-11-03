@@ -26,11 +26,15 @@ func trimLocation(loc string) string {
 
 type postings []*coin.Posting
 
-func (ps postings) widths(acctPrefix string) (widths [4]int) {
+func (ps postings) widths(acctPrefix string, delimiters bool) (widths [4]int) {
 	for _, p := range ps {
 		widths[0] = max(widths[0], len(p.Transaction.Description))
 		widths[1] = max(widths[1], len(strings.TrimPrefix(p.Account.FullName, acctPrefix)))
-		widths[2] = max(widths[2], p.Quantity.Width(p.Account.Commodity.Decimals))
+		w := p.Quantity.Width(p.Account.Commodity.Decimals)
+		if delimiters {
+			w = p.Quantity.WidthWithDelimiters(p.Account.Commodity.Decimals)
+		}
+		widths[2] = max(widths[2], w)
 		widths[3] = max(widths[3], len(p.Transaction.Other(p).Account.FullName))
 	}
 	return widths
@@ -50,7 +54,7 @@ func (ps postings) print(f io.Writer, opts *options) {
 	if len(ps) == 0 {
 		return
 	}
-	widths := ps.widths(opts.Prefix())
+	widths := ps.widths(opts.Prefix(), opts.delimiters)
 	widths[0] = min(widths[0], opts.MaxDesc())
 	widths[3] = min(widths[3], opts.MaxAcct())
 	commodity := opts.commodity
@@ -59,9 +63,15 @@ func (ps postings) print(f io.Writer, opts *options) {
 	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
+	if opts.delimiters {
+		tWidth = totals[len(totals)-1].WidthWithDelimiters(commodity.Decimals)
+	}
 	fmtString := "%s | %*s | %*s | %*a | %*a %s%c\n"
 	if opts.Location() {
 		fmtString = "%s | %*s | %*s | %*a | %*a %s%c| %s\n"
+	}
+	if opts.delimiters {
+		fmtString = strings.ReplaceAll(fmtString, "%*a", "%*d")
 	}
 	for i, s := range ps {
 		reconciled := ' '
@@ -91,7 +101,7 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	if len(ps) == 0 {
 		return
 	}
-	widths := ps.widths(opts.Prefix())
+	widths := ps.widths(opts.Prefix(), opts.delimiters)
 	widths[0] = min(widths[0], opts.MaxDesc())
 	widths[1] = min(widths[1], opts.MaxAcct())
 	widths[3] = min(widths[3], opts.MaxAcct())
@@ -101,9 +111,15 @@ func (ps postings) printLong(f io.Writer, opts *options) {
 	}
 	totals := ps.totals(commodity)
 	tWidth := totals[len(totals)-1].Width(commodity.Decimals)
+	if opts.delimiters {
+		tWidth = totals[len(totals)-1].WidthWithDelimiters(commodity.Decimals)
+	}
 	fmtString := "%s | %*s | %*s | %*s | %*a | %*a %s%c\n"
 	if opts.Location() {
 		fmtString = "%s | %*s | %*s | %*s | %*a | %*a %s%c| %s\n"
+	}
+	if opts.delimiters {
+		fmtString = strings.ReplaceAll(fmtString, "%*a", "%*d")
 	}
 	for i, s := range ps {
 		reconciled := ' '
@@ -142,6 +158,7 @@ type options struct {
 	maxDesc, maxAcct int
 	commodity        *coin.Commodity
 	showNotes        bool
+	delimiters       bool
 }
 
 func (o *options) MaxDesc() int {

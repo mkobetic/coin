@@ -67,6 +67,19 @@ Expenses CAD
 2010/07 | 3500.00 | 1400.00 |     0.00
 end test
 
+; -ts prints aggregated amounts with thousand separators
+test register -m -c -ts Expenses
+Expenses CAD
+        |    :Rent |    :Food | Expenses
+2010/01 |   500.00 |   250.00 |     0.00
+2010/02 | 1,000.00 |   350.00 |     0.00
+2010/03 | 1,500.00 |   550.00 |     0.00
+2010/04 | 2,000.00 |   550.00 |     0.00
+2010/05 | 2,500.00 |   850.00 |     0.00
+2010/06 | 3,000.00 | 1,100.00 |     0.00
+2010/07 | 3,500.00 | 1,400.00 |     0.00
+end test
+
 ;
 ; Aggregating by category
 ;

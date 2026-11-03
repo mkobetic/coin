@@ -35,7 +35,7 @@ Lists balances for account and its subaccounts (default: Root).`)
 	cmd.StringVar(&cmd.tag, "t", "", "use only postings matching the tag[:value] (regex)")
 	cmd.BoolVar(&cmd.zeroBalance, "z", false, "list accounts with zero total balance")
 	cmd.IntVar(&cmd.level, "l", 0, "print accounts up to this level, 0 means all")
-	cmd.BoolVar(&cmd.delimiters, "d", false, "print amounts with thousand separators")
+	cmd.BoolVar(&cmd.delimiters, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 

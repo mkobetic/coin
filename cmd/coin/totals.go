@@ -234,15 +234,21 @@ func (ts *timeTotals) mergeKeys(ts2 *timeTotals) {
 }
 
 // maxWidth returns the largest amount width needed for printing
-func (ts *timeTotals) maxWidth() int {
+func (ts *timeTotals) maxWidth(delimiters bool) int {
 	if ts == nil || ts.current == nil {
 		return 0
 	}
 	dec := ts.Commodity().Decimals
+	width := func(a *coin.Amount) int {
+		if delimiters {
+			return a.WidthWithDelimiters(dec)
+		}
+		return a.Width(dec)
+	}
 	var max int
 	if len(ts.all) == 0 {
 		for _, amt := range ts.current.totals {
-			if w := amt.Width(dec); w > max {
+			if w := width(amt); w > max {
 				max = w
 			}
 		}
@@ -250,12 +256,12 @@ func (ts *timeTotals) maxWidth() int {
 		for _, t := range ts.all {
 			if t.total == nil {
 				for _, v := range t.totals {
-					if w := v.Width(dec); w > max {
+					if w := width(v); w > max {
 						max = w
 					}
 				}
 			} else {
-				if w := t.total.Width(dec); w > max {
+				if w := width(t.total); w > max {
 					max = w
 				}
 			}
@@ -383,9 +389,9 @@ func (ats accountTotals) newTotals(acc *coin.Account, period *timeReducer, categ
 	return ts
 }
 
-func (ats accountTotals) widths(order []*coin.Account) (widths []int) {
+func (ats accountTotals) widths(order []*coin.Account, delimiters bool) (widths []int) {
 	for _, acc := range order {
-		widths = append(widths, ats[acc].maxWidth())
+		widths = append(widths, ats[acc].maxWidth(delimiters))
 	}
 	return widths
 }
@@ -483,6 +489,7 @@ func (ats accountTotals) output(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
 	format string,
+	delimiters bool,
 ) {
 	switch format {
 	case "json":
@@ -490,13 +497,14 @@ func (ats accountTotals) output(f io.Writer,
 	case "csv":
 		ats.rows(order, label).writeCSV(f)
 	default:
-		ats.print(f, order, label)
+		ats.print(f, order, label, delimiters)
 	}
 }
 
 func (ats accountTotals) print(f io.Writer,
 	order []*coin.Account,
 	label func(*coin.Account) string,
+	delimiters bool,
 ) {
 	firstCol := ats[order[0]]
 	format := []string{"%*s "}
@@ -505,17 +513,21 @@ func (ats accountTotals) print(f io.Writer,
 	if periodWidth > 0 && categoryWidth > 0 {
 		format = append(format, " %*s ")
 	}
-	widths := ats.widths(order)
+	widths := ats.widths(order, delimiters)
 	if label != nil {
 		format2 := append([]string{}, format...)
 		labels := make([]string, len(order))
+		amtFmt := " %*a "
+		if delimiters {
+			amtFmt = " %*d "
+		}
 		for i, acc := range order {
 			l := label(acc)
 			labels[i] = l
 			if len(l) > widths[i] {
 				widths[i] = len(l)
 			}
-			format = append(format, " %*a ")
+			format = append(format, amtFmt)
 			format2 = append(format2, " %*s ")
 		}
 		var args []interface{}

@@ -21,9 +21,10 @@ func init() {
 
 type cmdCommodities struct {
 	flagsWithUsage
-	getQuotes bool
-	prices    bool
-	location bool
+	getQuotes  bool
+	prices     bool
+	location   bool
+	delimiters bool
 }
 
 func (*cmdCommodities) newCommand(names ...string) command {
@@ -35,6 +36,7 @@ Lists commodities and prices.`)
 	cmd.BoolVar(&cmd.getQuotes, "q", false, "get current quotes for all commodities")
 	cmd.BoolVar(&cmd.prices, "p", false, "print commodity price stats")
 	cmd.BoolVar(&cmd.location, "f", false, "include file location on price list")
+	cmd.BoolVar(&cmd.delimiters, "ts", false, "print amounts with thousand separators")
 	return &cmd
 }
 
@@ -54,18 +56,29 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 			fmt.Fprintf(os.Stderr, "%s: unknown commodity\n", cmd.Arg(0))
 			return
 		}
+		lineFmt := "%s %a %s\n"
+		if cmd.location {
+			lineFmt = "%s %a %s %s\n"
+		}
+		if cmd.delimiters {
+			lineFmt = strings.ReplaceAll(lineFmt, "%a", "%d")
+		}
 		for _, ps := range commodity.Prices {
 			for _, p := range ps {
 				if cmd.location {
-					fmt.Fprintf(f, "%s %s %s %s\n", p.Time.Format(coin.DateFormat), p.Value.String(), p.Value.SafeId(false), p.Location())
+					fmt.Fprintf(f, lineFmt, p.Time.Format(coin.DateFormat), p.Value, p.Value.SafeId(false), p.Location())
 				} else {
-					fmt.Fprintf(f, "%s %s %s\n", p.Time.Format(coin.DateFormat), p.Value.String(), p.Value.SafeId(false))
+					fmt.Fprintf(f, lineFmt, p.Time.Format(coin.DateFormat), p.Value, p.Value.SafeId(false))
 				}
 			}
 		}
 		return
 	}
 	if cmd.getQuotes {
+		lineFmt := "P %s %s %a %s\n"
+		if cmd.delimiters {
+			lineFmt = "P %s %s %d %s\n"
+		}
 		coin.CommoditiesDo(func(c *coin.Commodity) {
 			if !(c.NoMarket || c.Id == coin.DefaultCommodityId) {
 				var q *finance.Quote
@@ -89,16 +102,18 @@ func (cmd *cmdCommodities) execute(f io.Writer) {
 					return
 				}
 				amt := cur.NewAmountFloat(q.RegularMarketPrice)
-				var b strings.Builder
-				amt.Write(&b, false)
-				fmt.Fprintf(f, "P %s %s %s\n", time.Now().Format(coin.DateFormat), c.Id, b.String())
+				fmt.Fprintf(f, lineFmt, time.Now().Format(coin.DateFormat), c.Id, amt, amt.SafeId(false))
 			}
 		})
 		return
 	}
 	coin.CommoditiesDo(func(c *coin.Commodity) {
 		if cmd.prices {
-			fmt.Fprintln(f, c.String())
+			if cmd.delimiters {
+				fmt.Fprintf(f, "%d\n", c)
+			} else {
+				fmt.Fprintln(f, c.String())
+			}
 		} else {
 			sym := c.Symbol
 			dl := ' '

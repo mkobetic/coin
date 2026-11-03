@@ -28,8 +28,8 @@ test balance
 -1000.00 | -1000.00 CAD | Income:Salary
 end test
 
-; -d prints amounts with thousand separators
-test balance -d
+; -ts prints amounts with thousand separators
+test balance -ts
      0.00 |    480.00 CAD | Assets
    480.00 |    480.00 CAD | Assets:Bank
      0.00 |    520.00 CAD | Expenses
